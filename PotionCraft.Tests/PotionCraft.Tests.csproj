@@ -18,4 +18,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PotionCraft.Contracts\PotionCraft.Contracts.csproj" />
+  </ItemGroup>
+
 </Project>
