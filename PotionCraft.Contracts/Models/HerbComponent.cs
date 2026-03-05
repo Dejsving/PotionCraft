@@ -8,10 +8,10 @@ namespace PotionCraft.Contracts.Models;
 public class HerbComponent
 {
     /// <summary>Часть растения.</summary>
-    public PlantPart Part { get; set; }
+    //public PlantPart Part { get; set; }
 
     /// <summary>Тип эффекта этой части.</summary>
-    public ComponentEffectType EffectType { get; set; }
+    //public ComponentEffectType EffectType { get; set; }
 
     /// <summary>Описание эффекта в свободной форме.</summary>
     public string EffectDescription { get; set; } = string.Empty;

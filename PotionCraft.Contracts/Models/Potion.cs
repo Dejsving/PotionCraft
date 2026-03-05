@@ -17,7 +17,7 @@ public class Potion
     public string Description { get; set; } = string.Empty;
 
     /// <summary>Тип зелья.</summary>
-    public PotionType Type { get; set; }
+    //public PotionType Type { get; set; }
 
     /// <summary>Рецепт, по которому было сварено зелье.</summary>
     public required AlchemyRecipe Recipe { get; set; }

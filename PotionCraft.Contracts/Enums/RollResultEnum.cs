@@ -1,19 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace PotionCraft.Contracts.Enums;
 
 /// <summary>
 /// Результат варки зелья: успех, провал, критический успех или критический провал.
 /// </summary>
-public enum BrewingOutcome
+public enum RollResultEnum
 {
-    /// <summary>Критический провал.</summary>
+    [Display(Name = "Критический провал")]
     CriticalFailure,
 
-    /// <summary>Провал.</summary>
+    [Display(Name = "Провал")]
     Failure,
 
-    /// <summary>Успех.</summary>
+    [Display(Name = "успех")]
     Success,
 
-    /// <summary>Критический успех.</summary>
+    [Display(Name = "Критический успех")]
     CriticalSuccess
 }

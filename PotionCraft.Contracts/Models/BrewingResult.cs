@@ -20,7 +20,7 @@ public class BrewingResult
     public int Total => RollResult + Modifier;
 
     /// <summary>Исход варки.</summary>
-    public BrewingOutcome Outcome { get; set; }
+    public RollResultEnum Outcome { get; set; }
 
     /// <summary>Сваренное зелье (null при провале).</summary>
     public Potion? ResultingPotion { get; set; }
