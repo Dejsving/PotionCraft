@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace PotionCraft.Contracts.Enums;
 
 /// <summary>
-/// Редкость травы, определяет сложность поиска (DC) и стоимость.
+/// Редкость травы.
 /// </summary>
 public enum RarityEnum
 {
