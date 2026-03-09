@@ -1,49 +1,57 @@
-using PotionCraft.Contracts.Enums;
+п»їusing PotionCraft.Contracts.Enums;
 
 namespace PotionCraft.Contracts.Models;
 
 /// <summary>
-/// Трава — растение, используемое в гербализме и алхимии.
+/// РўСЂР°РІР° вЂ” СЂР°СЃС‚РµРЅРёРµ, РёСЃРїРѕР»СЊР·СѓРµРјРѕРµ РІ РіРµСЂР±Р°Р»РёР·РјРµ Рё Р°Р»С…РёРјРёРё.
 /// </summary>
 public class Herb
 {
     /// <summary>
-    /// Уникальный идентификатор травы.
+    /// РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚СЂР°РІС‹.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Название травы.
+    /// РќР°Р·РІР°РЅРёРµ С‚СЂР°РІС‹.
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Описание внешнего вида и особенностей растения.
+    /// РћРїРёСЃР°РЅРёРµ РІРЅРµС€РЅРµРіРѕ РІРёРґР° Рё РѕСЃРѕР±РµРЅРЅРѕСЃС‚РµР№ СЂР°СЃС‚РµРЅРёСЏ.
     /// </summary>
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Редкость травы, влияет на DC поиска.
+    /// Р РµРґРєРѕСЃС‚СЊ С‚СЂР°РІС‹.
+    /// </summary>
+    public HerbTypeEnum HerbType { get; set; }
+
+    /// <summary>
+    /// Р РµРґРєРѕСЃС‚СЊ С‚СЂР°РІС‹.
     /// </summary>
     public RarityEnum Rarity { get; set; }
 
     /// <summary>
-    /// Сложность (DC) проверки для обнаружения травы.
+    /// РћРїРёСЃР°РЅРёРµ СЌС„С„РµРєС‚Р° СЂР°СЃС‚РµРЅРёСЏ.
     /// </summary>
-    public int FindDC { get; set; }
+    public string Effect { get; set; } = string.Empty;
 
     /// <summary>
-    /// Среда обитания растения.
+    /// РЎСЂРµРґР° РѕР±РёС‚Р°РЅРёСЏ СЂР°СЃС‚РµРЅРёСЏ Рё СЂРµР·СѓР»СЊС‚Р°С‚ Р±СЂРѕСЃРєР° РІ СЃСЂРµРґРµ РѕР±РёС‚Р°РЅРёСЏ
     /// </summary>
-    public IReadOnlyList<TerrainEnum> Habitats { get; set; } = [];
+    public IReadOnlyDictionary<TerrainEnum, int> Habitats { get; set; }
+        = new Dictionary<TerrainEnum, int>();
 
     /// <summary>
-    /// Доступные алхимические компоненты растения по частям.
+    /// РЎР»РѕРІР°СЂСЊ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹С… РїСЂР°РІРёР» РѕС‚ СЌРєРѕСЃРёСЃС‚РµРјС‹ (РјРµСЃС‚РЅРѕСЃС‚Рё)
     /// </summary>
-    public IReadOnlyList<HerbComponent> Components { get; set; } = [];
+    public Dictionary<TerrainEnum, int> AdditionalRule { get; set; }
+        = new Dictionary<TerrainEnum, int>();
 
     /// <summary>
-    /// Стоимость одной дозы в медных монетах.
+    /// РЎР»РѕРІР°СЂСЊ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё СЃР»РѕР¶РЅРѕСЃС‚Рё РёРЅРіСЂРµРґРёРµРЅС‚Р° РѕС‚ РЅР°Р·РЅР°С‡РµРЅРёСЏ РёРЅРіСЂРµРґРёРµРЅС‚Р°
     /// </summary>
-    public int ValueInCopper { get; set; }
+    public Dictionary<TerrainEnum, int> Difficulty { get; set; }
+        = new Dictionary<TerrainEnum, int>();
 }

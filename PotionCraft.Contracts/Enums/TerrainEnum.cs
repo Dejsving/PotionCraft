@@ -1,45 +1,45 @@
-using System.ComponentModel.DataAnnotations;
+п»їusing System.ComponentModel.DataAnnotations;
 
 namespace PotionCraft.Contracts.Enums;
 
 /// <summary>
-/// Среда обитания растения — определяет, где его можно найти.
+/// РЎСЂРµРґР° РѕР±РёС‚Р°РЅРёСЏ СЂР°СЃС‚РµРЅРёСЏ вЂ” РѕРїСЂРµРґРµР»СЏРµС‚, РіРґРµ РµРіРѕ РјРѕР¶РЅРѕ РЅР°Р№С‚Рё.
 /// </summary>
 public enum TerrainEnum
 {
-    [Display(Name = "Повсеместно")]
+    [Display(Name = "РџРѕРІСЃРµРјРµСЃС‚РЅРѕ")]
     Everewhere = 0,
 
-    [Display(Name = "Берега")]
+    [Display(Name = "Р‘РµСЂРµРіР°")]
     Coast = 1,
 
-    [Display(Name = "Подъземье")]
+    [Display(Name = "РџРѕРґСЉР·РµРјСЊРµ")]
     Underdark = 2,
 
-    [Display(Name = "Лес")]
+    [Display(Name = "Р›РµСЃ")]
     Forest = 3,
 
-    [Display(Name = "Болото")]
+    [Display(Name = "Р‘РѕР»РѕС‚Рѕ")]
     Swamp = 4,
 
-    [Display(Name = "Арктика")]
+    [Display(Name = "РђСЂРєС‚РёРєР°")]
     Arctic = 5,
 
-    [Display(Name = "Холмы")]
+    [Display(Name = "РҐРѕР»РјС‹")]
     Hills = 6,
 
-    [Display(Name = "Луга")]
+    [Display(Name = "Р›СѓРіР°")]
     Meadows = 7,
 
-    [Display(Name = "Горы")]
+    [Display(Name = "Р“РѕСЂС‹")]
     Mountains = 8,
 
-    [Display(Name = "Пустыни")]
+    [Display(Name = "РџСѓСЃС‚С‹РЅРё")]
     Deserts = 9,
 
-    [Display(Name = "Специальный")]
+    [Display(Name = "РЎРїРµС†РёР°Р»СЊРЅС‹Р№")]
     Special = 10,
 
-    [Display(Name = "Подводная среда")]
+    [Display(Name = "РџРѕРґРІРѕРґРЅР°СЏ СЃСЂРµРґР°")]
     UnderWater = 11,
 }

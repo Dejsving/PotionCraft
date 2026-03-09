@@ -1,21 +1,21 @@
-using System.ComponentModel.DataAnnotations;
+п»їusing System.ComponentModel.DataAnnotations;
 
 namespace PotionCraft.Contracts.Enums;
 
 /// <summary>
-/// Редкость травы.
+/// Р РµРґРєРѕСЃС‚СЊ С‚СЂР°РІС‹.
 /// </summary>
 public enum RarityEnum
 {
-    [Display(Name = "Обычный")]
+    [Display(Name = "РћР±С‹С‡РЅС‹Р№")]
     Common = 0,
 
-    [Display(Name = "Необычный")]
+    [Display(Name = "РќРµРѕР±С‹С‡РЅС‹Р№")]
     Unusual = 1,
 
-    [Display(Name = "Редкий")]
+    [Display(Name = "Р РµРґРєРёР№")]
     Rare = 2,
 
-    [Display(Name = "Очень редкий")]
+    [Display(Name = "РћС‡РµРЅСЊ СЂРµРґРєРёР№")]
     VeryRare = 3
 }

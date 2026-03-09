@@ -18,17 +18,27 @@ public class AlchemyRecipe
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// ќписание результирующего зель€.
+    /// ќписание зель€.
     /// </summary>
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// —ложность (DC) проверки инструментов алхимика дл€ варки.
+    /// “ип зель€.
     /// </summary>
-    public int BrewingDC { get; set; }
+    public PotionTypeEnum PotionType { get; set; }
 
     /// <summary>
-    /// —писок необходимых компонентов: ключ Ч трава, значение Ч часть растени€.
+    /// —ложность (DC) проверки инструментов алхимика дл€ варки.
     /// </summary>
-    public IReadOnlyList<RecipeIngredient> Ingredients { get; set; } = [];
+    public int BrewingDC { get; set; } = 10;
+
+    /// <summary>
+    /// —писок необходимых растений
+    /// </summary>
+    public IReadOnlyList<Herb> Ingredients { get; set; } = [];
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public List<string> Modifications { get; set; } = new();
 }
