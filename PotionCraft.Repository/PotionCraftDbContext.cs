@@ -22,6 +22,10 @@ namespace PotionCraft.Repository
         {
             var jsonOptions = new JsonSerializerOptions();
 
+            modelBuilder.Entity<PlayerCharacter>()
+                .HasIndex(pc => pc.Name)
+                .IsUnique();
+
             modelBuilder.Entity<Herb>()
                 .Property(h => h.AdditionalRule)
                 .HasConversion(
@@ -42,3 +46,4 @@ namespace PotionCraft.Repository
         }
     }
 }
+

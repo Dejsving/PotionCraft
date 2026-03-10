@@ -27,12 +27,22 @@ namespace PotionCraft.Repository.Repositories
 
         public async Task AddAsync(PlayerCharacter character)
         {
+            if (await _context.PlayerCharacters.AnyAsync(c => c.Name == character.Name))
+            {
+                throw new InvalidOperationException($"Character with name '{character.Name}' already exists.");
+            }
+
             await _context.PlayerCharacters.AddAsync(character);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAsync(PlayerCharacter character)
         {
+            if (await _context.PlayerCharacters.AnyAsync(c => c.Name == character.Name && c.Id != character.Id))
+            {
+                throw new InvalidOperationException($"Character with name '{character.Name}' already exists.");
+            }
+
             _context.PlayerCharacters.Update(character);
             await _context.SaveChangesAsync();
         }

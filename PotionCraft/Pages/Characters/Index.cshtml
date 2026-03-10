@@ -1,0 +1,30 @@
+@page
+@model PotionCraft.Pages.Characters.IndexModel
+@{
+    ViewData["Title"] = "Выбор персонажа";
+}
+
+<h1>Выбор персонажа</h1>
+
+<div class="row mt-4">
+    @foreach (var character in Model.Characters)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@character.Name</h5>
+                    <p class="card-text">
+                        <strong>Интеллект:</strong> @character.Intelligence<br />
+                        <strong>Мудрость:</strong> @character.Wisdom<br />
+                        <strong>Бонус мастерства:</strong> +@character.ProficiencyBonus<br />
+                    </p>
+                    <a href="#" class="btn btn-outline-primary w-100 mt-2">Выбрать</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="mt-4">
+    <a asp-page="Create" class="btn btn-success">Соберите нового персонажа</a>
+</div>

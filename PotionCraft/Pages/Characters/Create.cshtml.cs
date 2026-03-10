@@ -67,7 +67,15 @@ namespace PotionCraft.Pages.Characters
                 HasPoisonerSuppliesExpertise = PoisonerProficiencyLevel == 2
             };
 
-            await _characterRepository.AddAsync(character);
+            try
+            {
+                await _characterRepository.AddAsync(character);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("Name", ex.Message);
+                return Page();
+            }
 
             return RedirectToPage("/Index");
         }
