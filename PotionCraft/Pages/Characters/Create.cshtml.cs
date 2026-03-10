@@ -33,22 +33,13 @@ namespace PotionCraft.Pages.Characters
         public int ProficiencyBonus { get; set; } = 2;
 
         [BindProperty]
-        public bool HasHerbalismKitProficiency { get; set; }
+        public int HerbalismProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
 
         [BindProperty]
-        public bool HasHerbalismKitExpertise { get; set; }
+        public int AlchemistProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
 
         [BindProperty]
-        public bool HasAlchemistSuppliesProficiency { get; set; }
-
-        [BindProperty]
-        public bool HasAlchemistSuppliesExpertise { get; set; }
-
-        [BindProperty]
-        public bool HasPoisonerSuppliesProficiency { get; set; }
-
-        [BindProperty]
-        public bool HasPoisonerSuppliesExpertise { get; set; }
+        public int PoisonerProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
 
         public void OnGet()
         {
@@ -68,12 +59,12 @@ namespace PotionCraft.Pages.Characters
                 Intelligence = Intelligence,
                 Wisdom = Wisdom,
                 ProficiencyBonus = ProficiencyBonus,
-                HasHerbalismKitProficiency = HasHerbalismKitProficiency,
-                HasHerbalismKitExpertise = HasHerbalismKitExpertise,
-                HasAlchemistSuppliesProficiency = HasAlchemistSuppliesProficiency,
-                HasAlchemistSuppliesExpertise = HasAlchemistSuppliesExpertise,
-                HasPoisonerSuppliesProficiency = HasPoisonerSuppliesProficiency,
-                HasPoisonerSuppliesExpertise = HasPoisonerSuppliesExpertise
+                HasHerbalismKitProficiency = HerbalismProficiencyLevel >= 1,
+                HasHerbalismKitExpertise = HerbalismProficiencyLevel == 2,
+                HasAlchemistSuppliesProficiency = AlchemistProficiencyLevel >= 1,
+                HasAlchemistSuppliesExpertise = AlchemistProficiencyLevel == 2,
+                HasPoisonerSuppliesProficiency = PoisonerProficiencyLevel >= 1,
+                HasPoisonerSuppliesExpertise = PoisonerProficiencyLevel == 2
             };
 
             await _characterRepository.AddAsync(character);
