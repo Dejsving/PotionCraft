@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using PotionCraft.Contracts;
+using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;
 
 namespace PotionCraft.Repository.Repositories
