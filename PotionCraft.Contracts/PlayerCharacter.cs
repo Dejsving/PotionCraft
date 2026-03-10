@@ -41,6 +41,11 @@ public class PlayerCharacter
     public bool HasAlchemistSuppliesProficiency { get; set; }
 
     /// <summary>
+    /// Владение инструментами отравителя (poisoner's kit).
+    /// </summary>
+    public bool HasPoisonerSuppliesProficiency { get; set; }
+
+    /// <summary>
     /// Модификатор Алхимии
     /// </summary>
     public int AlchemistModify
@@ -61,6 +66,18 @@ public class PlayerCharacter
         {
             return WisdomModifier +
                 (HasHerbalismKitProficiency ? ProficiencyBonus : 0);
+        }
+    }
+
+    /// <summary>
+    /// Модификатор Гербализма
+    /// </summary>
+    public int PoisonerModify
+    {
+        get
+        {
+            return WisdomModifier +
+                (HasPoisonerSuppliesProficiency ? ProficiencyBonus : 0);
         }
     }
 
