@@ -1,0 +1,48 @@
+@page
+@model PotionCraft.Pages.Characters.CreateModel
+@{
+    ViewData["Title"] = "Создать персонажа";
+}
+
+<div class="container mt-4">
+    <h2>Создать нового персонажа</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form method="post">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">Имя персонажа</label>
+                    <input asp-for="Name" class="form-control" placeholder="Введите имя..." />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Intelligence" class="form-label">Интеллект</label>
+                    <input asp-for="Intelligence" class="form-control" type="number" min="0" max="100" />
+                    <span asp-validation-for="Intelligence" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Wisdom" class="form-label">Мудрость</label>
+                    <input asp-for="Wisdom" class="form-control" type="number" min="0" max="100" />
+                    <span asp-validation-for="Wisdom" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ProficiencyBonus" class="form-label">Бонус мастерства</label>
+                    <input asp-for="ProficiencyBonus" class="form-control" type="number" min="2" max="6" />
+                    <span asp-validation-for="ProficiencyBonus" class="text-danger"></span>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-success">Создать</button>
+                    <a asp-page="/Index" class="btn btn-secondary ms-2">Отмена</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
