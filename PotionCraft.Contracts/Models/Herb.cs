@@ -46,12 +46,12 @@ public class Herb
     /// <summary>
     /// Словарь зависимости дополнительных правил от экосистемы (местности)
     /// </summary>
-    public Dictionary<TerrainEnum, int> AdditionalRule { get; set; }
+    public IReadOnlyDictionary<TerrainEnum, int> AdditionalRule { get; set; }
         = new Dictionary<TerrainEnum, int>();
 
     /// <summary>
     /// Словарь зависимости сложности ингредиента от назначения ингредиента
     /// </summary>
-    public Dictionary<TerrainEnum, int> Difficulty { get; set; }
+    public IReadOnlyDictionary<TerrainEnum, int> Difficulty { get; set; }
         = new Dictionary<TerrainEnum, int>();
 }
