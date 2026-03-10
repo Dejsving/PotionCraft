@@ -1,3 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using PotionCraft.Repository;
+using PotionCraft.Repository.Abstraction;
+using PotionCraft.Repository.Repositories;
+
 namespace PotionCraft
 {
     public class Program
@@ -8,6 +13,16 @@ namespace PotionCraft
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+
+            builder.Services.AddDbContext<PotionCraftDbContext>(options =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                    ?? "Data Source=potioncraft.db";
+                options.UseSqlite(connectionString);
+            });
+
+            builder.Services.AddScoped<IPlayerCharacterRepository, PlayerCharacterRepository>();
+            builder.Services.AddScoped<IHerbRepository, HerbRepository>();
 
             var app = builder.Build();
 
