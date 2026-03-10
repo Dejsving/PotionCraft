@@ -5,7 +5,8 @@ namespace PotionCraft.Contracts.Enums;
 [Flags]
 public enum HerbTypeEnum
 {
-    None = 0,
+    [Display(Name = "Тип неопределен")]
+    None = 0,         // 0
 
     [Display(Name = "Ингредиент зелья")]
     Potion = 1 << 0,  // 1

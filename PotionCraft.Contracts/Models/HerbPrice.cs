@@ -17,6 +17,11 @@ namespace PotionCraft.Contracts.Models
         private readonly int[] _basePrice = { 5, 15, 40, 100, 1000 };
 
         /// <summary>
+        /// Амплитуда случайного разброса. 0.1 = ±10%.
+        /// </summary>
+        private double _delta { get; set; } = 0.1;
+
+        /// <summary>
         /// Скорость падения цены от количества. Больше = быстрее падает.
         /// Зависит от редкости (0.1 для частых, 0.5 для очень редких).
         /// </summary>
@@ -24,11 +29,6 @@ namespace PotionCraft.Contracts.Models
         {
             return 0.1 + (int)rarity / 3.0 * 0.4;
         }
-
-        /// <summary>
-        /// Амплитуда случайного разброса. 0.1 = ±10%.
-        /// </summary>
-        private double _delta { get; set; } = 0.1;
 
         /// <summary>
         /// Минимальный множитель цены (пол).
