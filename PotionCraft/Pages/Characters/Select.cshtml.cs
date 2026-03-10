@@ -7,14 +7,14 @@ namespace PotionCraft.Pages.Characters
     /// <summary>
     /// Модель страницы выбора персонажа.
     /// </summary>
-    public class IndexModel : PageModel
+    public class SelectModel : PageModel
     {
         private readonly IPlayerCharacterRepository _characterRepository;
 
         /// <summary>
         /// Конструктор модели.
         /// </summary>
-        public IndexModel(IPlayerCharacterRepository characterRepository)
+        public SelectModel(IPlayerCharacterRepository characterRepository)
         {
             _characterRepository = characterRepository;
         }
