@@ -1,18 +1,18 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+п»їusing Microsoft.AspNetCore.Mvc.RazorPages;
 using PotionCraft.Contracts;
 using PotionCraft.Repository.Abstraction;
 
 namespace PotionCraft.Pages.Characters
 {
     /// <summary>
-    /// Модель страницы выбора персонажа.
+    /// РњРѕРґРµР»СЊ СЃС‚СЂР°РЅРёС†С‹ РІС‹Р±РѕСЂР° РїРµСЂСЃРѕРЅР°Р¶Р°.
     /// </summary>
     public class SelectModel : PageModel
     {
         private readonly IPlayerCharacterRepository _characterRepository;
 
         /// <summary>
-        /// Конструктор модели.
+        /// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РјРѕРґРµР»Рё.
         /// </summary>
         public SelectModel(IPlayerCharacterRepository characterRepository)
         {
@@ -20,12 +20,12 @@ namespace PotionCraft.Pages.Characters
         }
 
         /// <summary>
-        /// Список всех персонажей игрока.
+        /// РЎРїРёСЃРѕРє РІСЃРµС… РїРµСЂСЃРѕРЅР°Р¶РµР№ РёРіСЂРѕРєР°.
         /// </summary>
         public List<PlayerCharacter> Characters { get; set; } = new();
 
         /// <summary>
-        /// Обработчик GET запроса. Достает всех персонажей из БД.
+        /// РћР±СЂР°Р±РѕС‚С‡РёРє GET Р·Р°РїСЂРѕСЃР°. Р”РѕСЃС‚Р°РµС‚ РІСЃРµС… РїРµСЂСЃРѕРЅР°Р¶РµР№ РёР· Р‘Р”.
         /// </summary>
         public async Task OnGetAsync()
         {

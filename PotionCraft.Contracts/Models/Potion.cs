@@ -1,39 +1,39 @@
-using PotionCraft.Contracts.Enums;
+п»їusing PotionCraft.Contracts.Enums;
 
 namespace PotionCraft.Contracts.Models;
 
 /// <summary>
-/// Готовое зелье — результат успешной варки по рецепту.
+/// Р“РѕС‚РѕРІРѕРµ Р·РµР»СЊРµ вЂ” СЂРµР·СѓР»СЊС‚Р°С‚ СѓСЃРїРµС€РЅРѕР№ РІР°СЂРєРё РїРѕ СЂРµС†РµРїС‚Сѓ.
 /// </summary>
 public class Potion
 {
     /// <summary>
-    /// Уникальный идентификатор зелья.
+    /// РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ Р·РµР»СЊСЏ.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Название зелья.
+    /// РќР°Р·РІР°РЅРёРµ Р·РµР»СЊСЏ.
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Описание эффекта зелья.
+    /// РћРїРёСЃР°РЅРёРµ СЌС„С„РµРєС‚Р° Р·РµР»СЊСЏ.
     /// </summary>
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Тип зелья.
+    /// РўРёРї Р·РµР»СЊСЏ.
     /// </summary>
     public PotionTypeEnum Type { get; set; }
 
     /// <summary>
-    /// Рецепт, по которому было сварено зелье.
+    /// Р РµС†РµРїС‚, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ Р±С‹Р»Рѕ СЃРІР°СЂРµРЅРѕ Р·РµР»СЊРµ.
     /// </summary>
     public required AlchemyRecipe Recipe { get; set; }
 
     /// <summary>
-    /// Продолжительность действия в раундах (0 = мгновенное).
+    /// РџСЂРѕРґРѕР»Р¶РёС‚РµР»СЊРЅРѕСЃС‚СЊ РґРµР№СЃС‚РІРёСЏ РІ СЂР°СѓРЅРґР°С… (0 = РјРіРЅРѕРІРµРЅРЅРѕРµ).
     /// </summary>
     public int DurationRounds { get; set; }
 }

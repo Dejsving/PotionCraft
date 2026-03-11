@@ -1,11 +1,11 @@
-@page
+п»ї@page
 @model PotionCraft.Pages.Characters.SelectModel
 @{
 
-    ViewData["Title"] = "Выбор персонажа";
+    ViewData["Title"] = "Р’С‹Р±РѕСЂ РїРµСЂСЃРѕРЅР°Р¶Р°";
 }
 
-<h1>Выбор персонажа</h1>
+<h1>Р’С‹Р±РѕСЂ РїРµСЂСЃРѕРЅР°Р¶Р°</h1>
 
 <div class="row mt-4">
     @foreach (var character in Model.Characters)
@@ -15,11 +15,11 @@
                 <div class="card-body">
                     <h5 class="card-title text-primary">@character.Name</h5>
                     <p class="card-text">
-                        <strong>Интеллект:</strong> @character.Intelligence<br />
-                        <strong>Мудрость:</strong> @character.Wisdom<br />
-                        <strong>Бонус мастерства:</strong> +@character.ProficiencyBonus<br />
+                        <strong>РРЅС‚РµР»Р»РµРєС‚:</strong> @character.Intelligence<br />
+                        <strong>РњСѓРґСЂРѕСЃС‚СЊ:</strong> @character.Wisdom<br />
+                        <strong>Р‘РѕРЅСѓСЃ РјР°СЃС‚РµСЂСЃС‚РІР°:</strong> +@character.ProficiencyBonus<br />
                     </p>
-                    <a href="#" class="btn btn-outline-primary w-100 mt-2">Выбрать</a>
+                    <a href="#" class="btn btn-outline-primary w-100 mt-2">Р’С‹Р±СЂР°С‚СЊ</a>
                 </div>
             </div>
         </div>
@@ -27,5 +27,5 @@
 </div>
 
 <div class="mt-4">
-    <a asp-page="Create" class="btn btn-success">Создать нового персонажа</a>
+    <a asp-page="Create" class="btn btn-success">РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°</a>
 </div>

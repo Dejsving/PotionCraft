@@ -1,84 +1,84 @@
-@page
+п»ї@page
 @model PotionCraft.Pages.Characters.CreateModel
 @{
-    ViewData["Title"] = "Создать персонажа";
+    ViewData["Title"] = "РЎРѕР·РґР°С‚СЊ РїРµСЂСЃРѕРЅР°Р¶Р°";
 }
 
 <div class="container mt-4">
-    <h2>Создать нового персонажа</h2>
+    <h2>РЎРѕР·РґР°С‚СЊ РЅРѕРІРѕРіРѕ РїРµСЂСЃРѕРЅР°Р¶Р°</h2>
     <hr />
     <div class="row">
         <div class="col-md-6">
             <form method="post">
                 <div class="mb-3">
-                    <label asp-for="Name" class="form-label">Имя персонажа</label>
-                    <input asp-for="Name" class="form-control" placeholder="Введите имя..." />
+                    <label asp-for="Name" class="form-label">РРјСЏ РїРµСЂСЃРѕРЅР°Р¶Р°</label>
+                    <input asp-for="Name" class="form-control" placeholder="Р’РІРµРґРёС‚Рµ РёРјСЏ..." />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Intelligence" class="form-label">Интеллект</label>
+                    <label asp-for="Intelligence" class="form-label">РРЅС‚РµР»Р»РµРєС‚</label>
                     <input asp-for="Intelligence" class="form-control" type="number" min="0" max="100" />
                     <span asp-validation-for="Intelligence" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="Wisdom" class="form-label">Мудрость</label>
+                    <label asp-for="Wisdom" class="form-label">РњСѓРґСЂРѕСЃС‚СЊ</label>
                     <input asp-for="Wisdom" class="form-control" type="number" min="0" max="100" />
                     <span asp-validation-for="Wisdom" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label asp-for="ProficiencyBonus" class="form-label">Бонус мастерства</label>
+                    <label asp-for="ProficiencyBonus" class="form-label">Р‘РѕРЅСѓСЃ РјР°СЃС‚РµСЂСЃС‚РІР°</label>
                     <input asp-for="ProficiencyBonus" class="form-control" type="number" min="2" max="6" />
                     <span asp-validation-for="ProficiencyBonus" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label d-block">Набор травника</label>
+                    <label class="form-label d-block">РќР°Р±РѕСЂ С‚СЂР°РІРЅРёРєР°</label>
                     <div class="btn-group" role="group">
                         <input type="radio" class="btn-check" asp-for="HerbalismProficiencyLevel" value="0" id="herbNone" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary" for="herbNone">Нет</label>
+                        <label class="btn btn-outline-secondary" for="herbNone">РќРµС‚</label>
 
                         <input type="radio" class="btn-check" asp-for="HerbalismProficiencyLevel" value="1" id="herbProf" autocomplete="off">
-                        <label class="btn btn-outline-secondary" for="herbProf">Владение</label>
+                        <label class="btn btn-outline-secondary" for="herbProf">Р’Р»Р°РґРµРЅРёРµ</label>
 
                         <input type="radio" class="btn-check" asp-for="HerbalismProficiencyLevel" value="2" id="herbExp" autocomplete="off">
-                        <label class="btn btn-outline-secondary" for="herbExp">Мастерство</label>
+                        <label class="btn btn-outline-secondary" for="herbExp">РњР°СЃС‚РµСЂСЃС‚РІРѕ</label>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label d-block">Инструменты алхимика</label>
+                    <label class="form-label d-block">РРЅСЃС‚СЂСѓРјРµРЅС‚С‹ Р°Р»С…РёРјРёРєР°</label>
                     <div class="btn-group" role="group">
                         <input type="radio" class="btn-check" asp-for="AlchemistProficiencyLevel" value="0" id="alchNone" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary" for="alchNone">Нет</label>
+                        <label class="btn btn-outline-secondary" for="alchNone">РќРµС‚</label>
 
                         <input type="radio" class="btn-check" asp-for="AlchemistProficiencyLevel" value="1" id="alchProf" autocomplete="off">
-                        <label class="btn btn-outline-secondary" for="alchProf">Владение</label>
+                        <label class="btn btn-outline-secondary" for="alchProf">Р’Р»Р°РґРµРЅРёРµ</label>
 
                         <input type="radio" class="btn-check" asp-for="AlchemistProficiencyLevel" value="2" id="alchExp" autocomplete="off">
-                        <label class="btn btn-outline-secondary" for="alchExp">Мастерство</label>
+                        <label class="btn btn-outline-secondary" for="alchExp">РњР°СЃС‚РµСЂСЃС‚РІРѕ</label>
                     </div>
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label d-block">Инструменты отравителя</label>
+                    <label class="form-label d-block">РРЅСЃС‚СЂСѓРјРµРЅС‚С‹ РѕС‚СЂР°РІРёС‚РµР»СЏ</label>
                     <div class="btn-group" role="group">
                         <input type="radio" class="btn-check" asp-for="PoisonerProficiencyLevel" value="0" id="poisNone" autocomplete="off" checked>
-                        <label class="btn btn-outline-secondary" for="poisNone">Нет</label>
+                        <label class="btn btn-outline-secondary" for="poisNone">РќРµС‚</label>
 
                         <input type="radio" class="btn-check" asp-for="PoisonerProficiencyLevel" value="1" id="poisProf" autocomplete="off">
-                        <label class="btn btn-outline-secondary" for="poisProf">Владение</label>
+                        <label class="btn btn-outline-secondary" for="poisProf">Р’Р»Р°РґРµРЅРёРµ</label>
 
                         <input type="radio" class="btn-check" asp-for="PoisonerProficiencyLevel" value="2" id="poisExp" autocomplete="off">
-                        <label class="btn btn-outline-secondary" for="poisExp">Мастерство</label>
+                        <label class="btn btn-outline-secondary" for="poisExp">РњР°СЃС‚РµСЂСЃС‚РІРѕ</label>
                     </div>
                 </div>
 
                 <div class="mt-4">
-                    <button type="submit" class="btn btn-success">Создать</button>
-                    <a asp-page="/Index" class="btn btn-secondary ms-2">Отмена</a>
+                    <button type="submit" class="btn btn-success">РЎРѕР·РґР°С‚СЊ</button>
+                    <a asp-page="/Index" class="btn btn-secondary ms-2">РћС‚РјРµРЅР°</a>
                 </div>
             </form>
         </div>

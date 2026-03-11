@@ -1,4 +1,4 @@
-using Moq;
+п»їusing Moq;
 using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Pages.Herbs;
@@ -7,22 +7,22 @@ using PotionCraft.Repository.Abstraction;
 namespace PotionCraft.Tests.Pages.Herbs
 {
     /// <summary>
-    /// Тесты для модели страницы списка трав (IndexModel).
+    /// РўРµСЃС‚С‹ РґР»СЏ РјРѕРґРµР»Рё СЃС‚СЂР°РЅРёС†С‹ СЃРїРёСЃРєР° С‚СЂР°РІ (IndexModel).
     /// </summary>
     public class IndexModelTests
     {
         /// <summary>
-        /// Мок-репозиторий трав.
+        /// РњРѕРє-СЂРµРїРѕР·РёС‚РѕСЂРёР№ С‚СЂР°РІ.
         /// </summary>
         private readonly Mock<IHerbRepository> _mockRepository;
 
         /// <summary>
-        /// Тестируемая модель страницы.
+        /// РўРµСЃС‚РёСЂСѓРµРјР°СЏ РјРѕРґРµР»СЊ СЃС‚СЂР°РЅРёС†С‹.
         /// </summary>
         private readonly IndexModel _model;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="IndexModelTests"/>.
+        /// РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РЅРѕРІС‹Р№ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР° <see cref="IndexModelTests"/>.
         /// </summary>
         public IndexModelTests()
         {
@@ -31,7 +31,7 @@ namespace PotionCraft.Tests.Pages.Herbs
         }
 
         /// <summary>
-        /// Создаёт тестовый набор трав.
+        /// РЎРѕР·РґР°С‘С‚ С‚РµСЃС‚РѕРІС‹Р№ РЅР°Р±РѕСЂ С‚СЂР°РІ.
         /// </summary>
         private static List<Herb> CreateTestHerbs()
         {
@@ -39,11 +39,11 @@ namespace PotionCraft.Tests.Pages.Herbs
             {
                 new Herb
                 {
-                    Name = "Мандрагора",
-                    Description = "Корень в форме человека",
+                    Name = "РњР°РЅРґСЂР°РіРѕСЂР°",
+                    Description = "РљРѕСЂРµРЅСЊ РІ С„РѕСЂРјРµ С‡РµР»РѕРІРµРєР°",
                     HerbType = HerbTypeEnum.Potion,
                     Rarity = RarityEnum.Rare,
-                    Effect = "Восстанавливает здоровье",
+                    Effect = "Р’РѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ Р·РґРѕСЂРѕРІСЊРµ",
                     Difficulty = 15,
                     Habitats = new Dictionary<TerrainEnum, int>
                     {
@@ -53,11 +53,11 @@ namespace PotionCraft.Tests.Pages.Herbs
                 },
                 new Herb
                 {
-                    Name = "Болиголов",
-                    Description = "Ядовитое растение",
+                    Name = "Р‘РѕР»РёРіРѕР»РѕРІ",
+                    Description = "РЇРґРѕРІРёС‚РѕРµ СЂР°СЃС‚РµРЅРёРµ",
                     HerbType = HerbTypeEnum.Poison,
                     Rarity = RarityEnum.Common,
-                    Effect = "Наносит урон ядом",
+                    Effect = "РќР°РЅРѕСЃРёС‚ СѓСЂРѕРЅ СЏРґРѕРј",
                     Difficulty = 10,
                     Habitats = new Dictionary<TerrainEnum, int>
                     {
@@ -66,11 +66,11 @@ namespace PotionCraft.Tests.Pages.Herbs
                 },
                 new Herb
                 {
-                    Name = "Лунный цветок",
-                    Description = "Светится в темноте",
+                    Name = "Р›СѓРЅРЅС‹Р№ С†РІРµС‚РѕРє",
+                    Description = "РЎРІРµС‚РёС‚СЃСЏ РІ С‚РµРјРЅРѕС‚Рµ",
                     HerbType = HerbTypeEnum.Magic | HerbTypeEnum.Potion,
                     Rarity = RarityEnum.VeryRare,
-                    Effect = "Даёт ночное зрение",
+                    Effect = "Р”Р°С‘С‚ РЅРѕС‡РЅРѕРµ Р·СЂРµРЅРёРµ",
                     Difficulty = 20,
                     Habitats = new Dictionary<TerrainEnum, int>
                     {
@@ -82,7 +82,7 @@ namespace PotionCraft.Tests.Pages.Herbs
         }
 
         /// <summary>
-        /// Проверяет, что OnGetAsync загружает все травы без фильтров.
+        /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ OnGetAsync Р·Р°РіСЂСѓР¶Р°РµС‚ РІСЃРµ С‚СЂР°РІС‹ Р±РµР· С„РёР»СЊС‚СЂРѕРІ.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_NoFilters_ReturnsAllHerbs()
@@ -99,7 +99,7 @@ namespace PotionCraft.Tests.Pages.Herbs
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по названию травы.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ РЅР°Р·РІР°РЅРёСЋ С‚СЂР°РІС‹.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByName_ReturnsMatchingHerbs()
@@ -107,18 +107,18 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Arrange
             var herbs = CreateTestHerbs();
             _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterName = "Мандрагора";
+            _model.FilterName = "РњР°РЅРґСЂР°РіРѕСЂР°";
 
             // Act
             await _model.OnGetAsync();
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Мандрагора", _model.Herbs[0].Name);
+            Assert.Equal("РњР°РЅРґСЂР°РіРѕСЂР°", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по описанию травы.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ РѕРїРёСЃР°РЅРёСЋ С‚СЂР°РІС‹.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByDescription_ReturnsMatchingHerbs()
@@ -126,18 +126,18 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Arrange
             var herbs = CreateTestHerbs();
             _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterDescription = "Ядовитое";
+            _model.FilterDescription = "РЇРґРѕРІРёС‚РѕРµ";
 
             // Act
             await _model.OnGetAsync();
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            Assert.Equal("Р‘РѕР»РёРіРѕР»РѕРІ", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по типу травы.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ С‚РёРїСѓ С‚СЂР°РІС‹.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByHerbType_ReturnsMatchingHerbs()
@@ -152,11 +152,11 @@ namespace PotionCraft.Tests.Pages.Herbs
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            Assert.Equal("Р‘РѕР»РёРіРѕР»РѕРІ", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по типу Magic — должен вернуть травы, содержащие флаг Magic.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ С‚РёРїСѓ Magic вЂ” РґРѕР»Р¶РµРЅ РІРµСЂРЅСѓС‚СЊ С‚СЂР°РІС‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ С„Р»Р°Рі Magic.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByHerbTypeMagic_ReturnsHerbsWithMagicFlag()
@@ -171,11 +171,11 @@ namespace PotionCraft.Tests.Pages.Herbs
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Лунный цветок", _model.Herbs[0].Name);
+            Assert.Equal("Р›СѓРЅРЅС‹Р№ С†РІРµС‚РѕРє", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по редкости травы.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ СЂРµРґРєРѕСЃС‚Рё С‚СЂР°РІС‹.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByRarity_ReturnsMatchingHerbs()
@@ -190,11 +190,11 @@ namespace PotionCraft.Tests.Pages.Herbs
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            Assert.Equal("Р‘РѕР»РёРіРѕР»РѕРІ", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по эффекту травы.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ СЌС„С„РµРєС‚Сѓ С‚СЂР°РІС‹.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByEffect_ReturnsMatchingHerbs()
@@ -202,18 +202,18 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Arrange
             var herbs = CreateTestHerbs();
             _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterEffect = "ночное зрение";
+            _model.FilterEffect = "РЅРѕС‡РЅРѕРµ Р·СЂРµРЅРёРµ";
 
             // Act
             await _model.OnGetAsync();
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Лунный цветок", _model.Herbs[0].Name);
+            Assert.Equal("Р›СѓРЅРЅС‹Р№ С†РІРµС‚РѕРє", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по сложности.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ СЃР»РѕР¶РЅРѕСЃС‚Рё.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByDifficulty_ReturnsMatchingHerbs()
@@ -228,11 +228,11 @@ namespace PotionCraft.Tests.Pages.Herbs
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Мандрагора", _model.Herbs[0].Name);
+            Assert.Equal("РњР°РЅРґСЂР°РіРѕСЂР°", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет фильтрацию по среде обитания.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ СЃСЂРµРґРµ РѕР±РёС‚Р°РЅРёСЏ.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByHabitat_ReturnsMatchingHerbs()
@@ -247,11 +247,11 @@ namespace PotionCraft.Tests.Pages.Herbs
 
             // Assert
             Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            Assert.Equal("Р‘РѕР»РёРіРѕР»РѕРІ", _model.Herbs[0].Name);
         }
 
         /// <summary>
-        /// Проверяет, что фильтрация по среде обитания Forest возвращает все травы с лесом.
+        /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ С„РёР»СЊС‚СЂР°С†РёСЏ РїРѕ СЃСЂРµРґРµ РѕР±РёС‚Р°РЅРёСЏ Forest РІРѕР·РІСЂР°С‰Р°РµС‚ РІСЃРµ С‚СЂР°РІС‹ СЃ Р»РµСЃРѕРј.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByForestHabitat_ReturnsMultipleHerbs()
@@ -269,7 +269,7 @@ namespace PotionCraft.Tests.Pages.Herbs
         }
 
         /// <summary>
-        /// Проверяет комбинированную фильтрацию по нескольким полям.
+        /// РџСЂРѕРІРµСЂСЏРµС‚ РєРѕРјР±РёРЅРёСЂРѕРІР°РЅРЅСѓСЋ С„РёР»СЊС‚СЂР°С†РёСЋ РїРѕ РЅРµСЃРєРѕР»СЊРєРёРј РїРѕР»СЏРј.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_MultipleFilters_ReturnsMatchingHerbs()
@@ -288,7 +288,7 @@ namespace PotionCraft.Tests.Pages.Herbs
         }
 
         /// <summary>
-        /// Проверяет, что если ни одна трава не подходит под фильтр, возвращается пустой список.
+        /// РџСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РµСЃР»Рё РЅРё РѕРґРЅР° С‚СЂР°РІР° РЅРµ РїРѕРґС…РѕРґРёС‚ РїРѕРґ С„РёР»СЊС‚СЂ, РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє.
         /// </summary>
         [Fact]
         public async Task OnGetAsync_NoMatchingFilters_ReturnsEmptyList()
@@ -296,7 +296,7 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Arrange
             var herbs = CreateTestHerbs();
             _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterName = "Несуществующая трава";
+            _model.FilterName = "РќРµСЃСѓС‰РµСЃС‚РІСѓСЋС‰Р°СЏ С‚СЂР°РІР°";
 
             // Act
             await _model.OnGetAsync();

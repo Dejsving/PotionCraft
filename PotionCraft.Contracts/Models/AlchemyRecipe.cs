@@ -1,39 +1,39 @@
-using PotionCraft.Contracts.Enums;
+п»їusing PotionCraft.Contracts.Enums;
 
 namespace PotionCraft.Contracts.Models;
 
 /// <summary>
-/// Рецепт алхимического зелья.
+/// Р РµС†РµРїС‚ Р°Р»С…РёРјРёС‡РµСЃРєРѕРіРѕ Р·РµР»СЊСЏ.
 /// </summary>
 public class AlchemyRecipe
 {
     /// <summary>
-    /// Уникальный идентификатор рецепта.
+    /// РЈРЅРёРєР°Р»СЊРЅС‹Р№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЂРµС†РµРїС‚Р°.
     /// </summary>
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
-    /// Название рецепта.
+    /// РќР°Р·РІР°РЅРёРµ СЂРµС†РµРїС‚Р°.
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Описание зелья.
+    /// РћРїРёСЃР°РЅРёРµ Р·РµР»СЊСЏ.
     /// </summary>
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Тип зелья.
+    /// РўРёРї Р·РµР»СЊСЏ.
     /// </summary>
     public PotionTypeEnum PotionType { get; set; }
 
     /// <summary>
-    /// Сложность (DC) проверки инструментов алхимика для варки.
+    /// РЎР»РѕР¶РЅРѕСЃС‚СЊ (DC) РїСЂРѕРІРµСЂРєРё РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ Р°Р»С…РёРјРёРєР° РґР»СЏ РІР°СЂРєРё.
     /// </summary>
     public int BrewingDC { get; set; } = 10;
 
     /// <summary>
-    /// Список необходимых растений
+    /// РЎРїРёСЃРѕРє РЅРµРѕР±С…РѕРґРёРјС‹С… СЂР°СЃС‚РµРЅРёР№
     /// </summary>
     public IReadOnlyList<Herb> Ingredients { get; set; } = [];
 

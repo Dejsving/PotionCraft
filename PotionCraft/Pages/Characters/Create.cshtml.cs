@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+п»їusing Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PotionCraft.Contracts;
 using PotionCraft.Repository.Abstraction;
@@ -16,30 +16,30 @@ namespace PotionCraft.Pages.Characters
         }
 
         [BindProperty]
-        [Required(ErrorMessage = "Необходимо ввести имя персонажа.")]
-        [StringLength(100, ErrorMessage = "Имя слишком длинное.")]
+        [Required(ErrorMessage = "РќРµРѕР±С…РѕРґРёРјРѕ РІРІРµСЃС‚Рё РёРјСЏ РїРµСЂСЃРѕРЅР°Р¶Р°.")]
+        [StringLength(100, ErrorMessage = "РРјСЏ СЃР»РёС€РєРѕРј РґР»РёРЅРЅРѕРµ.")]
         public string Name { get; set; } = string.Empty;
 
         [BindProperty]
-        [Range(0, 100, ErrorMessage = "Значение интеллекта должно быть от 0 до 100.")]
+        [Range(0, 100, ErrorMessage = "Р—РЅР°С‡РµРЅРёРµ РёРЅС‚РµР»Р»РµРєС‚Р° РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕС‚ 0 РґРѕ 100.")]
         public int Intelligence { get; set; } = 10;
 
         [BindProperty]
-        [Range(0, 100, ErrorMessage = "Значение мудрости должно быть от 0 до 100.")]
+        [Range(0, 100, ErrorMessage = "Р—РЅР°С‡РµРЅРёРµ РјСѓРґСЂРѕСЃС‚Рё РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РѕС‚ 0 РґРѕ 100.")]
         public int Wisdom { get; set; } = 10;
 
         [BindProperty]
-        [Range(2, 6, ErrorMessage = "Бонус мастерства должен быть от 2 до 6.")]
+        [Range(2, 6, ErrorMessage = "Р‘РѕРЅСѓСЃ РјР°СЃС‚РµСЂСЃС‚РІР° РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РѕС‚ 2 РґРѕ 6.")]
         public int ProficiencyBonus { get; set; } = 2;
 
         [BindProperty]
-        public int HerbalismProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
+        public int HerbalismProficiencyLevel { get; set; } = 0; // 0 = РќРµС‚, 1 = Р’Р»Р°РґРµРЅРёРµ, 2 = РњР°СЃС‚РµСЂСЃС‚РІРѕ
 
         [BindProperty]
-        public int AlchemistProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
+        public int AlchemistProficiencyLevel { get; set; } = 0; // 0 = РќРµС‚, 1 = Р’Р»Р°РґРµРЅРёРµ, 2 = РњР°СЃС‚РµСЂСЃС‚РІРѕ
 
         [BindProperty]
-        public int PoisonerProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
+        public int PoisonerProficiencyLevel { get; set; } = 0; // 0 = РќРµС‚, 1 = Р’Р»Р°РґРµРЅРёРµ, 2 = РњР°СЃС‚РµСЂСЃС‚РІРѕ
 
         public void OnGet()
         {
