@@ -38,6 +38,11 @@ public class Herb
     public string Effect { get; set; } = string.Empty;
 
     /// <summary>
+    /// Словарь зависимости сложности ингредиента от назначения ингредиента
+    /// </summary>
+    public int Difficulty { get; set; }
+
+    /// <summary>
     /// Среда обитания растения и результат броска в среде обитания
     /// </summary>
     public IReadOnlyDictionary<TerrainEnum, int> Habitats { get; set; }
@@ -47,11 +52,5 @@ public class Herb
     /// Словарь зависимости дополнительных правил от экосистемы (местности)
     /// </summary>
     public IReadOnlyDictionary<TerrainEnum, int> AdditionalRule { get; set; }
-        = new Dictionary<TerrainEnum, int>();
-
-    /// <summary>
-    /// Словарь зависимости сложности ингредиента от назначения ингредиента
-    /// </summary>
-    public IReadOnlyDictionary<TerrainEnum, int> Difficulty { get; set; }
         = new Dictionary<TerrainEnum, int>();
 }
