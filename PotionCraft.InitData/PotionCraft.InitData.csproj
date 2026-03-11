@@ -6,4 +6,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="PotionCraft.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Herbs.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PotionCraft.Repository\PotionCraft.Repository.csproj" />
+  </ItemGroup>
+
 </Project>

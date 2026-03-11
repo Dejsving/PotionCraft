@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PotionCraft.Contracts\PotionCraft.Contracts.csproj" />
+    <ProjectReference Include="..\PotionCraft.InitData\PotionCraft.InitData.csproj" />
     <ProjectReference Include="..\PotionCraft.Repository\PotionCraft.Repository.csproj" />
   </ItemGroup>
 

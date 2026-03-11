@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using PotionCraft.InitData;
 using PotionCraft.Repository;
 using PotionCraft.Repository.Abstraction;
 using PotionCraft.Repository.Repositories;
@@ -7,7 +8,7 @@ namespace PotionCraft
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,7 @@ namespace PotionCraft
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<PotionCraftDbContext>();
                 dbContext.Database.EnsureCreated();
+                await HerbDataSeeder.SeedHerbsAsync(dbContext);
             }
 
             // Configure the HTTP request pipeline.

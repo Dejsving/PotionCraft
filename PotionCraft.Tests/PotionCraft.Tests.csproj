@@ -20,7 +20,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PotionCraft.Contracts\PotionCraft.Contracts.csproj" />
+    <ProjectReference Include="..\PotionCraft.InitData\PotionCraft.InitData.csproj" />
+    <ProjectReference Include="..\PotionCraft.Repository\PotionCraft.Repository.csproj" />
     <ProjectReference Include="..\PotionCraft\PotionCraft.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.2" />
   </ItemGroup>
 
   <ItemGroup>
