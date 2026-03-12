@@ -1,15 +1,50 @@
-﻿{
-    // Используйте IntelliSense, чтобы узнать о возможных атрибутах.
-    // Наведите указатель мыши, чтобы просмотреть описания существующих атрибутов.
-    // Для получения дополнительной информации посетите: https://go.microsoft.com/fwlink/?linkid=830387
+{
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "chrome",
+            "name": "Запустить PotionCraft (http)",
+            "type": "dotnet",
             "request": "launch",
-            "name": "Запустить Chrome на localhost",
-            "url": "http://localhost:8080",
-            "webRoot": "${workspaceFolder}"
+            "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5276"
+            },
+            "launchBrowser": {
+                "enabled": true,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                }
+            },
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Запустить PotionCraft (https)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "https://localhost:7088;http://localhost:5276"
+            },
+            "launchBrowser": {
+                "enabled": true,
+                "args": "${auto-detect-url}",
+                "windows": {
+                    "command": "cmd.exe",
+                    "args": "/C start ${auto-detect-url}"
+                }
+            },
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Отладка тестов",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/PotionCraft.Tests/PotionCraft.Tests.csproj",
+            "preLaunchTask": "build"
         }
     ]
 }
