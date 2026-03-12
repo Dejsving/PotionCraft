@@ -4,6 +4,30 @@
 @model PotionCraft.Pages.Herbs.IndexModel
 @{
     ViewData["Title"] = "Список трав";
+
+    string SortLink(string column)
+    {
+        bool isCurrentColumn = Model.SortBy == column;
+        bool newDesc = isCurrentColumn && !Model.SortDesc;
+        return Url.Page("/Herbs/Index", new
+        {
+            FilterName        = Model.FilterName,
+            FilterDescription = Model.FilterDescription,
+            FilterHerbType    = Model.FilterHerbType.HasValue ? (int?)Model.FilterHerbType : null,
+            FilterRarity      = Model.FilterRarity.HasValue   ? (int?)Model.FilterRarity   : null,
+            FilterEffect      = Model.FilterEffect,
+            FilterDifficulty  = Model.FilterDifficulty,
+            FilterHabitat     = Model.FilterHabitat.HasValue  ? (int?)Model.FilterHabitat  : null,
+            SortBy   = column,
+            SortDesc = newDesc
+        }) ?? "#";
+    }
+
+    Func<string, string> SortIcon = column =>
+    {
+        if (Model.SortBy != column) return "";
+        return Model.SortDesc ? " ▼" : " ▲";
+    };
 }
 
 <h1>Список трав</h1>
@@ -73,13 +97,13 @@ else
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr>
-                    <th>Название</th>
-                    <th>Описание</th>
-                    <th>Тип</th>
-                    <th>Редкость</th>
-                    <th>Эффект</th>
-                    <th>Сложность</th>
-                    <th>Среда обитания</th>
+                    <th><a href="@(SortLink("Name"))" class="text-white text-decoration-none">Название@(SortIcon("Name"))</a></th>
+                    <th><a href="@(SortLink("Description"))" class="text-white text-decoration-none">Описание@(SortIcon("Description"))</a></th>
+                    <th><a href="@(SortLink("HerbType"))" class="text-white text-decoration-none">Тип@(SortIcon("HerbType"))</a></th>
+                    <th><a href="@(SortLink("Rarity"))" class="text-white text-decoration-none">Редкость@(SortIcon("Rarity"))</a></th>
+                    <th><a href="@(SortLink("Effect"))" class="text-white text-decoration-none">Эффект@(SortIcon("Effect"))</a></th>
+                    <th><a href="@(SortLink("Difficulty"))" class="text-white text-decoration-none">Сложность@(SortIcon("Difficulty"))</a></th>
+                    <th><a href="@(SortLink("Habitat"))" class="text-white text-decoration-none">Среда обитания@(SortIcon("Habitat"))</a></th>
                 </tr>
             </thead>
             <tbody>

@@ -6,7 +6,7 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
-            "launchConfigurationId": "http",
+            "launchProfile": "http",
             "preLaunchTask": "build"
         },
         {
@@ -14,7 +14,7 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
-            "launchConfigurationId": "https",
+            "launchProfile": "https",
             "preLaunchTask": "build"
         },
         {

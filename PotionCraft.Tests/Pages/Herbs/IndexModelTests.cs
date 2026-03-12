@@ -304,5 +304,294 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Assert
             Assert.Empty(_model.Herbs);
         }
+
+        /// <summary>
+        /// Проверяет сортировку по названию в прямом порядке (по алфавиту).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByNameAsc_ReturnsSortedByNameAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Name";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderBy(h => h.Name).Select(h => h.Name).ToList();
+            Assert.Equal(expected, result.Select(h => h.Name).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по названию в обратном порядке (по алфавиту убыванием).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByNameDesc_ReturnsSortedByNameDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Name";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderByDescending(h => h.Name).Select(h => h.Name).ToList();
+            Assert.Equal(expected, result.Select(h => h.Name).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по описанию в прямом порядке (по алфавиту).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByDescriptionAsc_ReturnsSortedByDescriptionAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Description";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderBy(h => h.Description).Select(h => h.Description).ToList();
+            Assert.Equal(expected, result.Select(h => h.Description).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по описанию в обратном порядке.
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByDescriptionDesc_ReturnsSortedByDescriptionDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Description";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderByDescending(h => h.Description).Select(h => h.Description).ToList();
+            Assert.Equal(expected, result.Select(h => h.Description).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по типу травы в прямом порядке (по числовому значению enum).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByHerbTypeAsc_ReturnsSortedByHerbTypeAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "HerbType";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderBy(h => (int)h.HerbType).Select(h => (int)h.HerbType).ToList();
+            Assert.Equal(expected, result.Select(h => (int)h.HerbType).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по типу травы в обратном порядке (по числовому значению enum убыванием).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByHerbTypeDesc_ReturnsSortedByHerbTypeDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "HerbType";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderByDescending(h => (int)h.HerbType).Select(h => (int)h.HerbType).ToList();
+            Assert.Equal(expected, result.Select(h => (int)h.HerbType).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по редкости в прямом порядке (по числовому значению enum).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByRarityAsc_ReturnsSortedByRarityAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Rarity";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderBy(h => (int)h.Rarity).Select(h => (int)h.Rarity).ToList();
+            Assert.Equal(expected, result.Select(h => (int)h.Rarity).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по редкости в обратном порядке (по числовому значению enum убыванием).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByRarityDesc_ReturnsSortedByRarityDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Rarity";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderByDescending(h => (int)h.Rarity).Select(h => (int)h.Rarity).ToList();
+            Assert.Equal(expected, result.Select(h => (int)h.Rarity).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по сложности в прямом порядке.
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByDifficultyAsc_ReturnsSortedByDifficultyAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Difficulty";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderBy(h => h.Difficulty).Select(h => h.Difficulty).ToList();
+            Assert.Equal(expected, result.Select(h => h.Difficulty).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по сложности в обратном порядке.
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByDifficultyDesc_ReturnsSortedByDifficultyDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Difficulty";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderByDescending(h => h.Difficulty).Select(h => h.Difficulty).ToList();
+            Assert.Equal(expected, result.Select(h => h.Difficulty).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по эффекту в прямом порядке (по алфавиту).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByEffectAsc_ReturnsSortedByEffectAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Effect";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderBy(h => h.Effect).Select(h => h.Effect).ToList();
+            Assert.Equal(expected, result.Select(h => h.Effect).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по эффекту в обратном порядке.
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByEffectDesc_ReturnsSortedByEffectDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Effect";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            var expected = herbs.OrderByDescending(h => h.Effect).Select(h => h.Effect).ToList();
+            Assert.Equal(expected, result.Select(h => h.Effect).ToList());
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по среде обитания в прямом порядке
+        /// (по минимальному числовому значению первой среды обитания).
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByHabitatAsc_ReturnsSortedByMinHabitatKeyAscending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Habitat";
+            _model.SortDesc = false;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            // Болиголов: Swamp=4, Мандрагора: Forest=3 → min=3, Лунный цветок: Underdark=2 → min=2
+            // Ожидаемый порядок по возрастанию: Лунный цветок (2), Мандрагора (3), Болиголов (4)
+            Assert.Equal("Лунный цветок", result[0].Name);
+            Assert.Equal("Мандрагора", result[1].Name);
+            Assert.Equal("Болиголов", result[2].Name);
+        }
+
+        /// <summary>
+        /// Проверяет сортировку по среде обитания в обратном порядке.
+        /// </summary>
+        [Fact]
+        public void ApplySorting_SortByHabitatDesc_ReturnsSortedByMinHabitatKeyDescending()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = "Habitat";
+            _model.SortDesc = true;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            // Ожидаемый порядок по убыванию: Болиголов (4), Мандрагора (3), Лунный цветок (2)
+            Assert.Equal("Болиголов", result[0].Name);
+            Assert.Equal("Мандрагора", result[1].Name);
+            Assert.Equal("Лунный цветок", result[2].Name);
+        }
+
+        /// <summary>
+        /// Проверяет, что при отсутствии SortBy список возвращается без изменений.
+        /// </summary>
+        [Fact]
+        public void ApplySorting_NoSortBy_ReturnsOriginalOrder()
+        {
+            // Arrange
+            var herbs = CreateTestHerbs();
+            _model.SortBy = null;
+
+            // Act
+            var result = _model.ApplySorting(herbs);
+
+            // Assert
+            Assert.Equal(herbs.Select(h => h.Name), result.Select(h => h.Name));
+        }
     }
 }
