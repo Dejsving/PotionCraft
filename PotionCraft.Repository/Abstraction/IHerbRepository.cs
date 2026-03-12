@@ -1,4 +1,4 @@
-using PotionCraft.Contracts.Models;
+﻿using PotionCraft.Contracts.Models;
 
 namespace PotionCraft.Repository.Abstraction
 {

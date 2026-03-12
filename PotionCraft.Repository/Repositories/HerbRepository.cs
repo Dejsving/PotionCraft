@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;

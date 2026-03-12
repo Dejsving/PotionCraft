@@ -1,4 +1,4 @@
-# PotionCraft
+﻿# PotionCraft
 Проект для работы с правилами Гербализм и Алхимия для DnD 5.0
 
 Правила: https://dnd.su/homebrew/articles/homebrew/109-gerbalizm_i_alkhimiya/?ysclid=lltrfaeclk207962267#spisok_ingredientov
