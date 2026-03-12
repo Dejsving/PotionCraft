@@ -6,18 +6,7 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://localhost:5276"
-            },
-            "launchBrowser": {
-                "enabled": true,
-                "args": "${auto-detect-url}",
-                "windows": {
-                    "command": "cmd.exe",
-                    "args": "/C start ${auto-detect-url}"
-                }
-            },
+            "launchConfigurationId": "http",
             "preLaunchTask": "build"
         },
         {
@@ -25,18 +14,7 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "https://localhost:7088;http://localhost:5276"
-            },
-            "launchBrowser": {
-                "enabled": true,
-                "args": "${auto-detect-url}",
-                "windows": {
-                    "command": "cmd.exe",
-                    "args": "/C start ${auto-detect-url}"
-                }
-            },
+            "launchConfigurationId": "https",
             "preLaunchTask": "build"
         },
         {
