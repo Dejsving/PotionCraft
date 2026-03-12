@@ -2,11 +2,11 @@
 
 namespace PotionCraft.Pages
 {
-    public class PrivacyModel : PageModel
+    public class SourceAndIdea : PageModel
     {
-        private readonly ILogger<PrivacyModel> _logger;
+        private readonly ILogger<SourceAndIdea> _logger;
 
-        public PrivacyModel(ILogger<PrivacyModel> logger)
+        public SourceAndIdea(ILogger<SourceAndIdea> logger)
         {
             _logger = logger;
         }
