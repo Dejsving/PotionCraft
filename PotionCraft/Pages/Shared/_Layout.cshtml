@@ -33,6 +33,9 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/SourceAndIdea">Источник и идея</a>
                         </li>
                     </ul>
+                    <span id="active-character-badge" class="navbar-text ms-auto text-dark fw-semibold">
+                        Персонаж не выбран
+                    </span>
                 </div>
             </div>
         </nav>
@@ -54,5 +57,28 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        function updateActiveCharacterBadge() {
+            const badge = document.getElementById('active-character-badge');
+            if (!badge) return;
+            try {
+                const data = window.sessionStorage.getItem('active_character');
+                if (data) {
+                    const character = JSON.parse(data);
+                    const name = character.name || character.Name;
+                    if (name) {
+                        badge.textContent = '\u{1F464} ' + name;
+                        badge.classList.add('text-primary');
+                        badge.classList.remove('text-dark');
+                        return;
+                    }
+                }
+            } catch { /* игнорируем */ }
+            badge.textContent = 'Персонаж не выбран';
+            badge.classList.remove('text-primary');
+            badge.classList.add('text-dark');
+        }
+        updateActiveCharacterBadge();
+    </script>
 </body>
 </html>

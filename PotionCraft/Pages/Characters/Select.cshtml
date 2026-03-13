@@ -99,6 +99,7 @@
                 const characterData = await response.json();
                 window.sessionStorage.setItem('active_character', JSON.stringify(characterData));
                 markAsYours(id);
+                if (typeof updateActiveCharacterBadge === 'function') updateActiveCharacterBadge();
                 showNotification('Персонаж успешно выбран!', 'success');
             } else if (response.status === 409) {
                 alert('Этот персонаж только что был выбран другим игроком.');

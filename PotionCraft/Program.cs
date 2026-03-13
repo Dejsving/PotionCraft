@@ -33,6 +33,9 @@ namespace PotionCraft
                 var dbContext = scope.ServiceProvider.GetRequiredService<PotionCraftDbContext>();
                 dbContext.Database.EnsureCreated();
                 await HerbDataSeeder.SeedHerbsAsync(dbContext);
+                await dbContext.PlayerCharacters
+                    .Where(c => c.SelectedBy != null)
+                    .ExecuteUpdateAsync(s => s.SetProperty(c => c.SelectedBy, (Guid?)null));
             }
 
             // Configure the HTTP request pipeline.
