@@ -107,7 +107,7 @@ namespace PotionCraft.Tests.Pages.Characters
             // Assert
             Assert.IsType<PageResult>(result);
             Assert.True(_model.ModelState.ContainsKey("Name"));
-            Assert.Equal(exceptionMessage, _model.ModelState["Name"].Errors[0].ErrorMessage);
+            Assert.Equal(exceptionMessage, _model.ModelState["Name"]!.Errors[0].ErrorMessage);
         }
     }
 }
