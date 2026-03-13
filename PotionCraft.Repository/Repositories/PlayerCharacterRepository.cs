@@ -56,5 +56,41 @@ namespace PotionCraft.Repository.Repositories
                 await _context.SaveChangesAsync();
             }
         }
+
+        /// <summary>
+        /// Атомарно помечает персонажа как выбранного указанным игроком.
+        /// Если у этого игрока ранее был выбран другой персонаж — автоматически освобождает его.
+        /// Возвращает <c>true</c>, если резервирование прошло успешно;
+        /// <c>false</c>, если персонаж уже занят другим игроком.
+        /// </summary>
+        public async Task<bool> SelectCharacterAsync(Guid characterId, Guid playerId)
+        {
+            // Освобождаем предыдущего персонажа этого игрока
+            var previous = await _context.PlayerCharacters
+                .FirstOrDefaultAsync(c => c.SelectedBy == playerId && c.Id != characterId);
+            if (previous != null)
+                previous.SelectedBy = null;
+
+            var character = await _context.PlayerCharacters.FindAsync(characterId);
+            if (character == null || (character.SelectedBy.HasValue && character.SelectedBy != playerId))
+                return false;
+
+            character.SelectedBy = playerId;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        /// <summary>
+        /// Освобождает персонажа, только если он занят указанным игроком.
+        /// </summary>
+        public async Task DeselectCharacterAsync(Guid characterId, Guid playerId)
+        {
+            var character = await _context.PlayerCharacters.FindAsync(characterId);
+            if (character != null && character.SelectedBy == playerId)
+            {
+                character.SelectedBy = null;
+                await _context.SaveChangesAsync();
+            }
+        }
     }
 }

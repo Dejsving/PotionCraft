@@ -61,6 +61,11 @@ public class PlayerCharacter
     public bool HasPoisonerSuppliesExpertise { get; set; }
 
     /// <summary>
+    /// Идентификатор игрока, выбравшего этого персонажа. Null — персонаж свободен.
+    /// </summary>
+    public Guid? SelectedBy { get; set; }
+
+    /// <summary>
     /// Модификатор Алхимии
     /// </summary>
     public int AlchemistModify

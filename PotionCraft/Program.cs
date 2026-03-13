@@ -14,6 +14,7 @@ namespace PotionCraft
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+            builder.Services.AddControllers();
 
             builder.Services.AddDbContext<PotionCraftDbContext>(options =>
             {
@@ -51,6 +52,7 @@ namespace PotionCraft
             app.MapStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
+            app.MapControllers();
 
             app.Run();
         }

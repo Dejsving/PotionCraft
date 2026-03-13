@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PotionCraft.Repository;
 
@@ -10,9 +11,11 @@ using PotionCraft.Repository;
 namespace PotionCraft.Repository.Migrations
 {
     [DbContext(typeof(PotionCraftDbContext))]
-    partial class PotionCraftDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260313170202_AddIsSelectedToPlayerCharacter")]
+    partial class AddIsSelectedToPlayerCharacter
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -84,15 +87,15 @@ namespace PotionCraft.Repository.Migrations
                     b.Property<int>("Intelligence")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsSelected")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("ProficiencyBonus")
                         .HasColumnType("INTEGER");
-
-                    b.Property<Guid?>("SelectedBy")
-                        .HasColumnType("TEXT");
 
                     b.Property<int>("Wisdom")
                         .HasColumnType("INTEGER");
