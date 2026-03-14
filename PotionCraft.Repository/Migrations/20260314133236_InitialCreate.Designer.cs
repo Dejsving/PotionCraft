@@ -11,8 +11,8 @@ using PotionCraft.Repository;
 namespace PotionCraft.Repository.Migrations
 {
     [DbContext(typeof(PotionCraftDbContext))]
-    [Migration("20260314111859_RefactorPlayerCharacterTools")]
-    partial class RefactorPlayerCharacterTools
+    [Migration("20260314133236_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

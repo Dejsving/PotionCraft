@@ -20,7 +20,10 @@ namespace PotionCraft.Repository.Migrations
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     HerbType = table.Column<int>(type: "INTEGER", nullable: false),
                     Rarity = table.Column<int>(type: "INTEGER", nullable: false),
-                    Effect = table.Column<string>(type: "TEXT", nullable: false)
+                    Effect = table.Column<string>(type: "TEXT", nullable: false),
+                    Difficulty = table.Column<int>(type: "INTEGER", nullable: false),
+                    Habitats = table.Column<string>(type: "TEXT", nullable: false),
+                    AdditionalRule = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -36,17 +39,27 @@ namespace PotionCraft.Repository.Migrations
                     Intelligence = table.Column<int>(type: "INTEGER", nullable: false),
                     Wisdom = table.Column<int>(type: "INTEGER", nullable: false),
                     ProficiencyBonus = table.Column<int>(type: "INTEGER", nullable: false),
-                    HasHerbalismKitProficiency = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasHerbalismKitExpertise = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasAlchemistSuppliesProficiency = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasAlchemistSuppliesExpertise = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasPoisonerSuppliesProficiency = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HasPoisonerSuppliesExpertise = table.Column<bool>(type: "INTEGER", nullable: false)
+                    AlchemistTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AlchemistTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AlchemistTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
+                    HerbalismTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
+                    HerbalismTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
+                    HerbalismTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
+                    PoisonerTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PoisonerTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PoisonerTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
+                    SelectedBy = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PlayerCharacters", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PlayerCharacters_Name",
+                table: "PlayerCharacters",
+                column: "Name",
+                unique: true);
         }
 
         /// <inheritdoc />
