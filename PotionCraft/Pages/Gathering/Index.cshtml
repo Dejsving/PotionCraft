@@ -1,0 +1,161 @@
+@page
+@model PotionCraft.Pages.Gathering.IndexModel
+@{
+    ViewData["Title"] = "Сбор трав";
+}
+
+<h1>Сбор трав</h1>
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <form method="post" id="gathering-form">
+            <input type="hidden" id="character-id-input" asp-for="Input.CharacterId" />
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Время суток</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Input.IsDay" value="true" id="dayRadio" />
+                        <label class="form-check-label" for="dayRadio">День</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Input.IsDay" value="false" id="nightRadio" />
+                        <label class="form-check-label" for="nightRadio">Ночь</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Погода</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Input.IsRain" value="false" id="noRainRadio" />
+                        <label class="form-check-label" for="noRainRadio">Не дождь</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Input.IsRain" value="true" id="rainRadio" />
+                        <label class="form-check-label" for="rainRadio">Дождь</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-bold">Местоположение</label>
+                <div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Input.IsCave" value="false" id="noCaveRadio" />
+                        <label class="form-check-label" for="noCaveRadio">Не пещера</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" asp-for="Input.IsCave" value="true" id="caveRadio" />
+                        <label class="form-check-label" for="caveRadio">Пещера</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Difficulty" class="form-label fw-bold">Сложность поиска</label>
+                <input asp-for="Input.Difficulty" type="number" class="form-control" min="1" max="30" />
+                <span asp-validation-for="Input.Difficulty" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.RollsCount" class="form-label fw-bold">Количество бросков</label>
+                <input asp-for="Input.RollsCount" type="number" class="form-control" min="1" />
+                <span asp-validation-for="Input.RollsCount" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Habitat" class="form-label fw-bold">Среда обитания</label>
+                <select asp-for="Input.Habitat" class="form-select" asp-items="Model.TerrainOptions"></select>
+                <span asp-validation-for="Input.Habitat" class="text-danger"></span>
+            </div>
+
+            <div class="text-danger mb-3" asp-validation-summary="ModelOnly"></div>
+            <div id="no-character-warning" class="text-danger fw-bold mb-3" style="display:none;">
+                Сначала необходимо выбрать персонажа на странице "Персонажи".
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="submit-btn" onclick="return fillCharacterId();">Бросок на сбор трав</button>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        @if (Model.TotalSuccesses.HasValue)
+        {
+            <div class="card bg-light border-primary shadow-sm h-100">
+                <div class="card-header bg-primary text-white fs-5 text-center">
+                    Результаты сбора трав
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-center text-primary mb-4">@Model.CharacterName</h5>
+                    
+                    <div class="d-flex justify-content-center align-items-center mb-4 gap-5">
+                        <div class="text-center">
+                            <span class="d-block display-4 fw-bold text-success">@Model.TotalSuccesses</span>
+                            <span class="text-muted text-uppercase small fw-bold">Успехов</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="d-block display-4 fw-bold text-secondary">@Model.Input.RollsCount</span>
+                            <span class="text-muted text-uppercase small fw-bold">Бросков</span>
+                        </div>
+                    </div>
+                    
+                    <hr />
+                    
+                    <h6 class="mb-3 fw-bold text-center">Детали бросков</h6>
+                    <p class="text-center small text-muted mb-3">Значения включают модификатор Гербализма. Сложность: @Model.Input.Difficulty</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        @foreach (var roll in Model.RollResults)
+                        {
+                            var badgeClass = roll >= Model.Input.Difficulty ? "bg-success" : "bg-danger";
+                            <span class="badge @badgeClass fs-5 px-3 py-2">@roll</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card bg-light border-secondary shadow-sm h-100 d-flex justify-content-center align-items-center text-muted">
+                <div class="text-center p-4">
+                    <i class="fs-1 bi bi-dice-5 mb-3 d-block"></i>
+                    Настройте параметры слева и нажмите кнопку для совершения бросков.
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function fillCharacterId() {
+            const data = window.sessionStorage.getItem('active_character');
+            if (data) {
+                try {
+                    const character = JSON.parse(data);
+                    const charId = character.id || character.Id;
+                    if (charId) {
+                        document.getElementById('character-id-input').value = charId;
+                        document.getElementById('no-character-warning').style.display = 'none';
+                        return true;
+                    }
+                } catch { /* ignore */ }
+            }
+            document.getElementById('no-character-warning').style.display = 'block';
+            return false;
+        }
+
+        // Валидация при загрузке страницы: показываем предупреждение, если персонаж не выбран
+        window.addEventListener('DOMContentLoaded', () => {
+            const data = window.sessionStorage.getItem('active_character');
+            if (!data) {
+                document.getElementById('no-character-warning').style.display = 'block';
+                document.getElementById('submit-btn').disabled = true;
+            } else {
+                document.getElementById('submit-btn').disabled = false;
+            }
+        });
+    </script>
+}

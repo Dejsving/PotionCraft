@@ -18,7 +18,7 @@ public class ToolTests
             Modifier = 3
         };
 
-        var result = tool.GetModify(2);
+        var result = tool.GetModify(2, 2);
 
         Assert.Equal(5, result);
     }
@@ -34,7 +34,7 @@ public class ToolTests
             Modifier = -2
         };
 
-        var result = tool.GetModify(1);
+        var result = tool.GetModify(1, 2);
 
         Assert.Equal(-1, result);
     }
@@ -59,8 +59,8 @@ public class ToolTests
             }
         };
 
-        var alchemistResult = character.AlchemistTool.GetModify(character.IntelligenceModifier);
-        var herbalismResult = character.HerbalismTool.GetModify(character.WisdomModifier);
+        var alchemistResult = character.AlchemistTool.GetModify(character.IntelligenceModifier, character.ProficiencyBonus);
+        var herbalismResult = character.HerbalismTool.GetModify(character.WisdomModifier, character.ProficiencyBonus);
 
         Assert.Equal(5, alchemistResult);
         Assert.Equal(0, herbalismResult);
