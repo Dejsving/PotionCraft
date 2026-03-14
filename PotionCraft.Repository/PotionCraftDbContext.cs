@@ -26,6 +26,15 @@ namespace PotionCraft.Repository
                 .HasIndex(pc => pc.Name)
                 .IsUnique();
 
+            modelBuilder.Entity<PlayerCharacter>()
+                .OwnsOne(pc => pc.AlchemistTool);
+
+            modelBuilder.Entity<PlayerCharacter>()
+                .OwnsOne(pc => pc.HerbalismTool);
+
+            modelBuilder.Entity<PlayerCharacter>()
+                .OwnsOne(pc => pc.PoisonerTool);
+
             modelBuilder.Entity<Herb>()
                 .Property(h => h.AdditionalRule)
                 .HasConversion(

@@ -46,6 +46,11 @@
                         <input type="radio" class="btn-check" asp-for="HerbalismProficiencyLevel" value="2" id="herbExp" autocomplete="off">
                         <label class="btn btn-outline-secondary" for="herbExp">Мастерство</label>
                     </div>
+                    <div class="mt-2">
+                        <label asp-for="HerbalismToolModifier" class="form-label">Модификатор инструмента</label>
+                        <input asp-for="HerbalismToolModifier" class="form-control" type="number" min="-3" max="3" />
+                        <span asp-validation-for="HerbalismToolModifier" class="text-danger"></span>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -60,6 +65,11 @@
                         <input type="radio" class="btn-check" asp-for="AlchemistProficiencyLevel" value="2" id="alchExp" autocomplete="off">
                         <label class="btn btn-outline-secondary" for="alchExp">Мастерство</label>
                     </div>
+                    <div class="mt-2">
+                        <label asp-for="AlchemistToolModifier" class="form-label">Модификатор инструмента</label>
+                        <input asp-for="AlchemistToolModifier" class="form-control" type="number" min="-3" max="3" />
+                        <span asp-validation-for="AlchemistToolModifier" class="text-danger"></span>
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -73,6 +83,11 @@
 
                         <input type="radio" class="btn-check" asp-for="PoisonerProficiencyLevel" value="2" id="poisExp" autocomplete="off">
                         <label class="btn btn-outline-secondary" for="poisExp">Мастерство</label>
+                    </div>
+                    <div class="mt-2">
+                        <label asp-for="PoisonerToolModifier" class="form-label">Модификатор инструмента</label>
+                        <input asp-for="PoisonerToolModifier" class="form-control" type="number" min="-3" max="3" />
+                        <span asp-validation-for="PoisonerToolModifier" class="text-danger"></span>
                     </div>
                 </div>
 

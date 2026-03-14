@@ -60,8 +60,11 @@ namespace PotionCraft.Tests.Pages.Characters
             _model.Wisdom = 14;
             _model.ProficiencyBonus = 3;
             _model.HerbalismProficiencyLevel = 2; // Expertise
+            _model.HerbalismToolModifier = 2;
             _model.AlchemistProficiencyLevel = 1; // Proficiency
+            _model.AlchemistToolModifier = -1;
             _model.PoisonerProficiencyLevel = 0;  // None
+            _model.PoisonerToolModifier = 0;
 
             _mockRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayerCharacter>()))
                            .Returns(Task.CompletedTask);
@@ -78,12 +81,15 @@ namespace PotionCraft.Tests.Pages.Characters
                 c.Intelligence == 15 &&
                 c.Wisdom == 14 &&
                 c.ProficiencyBonus == 3 &&
-                c.HasHerbalismKitProficiency == true &&
-                c.HasHerbalismKitExpertise == true &&
-                c.HasAlchemistSuppliesProficiency == true &&
-                c.HasAlchemistSuppliesExpertise == false &&
-                c.HasPoisonerSuppliesProficiency == false &&
-                c.HasPoisonerSuppliesExpertise == false
+                c.HerbalismTool.Proficiency == true &&
+                c.HerbalismTool.Expertise == true &&
+                c.HerbalismTool.Modifier == 2 &&
+                c.AlchemistTool.Proficiency == true &&
+                c.AlchemistTool.Expertise == false &&
+                c.AlchemistTool.Modifier == -1 &&
+                c.PoisonerTool.Proficiency == false &&
+                c.PoisonerTool.Expertise == false &&
+                c.PoisonerTool.Modifier == 0
             )), Times.Once);
         }
 

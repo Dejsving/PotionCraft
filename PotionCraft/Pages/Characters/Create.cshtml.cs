@@ -36,10 +36,22 @@ namespace PotionCraft.Pages.Characters
         public int HerbalismProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
 
         [BindProperty]
+        [Range(-3, 3, ErrorMessage = "Модификатор набора травника должен быть от -3 до 3.")]
+        public int HerbalismToolModifier { get; set; } = 0;
+
+        [BindProperty]
         public int AlchemistProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
 
         [BindProperty]
+        [Range(-3, 3, ErrorMessage = "Модификатор инструментов алхимика должен быть от -3 до 3.")]
+        public int AlchemistToolModifier { get; set; } = 0;
+
+        [BindProperty]
         public int PoisonerProficiencyLevel { get; set; } = 0; // 0 = Нет, 1 = Владение, 2 = Мастерство
+
+        [BindProperty]
+        [Range(-3, 3, ErrorMessage = "Модификатор инструментов отравителя должен быть от -3 до 3.")]
+        public int PoisonerToolModifier { get; set; } = 0;
 
         public void OnGet()
         {
@@ -59,12 +71,24 @@ namespace PotionCraft.Pages.Characters
                 Intelligence = Intelligence,
                 Wisdom = Wisdom,
                 ProficiencyBonus = ProficiencyBonus,
-                HasHerbalismKitProficiency = HerbalismProficiencyLevel >= 1,
-                HasHerbalismKitExpertise = HerbalismProficiencyLevel == 2,
-                HasAlchemistSuppliesProficiency = AlchemistProficiencyLevel >= 1,
-                HasAlchemistSuppliesExpertise = AlchemistProficiencyLevel == 2,
-                HasPoisonerSuppliesProficiency = PoisonerProficiencyLevel >= 1,
-                HasPoisonerSuppliesExpertise = PoisonerProficiencyLevel == 2
+                HerbalismTool = new Tool
+                {
+                    Proficiency = HerbalismProficiencyLevel >= 1,
+                    Expertise = HerbalismProficiencyLevel == 2,
+                    Modifier = HerbalismToolModifier
+                },
+                AlchemistTool = new Tool
+                {
+                    Proficiency = AlchemistProficiencyLevel >= 1,
+                    Expertise = AlchemistProficiencyLevel == 2,
+                    Modifier = AlchemistToolModifier
+                },
+                PoisonerTool = new Tool
+                {
+                    Proficiency = PoisonerProficiencyLevel >= 1,
+                    Expertise = PoisonerProficiencyLevel == 2,
+                    Modifier = PoisonerToolModifier
+                }
             };
 
             try

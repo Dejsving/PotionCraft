@@ -31,78 +31,24 @@ public class PlayerCharacter
     public int ProficiencyBonus { get; set; }
 
     /// <summary>
-    /// Владение набором травника (herbalism kit).
+    /// Инструменты алхимика персонажа.
     /// </summary>
-    public bool HasHerbalismKitProficiency { get; set; }
+    public Tool AlchemistTool { get; set; } = new();
 
     /// <summary>
-    /// Мастерство (экспертиза) во владении набором травника.
+    /// Набор травника персонажа.
     /// </summary>
-    public bool HasHerbalismKitExpertise { get; set; }
+    public Tool HerbalismTool { get; set; } = new();
 
     /// <summary>
-    /// Владение инструментами алхимика (alchemist's supplies).
+    /// Инструменты отравителя персонажа.
     /// </summary>
-    public bool HasAlchemistSuppliesProficiency { get; set; }
-
-    /// <summary>
-    /// Мастерство (экспертиза) во владении инструментами алхимика.
-    /// </summary>
-    public bool HasAlchemistSuppliesExpertise { get; set; }
-
-    /// <summary>
-    /// Владение инструментами отравителя (poisoner's kit).
-    /// </summary>
-    public bool HasPoisonerSuppliesProficiency { get; set; }
-
-    /// <summary>
-    /// Мастерство (экспертиза) во владении инструментами отравителя.
-    /// </summary>
-    public bool HasPoisonerSuppliesExpertise { get; set; }
+    public Tool PoisonerTool { get; set; } = new();
 
     /// <summary>
     /// Идентификатор игрока, выбравшего этого персонажа. Null — персонаж свободен.
     /// </summary>
     public Guid? SelectedBy { get; set; }
-
-    /// <summary>
-    /// Модификатор Алхимии
-    /// </summary>
-    public int AlchemistModify
-    {
-        get
-        {
-            int bonus = HasAlchemistSuppliesExpertise ? ProficiencyBonus * 2 :
-                        HasAlchemistSuppliesProficiency ? ProficiencyBonus : 0;
-            return IntelligenceModifier + bonus;
-        }
-    }
-
-    /// <summary>
-    /// Модификатор Гербализма
-    /// </summary>
-    public int HerbalismModify
-    {
-        get
-        {
-            int bonus = HasHerbalismKitExpertise ? ProficiencyBonus * 2 :
-                        HasHerbalismKitProficiency ? ProficiencyBonus : 0;
-            return WisdomModifier + bonus;
-        }
-    }
-
-    /// <summary>
-    /// Модификатор Отравителя
-    /// </summary>
-    public int PoisonerModify
-    {
-        get
-        {
-            int bonus = HasPoisonerSuppliesExpertise ? ProficiencyBonus * 2 :
-                        HasPoisonerSuppliesProficiency ? ProficiencyBonus : 0;
-            return WisdomModifier + bonus;
-        }
-    }
 
     /// <summary>
     /// Модификатор мудрости на основе её значения.
@@ -118,6 +64,30 @@ public class PlayerCharacter
     public int IntelligenceModifier
     {
         get => GetAbilityModifier(Intelligence);
+    }
+
+    /// <summary>
+    /// Модификатор Алхимии
+    /// </summary>
+    public int AlchemistModify
+    {
+        get => AlchemistTool.GetModify(IntelligenceModifier);
+    }
+
+    /// <summary>
+    /// Модификатор Гербализма
+    /// </summary>
+    public int HerbalismModify
+    {
+        get => HerbalismTool.GetModify(WisdomModifier);
+    }
+
+    /// <summary>
+    /// Модификатор Отравителя
+    /// </summary>
+    public int PoisonerModify
+    {
+        get => PoisonerTool.GetModify(WisdomModifier);
     }
 
     /// <summary>

@@ -31,7 +31,15 @@ namespace PotionCraft
             using (var scope = app.Services.CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetRequiredService<PotionCraftDbContext>();
-                dbContext.Database.EnsureCreated();
+                if (dbContext.Database.IsRelational())
+                {
+                    dbContext.Database.Migrate();
+                }
+                else
+                {
+                    dbContext.Database.EnsureCreated();
+                }
+
                 await HerbDataSeeder.SeedHerbsAsync(dbContext);
                 await dbContext.PlayerCharacters
                     .Where(c => c.SelectedBy != null)
