@@ -23,7 +23,7 @@ public class Herb
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Редкость травы.
+    /// Тип травы.
     /// </summary>
     public HerbTypeEnum HerbType { get; set; }
 
@@ -38,7 +38,7 @@ public class Herb
     public string Effect { get; set; } = string.Empty;
 
     /// <summary>
-    /// Словарь зависимости сложности ингредиента от назначения ингредиента
+    /// Изменение сложности зелья при добавлении ингредиента
     /// </summary>
     public int Difficulty { get; set; }
 
