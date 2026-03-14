@@ -17,6 +17,7 @@ public class DiceRoll
 
     // Основные предустановленные броски
     public static DiceRoll D20 => new(20, 1);
+    public static DiceRoll D4 => new(4, 1);
     public static DiceRoll TwoD6 => new(6, 2);
     public static DiceRoll D100 => new(100, 1);
 

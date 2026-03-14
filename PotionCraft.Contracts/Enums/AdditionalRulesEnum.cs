@@ -29,6 +29,15 @@ namespace PotionCraft.Contracts.Enums
         ReRoll = 7,
 
         [Display(Name = "См. таблицу \"Обычные ингредиенты\".")]
-        CheckCommon = 8
+        CheckCommon = 8,
+
+        [Display(Name = "Перебросить, если не используется провизия")]
+        ReRollIfNoProvisions = 9,
+
+        [Display(Name = "Только на берегу (иначе переброс/отсутствие)")]
+        OnlyOnCoast = 10,
+
+        [Display(Name = "1-2 шт.")]
+        OneOrTwo = 11
     }
 }

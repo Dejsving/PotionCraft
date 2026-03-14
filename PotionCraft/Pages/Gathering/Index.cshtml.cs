@@ -61,6 +61,7 @@ namespace PotionCraft.Pages.Gathering
             Input.IsCave = false;
             Input.Difficulty = 20;
             Input.RollsCount = 1;
+            Input.IsProvisionsUsed = true;
         }
 
         /// <summary>
@@ -148,6 +149,11 @@ namespace PotionCraft.Pages.Gathering
             /// Количество бросков.
             /// </summary>
             public int RollsCount { get; set; }
+
+            /// <summary>
+            /// Использование провизии.
+            /// </summary>
+            public bool IsProvisionsUsed { get; set; }
 
             /// <summary>
             /// Среда обитания, где происходит сбор.

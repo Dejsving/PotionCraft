@@ -25,6 +25,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             Assert.False(model.Input.IsCave);
             Assert.Equal(20, model.Input.Difficulty);
             Assert.Equal(1, model.Input.RollsCount);
+            Assert.True(model.Input.IsProvisionsUsed);
             Assert.NotNull(model.TerrainOptions);
         }
 
