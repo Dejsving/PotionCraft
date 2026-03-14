@@ -14,7 +14,9 @@ namespace PotionCraft.Tests.Pages.Gathering
         {
             // Arrange
             var mockRepo = new Mock<IPlayerCharacterRepository>();
-            var model = new IndexModel(mockRepo.Object);
+            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
+            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "Трава" }, Quantity = 1 });
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
 
             // Act
             model.OnGet();
@@ -34,7 +36,9 @@ namespace PotionCraft.Tests.Pages.Gathering
         {
             // Arrange
             var mockRepo = new Mock<IPlayerCharacterRepository>();
-            var model = new IndexModel(mockRepo.Object);
+            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
+            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "Трава" }, Quantity = 1 });
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
             model.Input.CharacterId = null;
 
             // Act
@@ -43,7 +47,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Assert
             Assert.IsType<PageResult>(result);
             Assert.False(model.ModelState.IsValid);
-            Assert.Contains(model.ModelState.Values, v => v.Errors.Any(e => e.ErrorMessage.Contains("РІС‹Р±РµСЂРёС‚Рµ РїРµСЂСЃРѕРЅР°Р¶Р°")));
+            Assert.Contains(model.ModelState.Values, v => v.Errors.Any(e => e.ErrorMessage.Contains("выберите персонажа")));
         }
 
         [Fact]
@@ -63,7 +67,9 @@ namespace PotionCraft.Tests.Pages.Gathering
             var mockRepo = new Mock<IPlayerCharacterRepository>();
             mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
             
-            var model = new IndexModel(mockRepo.Object);
+            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
+            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "Трава" }, Quantity = 1 });
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
             model.Input.CharacterId = characterId;
             model.Input.Difficulty = 5; // Very low to guarantee successes usually
             model.Input.RollsCount = 3;
@@ -80,3 +86,5 @@ namespace PotionCraft.Tests.Pages.Gathering
         }
     }
 }
+
+

@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using PotionCraft.Contracts.DiceRolls;
 using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Extensions;
+using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;
+using PotionCraft.Services.Gathering;
 
 namespace PotionCraft.Pages.Gathering
 {
@@ -14,13 +16,12 @@ namespace PotionCraft.Pages.Gathering
     public class IndexModel : PageModel
     {
         private readonly IPlayerCharacterRepository _characterRepository;
+        private readonly IGatheringService _gatheringService;
 
-        /// <summary>
-        /// Конструктор модели.
-        /// </summary>
-        public IndexModel(IPlayerCharacterRepository characterRepository)
+        public IndexModel(IPlayerCharacterRepository characterRepository, IGatheringService gatheringService)
         {
             _characterRepository = characterRepository;
+            _gatheringService = gatheringService;
             PrepareOptions();
         }
 
@@ -34,6 +35,8 @@ namespace PotionCraft.Pages.Gathering
         /// Общее количество успехов при сборе трав. Null, если бросок еще не совершался.
         /// </summary>
         public int? TotalSuccesses { get; set; }
+
+        public List<GatheringResult> GatheredHerbs { get; set; } = new();
 
         /// <summary>
         /// Имя персонажа, совершавшего бросок.
@@ -107,6 +110,25 @@ namespace PotionCraft.Pages.Gathering
 
             TotalSuccesses = successes;
 
+            if (successes > 0)
+            {
+                var request = new GatheringRequest
+                {
+                    Terrain = Input.Habitat,
+                    IsRaining = Input.IsRain,
+                    IsNight = !Input.IsDay,
+                    IsCave = Input.IsCave,
+                    HasProvisions = Input.IsProvisionsUsed,
+                    Character = character
+                };
+
+                for (int i = 0; i < successes; i++)
+                {
+                    var res = await _gatheringService.GatherHerbAsync(request);
+                    GatheredHerbs.Add(res);
+                }
+            }
+
             return Page();
         }
 
@@ -167,3 +189,6 @@ namespace PotionCraft.Pages.Gathering
         }
     }
 }
+
+
+

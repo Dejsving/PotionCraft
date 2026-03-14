@@ -103,28 +103,73 @@
                 </div>
                 <div class="card-body">
                     <h5 class="card-title text-center text-primary mb-4">@Model.CharacterName</h5>
-                    
-                    <div class="d-flex justify-content-center align-items-center mb-4 gap-5">
-                        <div class="text-center">
-                            <span class="d-block display-4 fw-bold text-success">@Model.TotalSuccesses</span>
-                            <span class="text-muted text-uppercase small fw-bold">Успехов</span>
+
+                    <div class="accordion" id="resultsAccordion">
+                        
+                        <!-- Panel 1: Gathered Herbs (Expanded by default) -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingHerbs">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHerbs" aria-expanded="true" aria-controls="collapseHerbs">
+                                    <strong class="text-success">Собранные травы</strong>
+                                </button>
+                            </h2>
+                            <div id="collapseHerbs" class="accordion-collapse collapse show" aria-labelledby="headingHerbs">
+                                <div class="accordion-body">
+                                    @if (Model.GatheredHerbs != null && Model.GatheredHerbs.Any())
+                                    {
+                                        <ul class="list-group mb-0">
+                                            @foreach (var res in Model.GatheredHerbs)
+                                            {
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>@res.Herb?.Name</span>
+                                                    <span class="badge bg-success rounded-pill fs-6">x @res.Quantity</span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted text-center mb-0">Ничего не найдено.</p>
+                                    }
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center">
-                            <span class="d-block display-4 fw-bold text-secondary">@Model.Input.RollsCount</span>
-                            <span class="text-muted text-uppercase small fw-bold">Бросков</span>
+
+                        <!-- Panel 2: Rolls details (Collapsed by default) -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingRolls">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRolls" aria-expanded="false" aria-controls="collapseRolls">
+                                    <strong>Результаты бросков: @Model.TotalSuccesses из @Model.Input.RollsCount успехов</strong>
+                                </button>
+                            </h2>
+                            <div id="collapseRolls" class="accordion-collapse collapse" aria-labelledby="headingRolls">
+                                <div class="accordion-body">
+                                    <div class="d-flex justify-content-center align-items-center mb-4 gap-5">
+                                        <div class="text-center">
+                                            <span class="d-block display-4 fw-bold text-success">@Model.TotalSuccesses</span>
+                                            <span class="text-muted text-uppercase small fw-bold">Успехов</span>
+                                        </div>
+                                        <div class="text-center">
+                                            <span class="d-block display-4 fw-bold text-secondary">@Model.Input.RollsCount</span>
+                                            <span class="text-muted text-uppercase small fw-bold">Бросков</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <hr />
+                                    
+                                    <h6 class="mb-3 fw-bold text-center">Детали бросков</h6>
+                                    <p class="text-center small text-muted mb-3">Значения включают модификатор Гербализма. Сложность: @Model.Input.Difficulty</p>
+                                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                                        @foreach (var roll in Model.RollResults)
+                                        {
+                                            var badgeClass = roll >= Model.Input.Difficulty ? "bg-success" : "bg-danger";
+                                            <span class="badge @badgeClass fs-5 px-3 py-2">@roll</span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <hr />
-                    
-                    <h6 class="mb-3 fw-bold text-center">Детали бросков</h6>
-                    <p class="text-center small text-muted mb-3">Значения включают модификатор Гербализма. Сложность: @Model.Input.Difficulty</p>
-                    <div class="d-flex flex-wrap justify-content-center gap-2">
-                        @foreach (var roll in Model.RollResults)
-                        {
-                            var badgeClass = roll >= Model.Input.Difficulty ? "bg-success" : "bg-danger";
-                            <span class="badge @badgeClass fs-5 px-3 py-2">@roll</span>
-                        }
+
                     </div>
                 </div>
             </div>
