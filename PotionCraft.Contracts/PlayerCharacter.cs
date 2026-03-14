@@ -71,7 +71,7 @@ public class PlayerCharacter
     /// </summary>
     public int AlchemistModify
     {
-        get => AlchemistTool.GetModify(IntelligenceModifier);
+        get => AlchemistTool.GetModify(IntelligenceModifier, ProficiencyBonus);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public class PlayerCharacter
     /// </summary>
     public int HerbalismModify
     {
-        get => HerbalismTool.GetModify(WisdomModifier);
+        get => HerbalismTool.GetModify(WisdomModifier, ProficiencyBonus);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ public class PlayerCharacter
     /// </summary>
     public int PoisonerModify
     {
-        get => PoisonerTool.GetModify(WisdomModifier);
+        get => PoisonerTool.GetModify(WisdomModifier, ProficiencyBonus);
     }
 
     /// <summary>

@@ -24,9 +24,12 @@ public class Tool
     /// Возвращает итоговый модификатор инструмента.
     /// </summary>
     /// <param name="modifier">Модификатор характеристики, от которой зависит инструмент.</param>
+    /// <param name="proficiencyBonus">Бонус мастерства персонажа.</param>
     /// <returns>Итоговый модификатор инструмента.</returns>
-    public int GetModify(int modifier)
+    public int GetModify(int modifier, int proficiencyBonus)
     {
-        return modifier + Modifier;
+        return modifier + Modifier
+            + (Proficiency ? proficiencyBonus : 0)
+            + (Expertise ? proficiencyBonus * 2 : 0);
     }
 }
