@@ -10,7 +10,8 @@ namespace PotionCraft.Services.Gathering;
 /// </summary>
 public class GatheringService : IGatheringService
 {
-    private static readonly Dictionary<TerrainEnum, Dictionary<int, (string HerbName, AdditionalRulesEnum Rule)>>
+    private static readonly
+        Dictionary<TerrainEnum, Dictionary<int, (string HerbName, AdditionalRulesEnum Rule)>>
         GatheringTables = new()
     {
         [TerrainEnum.Everewhere] = new()

@@ -29,7 +29,7 @@ public class Tool
     public int GetModify(int modifier, int proficiencyBonus)
     {
         return modifier + Modifier
-            + (Proficiency ? proficiencyBonus : 0)
-            + (Expertise ? proficiencyBonus * 2 : 0);
+            + (Expertise ? proficiencyBonus * 2
+                : Proficiency ? proficiencyBonus : 0);
     }
 }
