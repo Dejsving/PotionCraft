@@ -72,8 +72,7 @@ public static class HerbDataSeeder
             Rarity = dto.Rarity,
             Effect = dto.Effect,
             Difficulty = dto.Difficulty,
-            Habitats = dto.Habitats,
-            AdditionalRule = dto.AdditionalRule
+            Habitats = dto.Habitats
         };
     }
 
@@ -116,11 +115,6 @@ public static class HerbDataSeeder
         /// Среда обитания и значения бросков.
         /// </summary>
         public Dictionary<TerrainEnum, int> Habitats { get; set; } = new();
-
-        /// <summary>
-        /// Дополнительные правила по экосистемам.
-        /// </summary>
-        public Dictionary<TerrainEnum, int> AdditionalRule { get; set; } = new();
     }
 
     /// <summary>

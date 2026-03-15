@@ -47,10 +47,4 @@ public class Herb
     /// </summary>
     public IReadOnlyDictionary<TerrainEnum, int> Habitats { get; set; }
         = new Dictionary<TerrainEnum, int>();
-
-    /// <summary>
-    /// Словарь зависимости дополнительных правил от экосистемы (местности)
-    /// </summary>
-    public IReadOnlyDictionary<TerrainEnum, int> AdditionalRule { get; set; }
-        = new Dictionary<TerrainEnum, int>();
 }

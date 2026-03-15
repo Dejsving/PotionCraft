@@ -36,12 +36,6 @@ namespace PotionCraft.Repository
                 .OwnsOne(pc => pc.PoisonerTool);
 
             modelBuilder.Entity<Herb>()
-                .Property(h => h.AdditionalRule)
-                .HasConversion(
-                    v => JsonSerializer.Serialize(v, jsonOptions),
-                    v => JsonSerializer.Deserialize<Dictionary<TerrainEnum, int>>(v, jsonOptions) as IReadOnlyDictionary<TerrainEnum, int> ?? new Dictionary<TerrainEnum, int>());
-
-            modelBuilder.Entity<Herb>()
                 .Property(h => h.Habitats)
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, jsonOptions),

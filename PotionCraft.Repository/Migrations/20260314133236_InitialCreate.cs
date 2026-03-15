@@ -22,8 +22,7 @@ namespace PotionCraft.Repository.Migrations
                     Rarity = table.Column<int>(type: "INTEGER", nullable: false),
                     Effect = table.Column<string>(type: "TEXT", nullable: false),
                     Difficulty = table.Column<int>(type: "INTEGER", nullable: false),
-                    Habitats = table.Column<string>(type: "TEXT", nullable: false),
-                    AdditionalRule = table.Column<string>(type: "TEXT", nullable: false)
+                    Habitats = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
