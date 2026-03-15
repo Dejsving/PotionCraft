@@ -4,8 +4,6 @@ namespace PotionCraft.Contracts.Models
 {
     internal class HerbPrice
     {
-        private readonly Random _random = new Random();
-
         /// <summary>
         /// Базовая цена
         /// </summary>
@@ -55,7 +53,7 @@ namespace PotionCraft.Contracts.Models
             var supply = _alpha + (1.0 - _alpha) * Math.Exp(-_priceDecayRate * (quantity - 1));
 
             // Случайный шум в диапазоне [-_delta, +_delta]
-            var noise = 1.0 + _delta * (_random.NextDouble() * 2.0 - 1);
+            var noise = 1.0 + _delta * (Random.Shared.NextDouble() * 2.0 - 1);
 
             var price = _basePrice[(int)rarity] * supply * noise;
 
@@ -79,7 +77,7 @@ namespace PotionCraft.Contracts.Models
                 * Math.Exp(-_priceDecayRate * (quantity - 1));
 
             // Случайный шум в диапазоне [-_delta, +_delta]
-            var noise = 1.0 + _delta * (_random.NextDouble() * 2.0 - 1);
+            var noise = 1.0 + _delta * (Random.Shared.NextDouble() * 2.0 - 1);
 
             var price = _basePrice[(int)rarity + 1] * demand * noise;
 

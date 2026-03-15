@@ -36,7 +36,7 @@ namespace PotionCraft.Pages.Gathering
         /// </summary>
         public int? TotalSuccesses { get; set; }
 
-        public List<GatheringResult> GatheredHerbs { get; set; } = new();
+        public Dictionary<Guid, GatheringResult> GatheredHerbs { get; set; } = new();
 
         /// <summary>
         /// Имя персонажа, совершавшего бросок.
@@ -54,6 +54,29 @@ namespace PotionCraft.Pages.Gathering
         public SelectList TerrainOptions { get; set; } = null!;
 
         /// <summary>
+        /// Возвращает текстовое представление собранных трав для копирования в буфер обмена.
+        /// </summary>
+        /// <returns>Форматированная строка со списком трав, сгруппированных по редкости.</returns>
+        public string GetClipboardText()
+        {
+            if (GatheredHerbs == null || !GatheredHerbs.Any())
+            {
+                return string.Empty;
+            }
+
+            var groupedForClipboard = GatheredHerbs.Values
+                .Where(x => x.Herb != null)
+                .GroupBy(x => x.Herb!.Rarity)
+                .OrderBy(g => g.Key)
+                .Select(g =>
+                    g.Key.GetDisplayName() + ":\n" +
+                    string.Join("\n", g.OrderBy(x => x.Herb!.Name).Select(x => $"- {x.Herb!.Name} {x.Quantity}"))
+                );
+
+            return string.Join("\n", groupedForClipboard);
+        }
+
+        /// <summary>
         /// Обработчик GET запроса. Инициализирует значения по умолчанию.
         /// </summary>
         public void OnGet()
@@ -62,9 +85,9 @@ namespace PotionCraft.Pages.Gathering
             Input.IsDay = true;
             Input.IsRain = false;
             Input.IsCave = false;
+            Input.IsProvisionsUsed = true;
             Input.Difficulty = 20;
             Input.RollsCount = 1;
-            Input.IsProvisionsUsed = true;
         }
 
         /// <summary>
@@ -125,7 +148,17 @@ namespace PotionCraft.Pages.Gathering
                 for (int i = 0; i < successes; i++)
                 {
                     var res = await _gatheringService.GatherHerbAsync(request);
-                    GatheredHerbs.Add(res);
+                    if (res != null && res.Herb != null)
+                    {
+                        if (GatheredHerbs.TryGetValue(res.Herb.Id, out var existing))
+                        {
+                            existing.Quantity += res.Quantity;
+                        }
+                        else
+                        {
+                            GatheredHerbs.Add(res.Herb.Id, res);
+                        }
+                    }
                 }
             }
 

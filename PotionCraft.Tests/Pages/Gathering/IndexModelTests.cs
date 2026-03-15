@@ -47,7 +47,8 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Assert
             Assert.IsType<PageResult>(result);
             Assert.False(model.ModelState.IsValid);
-            Assert.Contains(model.ModelState.Values, v => v.Errors.Any(e => e.ErrorMessage.Contains("выберите персонажа")));
+            Assert.Contains(model.ModelState.Values,
+                v => v.Errors.Any(e => e.ErrorMessage.Contains("выберите персонажа")));
         }
 
         [Fact]
@@ -84,7 +85,59 @@ namespace PotionCraft.Tests.Pages.Gathering
             Assert.NotNull(model.TotalSuccesses);
             Assert.Equal(3, model.RollResults.Count);
         }
+
+        [Fact]
+        public void GetClipboardText_GroupsAndSortsProperly()
+        {
+            // Arrange
+            var mockRepo = new Mock<IPlayerCharacterRepository>();
+            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+
+            var herb1 = new PotionCraft.Contracts.Models.Herb
+            {
+                Id = Guid.NewGuid(), Name = "Ромашка", Rarity = RarityEnum.Common
+            };
+            var herb2 = new PotionCraft.Contracts.Models.Herb
+            {
+                Id = Guid.NewGuid(), Name = "Шалфей", Rarity = RarityEnum.Common
+            };
+            var herb3 = new PotionCraft.Contracts.Models.Herb
+            {
+                Id = Guid.NewGuid(), Name = "Женьшень", Rarity = RarityEnum.Rare
+            };
+
+            model.GatheredHerbs = new Dictionary<Guid, PotionCraft.Contracts.Models.GatheringResult>
+            {
+                { herb1.Id, new() { Herb = herb1, Quantity = 2 } },
+                { herb2.Id, new() { Herb = herb2, Quantity = 3 } },
+                { herb3.Id, new() { Herb = herb3, Quantity = 1 } }
+            };
+
+            // Act
+            var clipboardText = model.GetClipboardText();
+
+            // Assert
+            var expected = "Обычный:\n- Ромашка 2\n- Шалфей 3\nРедкий:\n- Женьшень 1";
+            
+            Assert.Equal(expected, clipboardText.Replace("\r\n", "\n"));
+        }
+
+        [Fact]
+        public void GetClipboardText_ReturnsEmpty_WhenNoHerbs()
+        {
+            // Arrange
+            var mockRepo = new Mock<IPlayerCharacterRepository>();
+            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+
+            model.GatheredHerbs = new Dictionary<Guid, PotionCraft.Contracts.Models.GatheringResult>();
+
+            // Act
+            var clipboardText = model.GetClipboardText();
+
+            // Assert
+            Assert.Equal(string.Empty, clipboardText);
+        }
     }
 }
-
-
