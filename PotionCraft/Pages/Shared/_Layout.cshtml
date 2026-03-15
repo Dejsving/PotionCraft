@@ -37,7 +37,7 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/SourceAndIdea">Источник и идея</a>
                         </li>
                     </ul>
-                    <span id="active-character-badge" class="navbar-text ms-auto text-dark fw-semibold">
+                    <span id="active-character-badge" class="navbar-text ms-auto text-dark fw-semibold" style="cursor: pointer;" data-bs-toggle="popover" data-bs-placement="bottom" tabindex="0">
                         Персонаж не выбран
                     </span>
                 </div>
@@ -62,6 +62,7 @@
 
     @await RenderSectionAsync("Scripts", required: false)
     <script>
+        let characterPopover = null;
         function updateActiveCharacterBadge() {
             const badge = document.getElementById('active-character-badge');
             if (!badge) return;
@@ -70,10 +71,41 @@
                 if (data) {
                     const character = JSON.parse(data);
                     const name = character.name || character.Name;
+                    
+                    const intel = character.intelligence ?? character.Intelligence ?? 10;
+                    const wis = character.wisdom ?? character.Wisdom ?? 10;
+                    const prof = character.proficiencyBonus ?? character.ProficiencyBonus ?? 2;
+                    const alch = character.alchemistModify ?? character.AlchemistModify ?? 0;
+                    const herb = character.herbalismModify ?? character.HerbalismModify ?? 0;
+                    const pois = character.poisonerModify ?? character.PoisonerModify ?? 0;
+
                     if (name) {
                         badge.textContent = '\u{1F464} ' + name;
                         badge.classList.add('text-primary');
                         badge.classList.remove('text-dark');
+                        
+                        const popoverContent = `
+                            <div class="small">
+                                <div><strong>Интеллект:</strong> ${intel}</div>
+                                <div><strong>Мудрость:</strong> ${wis}</div>
+                                <div><strong>Бонус мастерства:</strong> +${prof}</div>
+                                <hr class="my-1"/>
+                                <div><strong>Алхимия:</strong> ${(alch >= 0 ? '+' : '')}${alch}</div>
+                                <div><strong>Травничество:</strong> ${(herb >= 0 ? '+' : '')}${herb}</div>
+                                <div><strong>Отравитель:</strong> ${(pois >= 0 ? '+' : '')}${pois}</div>
+                            </div>
+                        `;
+                        
+                        badge.setAttribute('data-bs-content', popoverContent);
+                        badge.setAttribute('data-bs-title', '<strong>Характеристики</strong>');
+                        badge.setAttribute('data-bs-html', 'true');
+                        badge.setAttribute('data-bs-trigger', 'focus');
+
+                        if (characterPopover) {
+                            characterPopover.dispose();
+                        }
+                        
+                        characterPopover = new bootstrap.Popover(badge);
                         return;
                     }
                 }
@@ -81,6 +113,12 @@
             badge.textContent = 'Персонаж не выбран';
             badge.classList.remove('text-primary');
             badge.classList.add('text-dark');
+            badge.removeAttribute('data-bs-content');
+            badge.removeAttribute('data-bs-title');
+            if (characterPopover) {
+                characterPopover.dispose();
+                characterPopover = null;
+            }
         }
         updateActiveCharacterBadge();
     </script>

@@ -49,6 +49,7 @@ public class ToolTests
         {
             Intelligence = 16,
             Wisdom = 12,
+            ProficiencyBonus = 2,
             AlchemistTool = new Tool
             {
                 Modifier = 2
@@ -64,5 +65,26 @@ public class ToolTests
 
         Assert.Equal(5, alchemistResult);
         Assert.Equal(0, herbalismResult);
+    }
+        
+    /// <summary>
+    /// Проверяет, что свойства модификаторов инструментов персонажа вычисляются верно.
+    /// </summary>
+    [Fact]
+    public void PlayerCharacter_Modifications_ReturnsCorrectValues()
+    {
+        var character = new PlayerCharacter
+        {
+            Intelligence = 16,
+            Wisdom = 12,
+            ProficiencyBonus = 2,
+            AlchemistTool = new Tool { Modifier = 2 },
+            HerbalismTool = new Tool { Modifier = -1 },
+            PoisonerTool = new Tool { Modifier = 0 }
+        };
+
+        Assert.Equal(character.AlchemistTool.GetModify(character.IntelligenceModifier, character.ProficiencyBonus), character.AlchemistModify);
+        Assert.Equal(character.HerbalismTool.GetModify(character.WisdomModifier, character.ProficiencyBonus), character.HerbalismModify);
+        Assert.Equal(character.PoisonerTool.GetModify(character.WisdomModifier, character.ProficiencyBonus), character.PoisonerModify);
     }
 }
