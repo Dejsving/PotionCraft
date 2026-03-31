@@ -59,8 +59,8 @@
                     
                     <div class="row card-text flex-grow-1 small">
                         <div class="col-7">
-                            <strong>Интеллект:</strong> @character.Intelligence<br />
-                            <strong>Мудрость:</strong> @character.Wisdom<br />
+                            <strong>Интеллект:</strong> @character.Intelligence (@(character.IntelligenceModifier >= 0 ? "+" : "")@character.IntelligenceModifier)<br />
+                            <strong>Мудрость:</strong> @character.Wisdom (@(character.WisdomModifier >= 0 ? "+" : "")@character.WisdomModifier)<br />
                             <strong>Бонус мастерства:</strong> +@character.ProficiencyBonus
                         </div>
                         <div class="col-5 text-end">
