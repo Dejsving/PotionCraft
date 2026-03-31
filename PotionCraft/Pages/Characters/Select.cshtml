@@ -162,6 +162,19 @@
         }
     })();
 
+    // Автовыбор персонажа после создания
+    (function autoSelectNewCharacter() {
+        const params = new URLSearchParams(window.location.search);
+        const autoSelectId = params.get('autoSelect');
+        if (autoSelectId) {
+            // Убираем параметр из URL без перезагрузки
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
+            showNotification('Персонаж успешно создан!', 'success');
+            selectCharacter(autoSelectId);
+        }
+    })();
+
     // Освобождение персонажа при закрытии вкладки
     window.addEventListener('beforeunload', function () {
         const sessionData = window.sessionStorage.getItem('active_character');

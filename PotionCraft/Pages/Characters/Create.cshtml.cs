@@ -101,7 +101,7 @@ namespace PotionCraft.Pages.Characters
                 return Page();
             }
 
-            return RedirectToPage("/Index");
+            return RedirectToPage("Select", new { autoSelect = character.Id });
         }
     }
 }

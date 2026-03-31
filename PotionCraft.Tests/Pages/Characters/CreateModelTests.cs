@@ -49,10 +49,11 @@ namespace PotionCraft.Tests.Pages.Characters
         }
 
         /// <summary>
-        /// Проверяет, что OnPostAsync добавляет символ и перенаправляет на Index, если он действителен.
+        /// Проверяет, что OnPostAsync добавляет персонажа и перенаправляет на страницу выбора
+        /// с параметром autoSelect, содержащим идентификатор созданного персонажа.
         /// </summary>
         [Fact]
-        public async Task OnPostAsync_ValidModel_AddsCharacterAndRedirects()
+        public async Task OnPostAsync_ValidModel_AddsCharacterAndRedirectsToSelectWithAutoSelect()
         {
             // Arrange
             _model.Name = "Test Character";
@@ -66,7 +67,9 @@ namespace PotionCraft.Tests.Pages.Characters
             _model.PoisonerProficiencyLevel = 0;  // None
             _model.PoisonerToolModifier = 0;
 
+            Guid capturedId = Guid.Empty;
             _mockRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayerCharacter>()))
+                           .Callback<PlayerCharacter>(c => capturedId = c.Id)
                            .Returns(Task.CompletedTask);
 
             // Act
@@ -74,7 +77,11 @@ namespace PotionCraft.Tests.Pages.Characters
 
             // Assert
             var redirectResult = Assert.IsType<RedirectToPageResult>(result);
-            Assert.Equal("/Index", redirectResult.PageName);
+            Assert.Equal("Select", redirectResult.PageName);
+            Assert.NotNull(redirectResult.RouteValues);
+            Assert.True(redirectResult.RouteValues!.ContainsKey("autoSelect"));
+            Assert.Equal(capturedId, redirectResult.RouteValues["autoSelect"]);
+            Assert.NotEqual(Guid.Empty, capturedId);
 
             _mockRepository.Verify(repo => repo.AddAsync(It.Is<PlayerCharacter>(c =>
                 c.Name == "Test Character" &&
