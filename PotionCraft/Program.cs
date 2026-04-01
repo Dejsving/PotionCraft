@@ -25,7 +25,7 @@ namespace PotionCraft
 
             builder.Services.AddScoped<IPlayerCharacterRepository, PlayerCharacterRepository>();
             builder.Services.AddScoped<IHerbRepository, HerbRepository>();
-            builder.Services.AddScoped<PotionCraft.Services.Gathering.IGatheringService, PotionCraft.Services.Gathering.GatheringService>();
+            builder.Services.AddScoped<Services.Gathering.IGatheringService, Services.Gathering.GatheringService>();
 
             var app = builder.Build();
 

@@ -177,4 +177,222 @@ public class PlayerCharacterRepositoryBagTests : IDisposable
             Assert.Equal(8, saved.Bag.Herbs[herbId].Quantity);
         }
     }
+
+    /// <summary>
+    /// Проверяет, что мутация словаря Herbs in-place (без замены ссылки)
+    /// корректно сохраняется в базу данных — добавление нового элемента напрямую.
+    /// </summary>
+    [Fact]
+    public async Task UpdateAsync_MutateHerbsDictionaryInPlace_PersistsChanges()
+    {
+        Guid characterId;
+        var herbId = Guid.NewGuid();
+
+        // Arrange — создаём персонажа без трав
+        await using (var ctx = CreateSqliteContext())
+        {
+            await ctx.Database.EnsureCreatedAsync();
+
+            var character = new PlayerCharacter
+            {
+                Id = Guid.NewGuid(),
+                Name = "Торговец",
+                Wisdom = 12,
+                ProficiencyBonus = 2,
+                HerbalismTool = new Tool { Proficiency = true }
+            };
+
+            characterId = character.Id;
+            await ctx.PlayerCharacters.AddAsync(character);
+            await ctx.SaveChangesAsync();
+        }
+
+        // Act — мутируем словарь in-place (как делает ShopController)
+        await using (var ctx = CreateSqliteContext())
+        {
+            var repo = new PlayerCharacterRepository(ctx);
+            var character = await repo.GetByIdAsync(characterId);
+
+            character!.Bag.Herbs[herbId] = new GatheringResult
+            {
+                Herb = new Herb
+                {
+                    Id = herbId,
+                    Name = "Огнецвет",
+                    Rarity = RarityEnum.Rare
+                },
+                Quantity = 2
+            };
+
+            await repo.UpdateAsync(character);
+        }
+
+        // Assert — проверяем в новом контексте
+        await using (var ctx = CreateSqliteContext())
+        {
+            var saved = await ctx.PlayerCharacters.FindAsync(characterId);
+
+            Assert.NotNull(saved);
+            Assert.Single(saved!.Bag.Herbs);
+            Assert.True(saved.Bag.Herbs.ContainsKey(herbId));
+            Assert.Equal(2, saved.Bag.Herbs[herbId].Quantity);
+        }
+    }
+
+    /// <summary>
+    /// Проверяет, что удаление элемента из словаря Herbs in-place
+    /// корректно сохраняется в базу данных.
+    /// </summary>
+    [Fact]
+    public async Task UpdateAsync_RemoveHerbInPlace_PersistsChanges()
+    {
+        var herbId = Guid.NewGuid();
+        Guid characterId;
+
+        // Arrange — создаём персонажа с одной травой
+        await using (var ctx = CreateSqliteContext())
+        {
+            await ctx.Database.EnsureCreatedAsync();
+
+            var character = new PlayerCharacter
+            {
+                Id = Guid.NewGuid(),
+                Name = "Продавец",
+                Wisdom = 10,
+                ProficiencyBonus = 2,
+                HerbalismTool = new Tool { Proficiency = true },
+                Bag = new CharacterBag
+                {
+                    Herbs = new Dictionary<Guid, GatheringResult>
+                    {
+                        {
+                            herbId, new GatheringResult
+                            {
+                                Herb = new Herb
+                                {
+                                    Id = herbId,
+                                    Name = "Лунный шалфей",
+                                    Rarity = RarityEnum.Common
+                                },
+                                Quantity = 5
+                            }
+                        }
+                    }
+                }
+            };
+
+            characterId = character.Id;
+            await ctx.PlayerCharacters.AddAsync(character);
+            await ctx.SaveChangesAsync();
+        }
+
+        // Act — удаляем траву из словаря in-place (как при продаже в ShopController)
+        await using (var ctx = CreateSqliteContext())
+        {
+            var repo = new PlayerCharacterRepository(ctx);
+            var character = await repo.GetByIdAsync(characterId);
+
+            character!.Bag.Herbs.Remove(herbId);
+
+            await repo.UpdateAsync(character);
+        }
+
+        // Assert — проверяем в новом контексте
+        await using (var ctx = CreateSqliteContext())
+        {
+            var saved = await ctx.PlayerCharacters.FindAsync(characterId);
+
+            Assert.NotNull(saved);
+            Assert.Empty(saved!.Bag.Herbs);
+        }
+    }
+
+    /// <summary>
+    /// Проверяет, что изменение Coins и Herbs in-place одновременно
+    /// корректно сохраняется — имитация полной торговой сделки.
+    /// </summary>
+    [Fact]
+    public async Task UpdateAsync_TradeScenario_CoinsAndHerbsInPlacePersisted()
+    {
+        var herbId = Guid.NewGuid();
+        var newHerbId = Guid.NewGuid();
+        Guid characterId;
+
+        // Arrange — создаём персонажа с монетами и одной травой
+        await using (var ctx = CreateSqliteContext())
+        {
+            await ctx.Database.EnsureCreatedAsync();
+
+            var character = new PlayerCharacter
+            {
+                Id = Guid.NewGuid(),
+                Name = "ТорговецПолный",
+                Wisdom = 14,
+                ProficiencyBonus = 3,
+                HerbalismTool = new Tool { Proficiency = true },
+                Bag = new CharacterBag
+                {
+                    Coins = 500,
+                    Herbs = new Dictionary<Guid, GatheringResult>
+                    {
+                        {
+                            herbId, new GatheringResult
+                            {
+                                Herb = new Herb
+                                {
+                                    Id = herbId,
+                                    Name = "Кровьтрава",
+                                    Rarity = RarityEnum.Common
+                                },
+                                Quantity = 10
+                            }
+                        }
+                    }
+                }
+            };
+
+            characterId = character.Id;
+            await ctx.PlayerCharacters.AddAsync(character);
+            await ctx.SaveChangesAsync();
+        }
+
+        // Act — продаём часть трав и покупаем новую (мутация in-place)
+        await using (var ctx = CreateSqliteContext())
+        {
+            var repo = new PlayerCharacterRepository(ctx);
+            var character = await repo.GetByIdAsync(characterId);
+
+            // Продажа: уменьшаем количество
+            character!.Bag.Herbs[herbId].Quantity -= 7;
+
+            // Покупка: добавляем новый вид
+            character.Bag.Herbs[newHerbId] = new GatheringResult
+            {
+                Herb = new Herb
+                {
+                    Id = newHerbId,
+                    Name = "Ледяной корень",
+                    Rarity = RarityEnum.Unusual
+                },
+                Quantity = 2
+            };
+
+            // Обновляем баланс
+            character.Bag.Coins = 350;
+
+            await repo.UpdateAsync(character);
+        }
+
+        // Assert — проверяем в новом контексте
+        await using (var ctx = CreateSqliteContext())
+        {
+            var saved = await ctx.PlayerCharacters.FindAsync(characterId);
+
+            Assert.NotNull(saved);
+            Assert.Equal(350, saved!.Bag.Coins);
+            Assert.Equal(2, saved.Bag.Herbs.Count);
+            Assert.Equal(3, saved.Bag.Herbs[herbId].Quantity);
+            Assert.Equal(2, saved.Bag.Herbs[newHerbId].Quantity);
+        }
+    }
 }

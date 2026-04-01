@@ -1,0 +1,124 @@
+@page
+@model PotionCraft.Pages.ShopModel
+@{
+    ViewData["Title"] = "Магазин";
+}
+
+<h1 class="mb-3"><i class="bi bi-shop me-2"></i>@ViewData["Title"]</h1>
+
+<div class="row g-3">
+    <!-- Левая колонка: Ассортимент торговца -->
+    <div class="col-lg-4 order-1">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white d-flex align-items-center">
+                <i class="bi bi-cart-fill me-2"></i>
+                <strong>Ассортимент торговца</strong>
+            </div>
+            <div class="card-body p-2">
+                <!-- Фильтры -->
+                <div class="btn-group btn-group-sm w-100 mb-2" role="group" id="shopFilters">
+                    <button type="button" class="btn btn-outline-secondary active" data-filter="all">Все</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="herb">Травы</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="potion">Зелья</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="poison">Яды</button>
+                </div>
+                <div id="shopInventoryList" style="max-height: 60vh; overflow-y: auto;">
+                    <div class="text-center text-muted py-4">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                        <span class="ms-2">Загрузка ассортимента...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Центральная колонка: Текущая сделка -->
+    <div class="col-lg-4 order-lg-2 order-3">
+        <div class="card h-100">
+            <div class="card-header bg-warning text-dark d-flex align-items-center">
+                <i class="bi bi-arrow-left-right me-2"></i>
+                <strong>Текущая сделка</strong>
+            </div>
+            <div class="card-body p-2">
+                <!-- К покупке -->
+                <h6 class="text-success mb-2"><i class="bi bi-bag-plus me-1"></i>К покупке</h6>
+                <div id="tradeBuyList" class="border rounded p-2 mb-3" style="min-height: 80px; max-height: 25vh; overflow-y: auto;">
+                    <p class="text-muted small text-center mb-0">Нажмите на товар слева, чтобы добавить</p>
+                </div>
+
+                <!-- К продаже -->
+                <h6 class="text-danger mb-2"><i class="bi bi-bag-dash me-1"></i>К продаже</h6>
+                <div id="tradeSellList" class="border rounded p-2 mb-3" style="min-height: 80px; max-height: 25vh; overflow-y: auto;">
+                    <p class="text-muted small text-center mb-0">Нажмите на предмет справа, чтобы добавить</p>
+                </div>
+
+                <!-- Итоги -->
+                <div class="border-top pt-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Сумма покупки:</span>
+                        <span id="totalBuyCost" class="fw-bold text-danger">0.00 зм</span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Сумма продажи:</span>
+                        <span id="totalSellRevenue" class="fw-bold text-success">0.00 зм</span>
+                    </div>
+                    <hr class="my-1" />
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">Итог:</span>
+                        <span id="tradeBalance" class="fw-bold">0.00 зм</span>
+                    </div>
+                    <button type="button" class="btn btn-success w-100" id="btnApproveTrade" disabled>
+                        <i class="bi bi-check-circle me-1"></i>Одобрить сделку
+                    </button>
+                    <div id="tradeError" class="text-danger small text-center mt-1 d-none"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Правая колонка: Инвентарь персонажа -->
+    <div class="col-lg-4 order-lg-3 order-2">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white d-flex align-items-center">
+                <i class="bi bi-backpack2-fill me-2"></i>
+                <strong>Инвентарь персонажа</strong>
+            </div>
+            <div class="card-body p-2">
+                <!-- Баланс -->
+                <div id="playerBalance" class="text-center mb-2 d-none">
+                    <span class="badge bg-light text-dark border px-3 py-2">
+                        <i class="bi bi-coin text-warning me-1"></i><span id="playerGold">0</span> зм
+                        <i class="bi bi-coin text-secondary ms-2 me-1"></i><span id="playerSilver">0</span> см
+                        <i class="bi bi-coin ms-2 me-1" style="color:#cd7f32;"></i><span id="playerCopper">0</span> мм
+                    </span>
+                </div>
+                <!-- Фильтры -->
+                <div class="btn-group btn-group-sm w-100 mb-2" role="group" id="playerFilters">
+                    <button type="button" class="btn btn-outline-secondary active" data-filter="all">Все</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="herb">Травы</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="potion">Зелья</button>
+                    <button type="button" class="btn btn-outline-secondary" data-filter="poison">Яды</button>
+                </div>
+                <div id="playerInventoryList" style="max-height: 60vh; overflow-y: auto;">
+                    <p class="text-muted text-center py-4">Выберите персонажа</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast-уведомление -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="tradeToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="tradeToastMessage">
+                Сделка успешна.
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/shop.js" asp-append-version="true"></script>
+}
