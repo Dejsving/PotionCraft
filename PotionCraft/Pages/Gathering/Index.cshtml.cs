@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using PotionCraft.Contracts;
 using PotionCraft.Contracts.DiceRolls;
 using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Extensions;
@@ -18,7 +19,8 @@ namespace PotionCraft.Pages.Gathering
         private readonly IPlayerCharacterRepository _characterRepository;
         private readonly IGatheringService _gatheringService;
 
-        public IndexModel(IPlayerCharacterRepository characterRepository, IGatheringService gatheringService)
+        public IndexModel(IPlayerCharacterRepository characterRepository,
+            IGatheringService gatheringService)
         {
             _characterRepository = characterRepository;
             _gatheringService = gatheringService;
@@ -70,7 +72,8 @@ namespace PotionCraft.Pages.Gathering
                 .OrderBy(g => g.Key)
                 .Select(g =>
                     g.Key.GetDisplayName() + ":\n" +
-                    string.Join("\n", g.OrderBy(x => x.Herb!.Name).Select(x => $"- {x.Herb!.Name} {x.Quantity}"))
+                    string.Join("\n", g.OrderBy(x => x.Herb!.Name)
+                        .Select(x => $"- {x.Herb!.Name} {x.Quantity}"))
                 );
 
             return string.Join("\n", groupedForClipboard);
@@ -160,9 +163,40 @@ namespace PotionCraft.Pages.Gathering
                         }
                     }
                 }
+
+                AddHerbsToBag(character);
+                await _characterRepository.UpdateAsync(character);
             }
 
             return Page();
+        }
+
+        /// <summary>
+        /// Добавляет собранные травы в сумку персонажа, суммируя количество с уже имеющимися.
+        /// Создаёт новый экземпляр словаря, чтобы EF Core обнаружил изменение через ValueConversion.
+        /// </summary>
+        /// <param name="character">Персонаж, в сумку которого добавляются травы.</param>
+        private void AddHerbsToBag(PlayerCharacter character)
+        {
+            var updatedHerbs = new Dictionary<Guid, GatheringResult>(character.Bag.Herbs);
+
+            foreach (var (herbId, result) in GatheredHerbs)
+            {
+                if (updatedHerbs.TryGetValue(herbId, out var existingInBag))
+                {
+                    existingInBag.Quantity += result.Quantity;
+                }
+                else
+                {
+                    updatedHerbs.Add(herbId, new GatheringResult
+                    {
+                        Herb = result.Herb,
+                        Quantity = result.Quantity
+                    });
+                }
+            }
+
+            character.Bag.Herbs = updatedHerbs;
         }
 
         private void PrepareOptions()
