@@ -2,7 +2,7 @@
 
 namespace PotionCraft.Contracts.Services
 {
-    internal class HerbPriceCalculator
+    public static class HerbPriceCalculator
     {
         /// <summary>
         /// Базовая цена
@@ -12,18 +12,18 @@ namespace PotionCraft.Contracts.Services
         /// последние 4 чилса – цена покупки,
         /// в зависимости от редкости травы
         /// </remarks>
-        private readonly int[] _basePrice = { 5, 15, 40, 100, 1000 };
+        private static readonly int[] _basePrice = { 5, 15, 40, 100, 1000 };
 
         /// <summary>
         /// Амплитуда случайного разброса. 0.1 = ±10%.
         /// </summary>
-        private double _delta { get; set; } = 0.1;
+        private static double _delta { get; set; } = 0.1;
 
         /// <summary>
         /// Скорость падения цены от количества. Больше = быстрее падает.
         /// Зависит от редкости (0.1 для частых, 0.5 для очень редких).
         /// </summary>
-        private double GetPriceDecayRate(RarityEnum rarity)
+        private static double GetPriceDecayRate(RarityEnum rarity)
         {
             return 0.1 + (int)rarity / 3.0 * 0.4;
         }
@@ -32,7 +32,7 @@ namespace PotionCraft.Contracts.Services
         /// Минимальный множитель цены (пол).
         /// Зависит от редкости (0.5 для частых, 0.1 для очень редких).
         /// </summary>
-        private double GetAlpha(RarityEnum rarity)
+        private static double GetAlpha(RarityEnum rarity)
         {
             return 0.5 - (int)rarity / 3.0 * 0.4;
         }
@@ -43,7 +43,7 @@ namespace PotionCraft.Contracts.Services
         /// <param name="rarity">Уровень редкости предмета.</param>
         /// <param name="quantity">Количество товаров для покупки.</param>
         /// <returns>Рассчитанная цена покупки, округленная до двух знаков после запятой.</returns>
-        public double GetSellPrice(RarityEnum rarity, int quantity)
+        public static double GetSellPrice(RarityEnum rarity, int quantity)
         {
             var _alpha = GetAlpha(rarity);
             var _priceDecayRate = GetPriceDecayRate(rarity);
@@ -66,7 +66,7 @@ namespace PotionCraft.Contracts.Services
         /// <param name="rarity">Уровень редкости предмета.</param>
         /// <param name="quantity">Количество товаров для покупки.</param>
         /// <returns>Рассчитанная цена покупки, округленная до двух знаков после запятой.</returns>
-        public double GetBuyPrice(RarityEnum rarity, int quantity)
+        public static double GetBuyPrice(RarityEnum rarity, int quantity)
         {
             var _alpha = GetAlpha(rarity);
             var _priceDecayRate = GetPriceDecayRate(rarity);
