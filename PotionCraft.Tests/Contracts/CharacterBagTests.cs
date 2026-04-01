@@ -104,4 +104,22 @@ public class CharacterBagTests
         Assert.Single(bag.Poisons);
         Assert.Equal(1, bag.Poisons[potion.Id].Quantity);
     }
+
+    /// <summary>
+    /// Проверяет, что сумма из монет корректно распределяется на золотые, серебряные и медные монеты.
+    /// </summary>
+    [Theory]
+    [InlineData(1234, 12, 3, 4)]
+    [InlineData(8, 0, 0, 8)]
+    [InlineData(50, 0, 5, 0)]
+    [InlineData(100, 1, 0, 0)]
+    [InlineData(0, 0, 0, 0)]
+    public void CharacterBag_Coins_SplitsIntoGoldSilverCopperCorrectly(int totalCoins, int expectedGold, int expectedSilver, int expectedCopper)
+    {
+        var bag = new CharacterBag { Coins = totalCoins };
+
+        Assert.Equal(expectedGold, bag.GoldCoins);
+        Assert.Equal(expectedSilver, bag.SilverCoins);
+        Assert.Equal(expectedCopper, bag.CopperCoins);
+    }
 }

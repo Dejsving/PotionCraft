@@ -24,4 +24,24 @@ public class CharacterBag
     /// Созданные яды. Ключ — идентификатор яда, значение — яд с количеством.
     /// </summary>
     public Dictionary<Guid, PotionBagItem> Poisons { get; set; } = new();
+
+    /// <summary>
+    /// Общее количество денег в кошельке игрока, хранящееся в медных монетах (базовая единица).
+    /// </summary>
+    public int Coins { get; set; }
+
+    /// <summary>
+    /// Количество золотых монет (сотни и выше от базового значения).
+    /// </summary>
+    public int GoldCoins => Coins / 100;
+
+    /// <summary>
+    /// Количество серебряных монет (десятки). 1 серебряная = 10 медных.
+    /// </summary>
+    public int SilverCoins => (Coins % 100) / 10;
+
+    /// <summary>
+    /// Количество медных монет (единицы).
+    /// </summary>
+    public int CopperCoins => Coins % 10;
 }
