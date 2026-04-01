@@ -60,5 +60,18 @@ namespace PotionCraft.Controllers
             await _characterRepository.DeselectCharacterAsync(id, request.PlayerId);
             return Ok();
         }
+
+        /// <summary>
+        /// Возвращает содержимое сумки персонажа.
+        /// </summary>
+        [HttpGet("{id:guid}/bag")]
+        public async Task<IActionResult> GetBag(Guid id)
+        {
+            var character = await _characterRepository.GetByIdAsync(id);
+            if (character == null)
+                return NotFound(new { message = "Персонаж не найден" });
+
+            return Ok(character.Bag);
+        }
     }
 }

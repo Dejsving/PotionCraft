@@ -35,6 +35,25 @@ namespace PotionCraft.Repository
             modelBuilder.Entity<PlayerCharacter>()
                 .OwnsOne(pc => pc.PoisonerTool);
 
+            modelBuilder.Entity<PlayerCharacter>()
+                .OwnsOne(pc => pc.Bag, bag =>
+                {
+                    bag.Property(b => b.Herbs)
+                        .HasConversion(
+                            v => JsonSerializer.Serialize(v, jsonOptions),
+                            v => JsonSerializer.Deserialize<Dictionary<Guid, GatheringResult>>(v, jsonOptions) ?? new Dictionary<Guid, GatheringResult>());
+
+                    bag.Property(b => b.Potions)
+                        .HasConversion(
+                            v => JsonSerializer.Serialize(v, jsonOptions),
+                            v => JsonSerializer.Deserialize<Dictionary<Guid, PotionBagItem>>(v, jsonOptions) ?? new Dictionary<Guid, PotionBagItem>());
+
+                    bag.Property(b => b.Poisons)
+                        .HasConversion(
+                            v => JsonSerializer.Serialize(v, jsonOptions),
+                            v => JsonSerializer.Deserialize<Dictionary<Guid, PotionBagItem>>(v, jsonOptions) ?? new Dictionary<Guid, PotionBagItem>());
+                });
+
             modelBuilder.Entity<Herb>()
                 .Property(h => h.Habitats)
                 .HasConversion(

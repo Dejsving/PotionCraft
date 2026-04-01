@@ -37,7 +37,10 @@
                             <a class="nav-link text-dark" asp-area="" asp-page="/SourceAndIdea">Источник и идея</a>
                         </li>
                     </ul>
-                    <span id="active-character-badge" class="navbar-text ms-auto text-dark fw-semibold" style="cursor: pointer;" data-bs-toggle="popover" data-bs-placement="bottom" tabindex="0">
+                    <span id="bag-icon" class="navbar-text ms-auto me-3" style="cursor: pointer; display: none;" title="Сумка">
+                        <i class="bi bi-backpack2-fill fs-5"></i>
+                    </span>
+                    <span id="active-character-badge" class="navbar-text text-dark fw-semibold" style="cursor: pointer;" data-bs-toggle="popover" data-bs-placement="bottom" tabindex="0">
                         Персонаж не выбран
                     </span>
                 </div>
@@ -55,6 +58,20 @@
             &copy; 2026 - PotionCraft - <a asp-area="" asp-page="/SourceAndIdea">Источник и идея</a>
         </div>
     </footer>
+
+    <!-- Панель сумки -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="bagPanel" aria-labelledby="bagPanelLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title" id="bagPanelLabel"><i class="bi bi-backpack2-fill me-2"></i>Сумка</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
+        </div>
+        <div class="offcanvas-body" id="bagPanelBody">
+            <div class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+                <span class="ms-2">Загрузка...</span>
+            </div>
+        </div>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
@@ -121,6 +138,122 @@
             }
         }
         updateActiveCharacterBadge();
+
+        // --- Сумка ---
+        const rarityNames = { 0: 'Обычный', 1: 'Необычный', 2: 'Редкий', 3: 'Очень редкий' };
+        const rarityColors = { 0: 'secondary', 1: 'success', 2: 'primary', 3: 'warning' };
+
+        function updateBagIcon() {
+            const bagIcon = document.getElementById('bag-icon');
+            if (!bagIcon) return;
+            const data = window.sessionStorage.getItem('active_character');
+            if (data) {
+                try {
+                    const character = JSON.parse(data);
+                    const id = character.id || character.Id;
+                    if (id) {
+                        bagIcon.style.display = '';
+                        return;
+                    }
+                } catch { }
+            }
+            bagIcon.style.display = 'none';
+        }
+
+        function renderBagSection(title, icon, items, getItemName, getItemRarity) {
+            if (!items || Object.keys(items).length === 0) {
+                return `<h6 class="mt-3 mb-2"><i class="bi ${icon} me-1"></i>${title}</h6>
+                        <p class="text-muted small ms-3">Пусто</p>`;
+            }
+
+            const grouped = {};
+            for (const key in items) {
+                const item = items[key];
+                const rarity = getItemRarity(item);
+                if (!grouped[rarity]) grouped[rarity] = [];
+                grouped[rarity].push(item);
+            }
+
+            let html = `<h6 class="mt-3 mb-2"><i class="bi ${icon} me-1"></i>${title}</h6>`;
+            const sortedRarities = Object.keys(grouped).map(Number).sort((a, b) => a - b);
+            for (const rarity of sortedRarities) {
+                const color = rarityColors[rarity] || 'secondary';
+                html += `<div class="ms-2 mb-2">
+                    <span class="badge bg-${color} mb-1">${rarityNames[rarity] || 'Неизвестно'}</span>
+                    <ul class="list-group list-group-flush small">`;
+                for (const item of grouped[rarity].sort((a, b) => getItemName(a).localeCompare(getItemName(b)))) {
+                    html += `<li class="list-group-item d-flex justify-content-between align-items-center py-1 px-2">
+                        ${getItemName(item)}
+                        <span class="badge bg-dark rounded-pill">${item.quantity ?? item.Quantity ?? 0}</span>
+                    </li>`;
+                }
+                html += `</ul></div>`;
+            }
+            return html;
+        }
+
+        async function loadBag() {
+            const body = document.getElementById('bagPanelBody');
+            if (!body) return;
+
+            const data = window.sessionStorage.getItem('active_character');
+            if (!data) {
+                body.innerHTML = '<p class="text-muted text-center py-4">Персонаж не выбран</p>';
+                return;
+            }
+
+            let characterId;
+            try {
+                const character = JSON.parse(data);
+                characterId = character.id || character.Id;
+            } catch {
+                body.innerHTML = '<p class="text-danger text-center py-4">Ошибка данных персонажа</p>';
+                return;
+            }
+
+            body.innerHTML = `<div class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm" role="status"></div>
+                <span class="ms-2">Загрузка...</span>
+            </div>`;
+
+            try {
+                const response = await fetch(`/api/characters/${characterId}/bag`);
+                if (!response.ok) throw new Error('Ошибка загрузки');
+
+                const bag = await response.json();
+
+                let html = '';
+                html += renderBagSection('Травы', 'bi-flower1', bag.herbs || bag.Herbs,
+                    item => (item.herb || item.Herb)?.name || (item.herb || item.Herb)?.Name || 'Неизвестная трава',
+                    item => (item.herb || item.Herb)?.rarity ?? (item.herb || item.Herb)?.Rarity ?? 0
+                );
+                html += '<hr/>';
+                html += renderBagSection('Зелья', 'bi-droplet-fill', bag.potions || bag.Potions,
+                    item => (item.potion || item.Potion)?.name || (item.potion || item.Potion)?.Name || 'Неизвестное зелье',
+                    item => (item.potion || item.Potion)?.recipe?.rarity ?? (item.potion || item.Potion)?.Recipe?.Rarity ?? 0
+                );
+                html += '<hr/>';
+                html += renderBagSection('Яды', 'bi-exclamation-triangle-fill', bag.poisons || bag.Poisons,
+                    item => (item.potion || item.Potion)?.name || (item.potion || item.Potion)?.Name || 'Неизвестный яд',
+                    item => (item.potion || item.Potion)?.recipe?.rarity ?? (item.potion || item.Potion)?.Recipe?.Rarity ?? 0
+                );
+
+                body.innerHTML = html || '<p class="text-muted text-center py-4">Сумка пуста</p>';
+            } catch (err) {
+                body.innerHTML = `<p class="text-danger text-center py-4">Не удалось загрузить содержимое сумки</p>`;
+            }
+        }
+
+        updateBagIcon();
+
+        const bagIconEl = document.getElementById('bag-icon');
+        if (bagIconEl) {
+            bagIconEl.addEventListener('click', function () {
+                const panel = new bootstrap.Offcanvas(document.getElementById('bagPanel'));
+                loadBag();
+                panel.show();
+            });
+        }
     </script>
 </body>
 </html>

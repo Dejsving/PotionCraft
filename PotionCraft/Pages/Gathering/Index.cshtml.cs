@@ -222,6 +222,3 @@ namespace PotionCraft.Pages.Gathering
         }
     }
 }
-
-
-

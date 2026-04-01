@@ -1,4 +1,6 @@
-﻿namespace PotionCraft.Contracts;
+﻿using PotionCraft.Contracts.Models;
+
+namespace PotionCraft.Contracts;
 
 /// <summary>
 /// Класс для хранения персонажа игрока.
@@ -44,6 +46,11 @@ public class PlayerCharacter
     /// Инструменты отравителя персонажа.
     /// </summary>
     public Tool PoisonerTool { get; set; } = new();
+
+    /// <summary>
+    /// Сумка персонажа для хранения трав, зелий и ядов.
+    /// </summary>
+    public CharacterBag Bag { get; set; } = new();
 
     /// <summary>
     /// Идентификатор игрока, выбравшего этого персонажа. Null — персонаж свободен.

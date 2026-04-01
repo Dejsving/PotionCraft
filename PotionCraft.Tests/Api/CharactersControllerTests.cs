@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PotionCraft.Contracts;
+using PotionCraft.Contracts.Models;
 using PotionCraft.Controllers;
 using PotionCraft.Repository.Abstraction;
 
@@ -100,6 +101,65 @@ public class CharactersControllerTests
 
         Assert.IsType<OkResult>(result);
         _mockRepo.Verify(r => r.DeselectCharacterAsync(id, playerId), Times.Once);
+    }
+
+    // ─── GetBag ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Проверяет, что GetBag возвращает 200 OK с содержимым сумки для существующего персонажа.
+    /// </summary>
+    [Fact]
+    public async Task GetBag_ExistingCharacter_Returns200WithBag()
+    {
+        var id = Guid.NewGuid();
+        var character = new PlayerCharacter { Id = id, Name = "Герой" };
+
+        _mockRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(character);
+
+        var result = await _controller.GetBag(id);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var bag = Assert.IsType<CharacterBag>(okResult.Value);
+        Assert.NotNull(bag);
+        Assert.Empty(bag.Herbs);
+        Assert.Empty(bag.Potions);
+        Assert.Empty(bag.Poisons);
+    }
+
+    /// <summary>
+    /// Проверяет, что GetBag возвращает 404 NotFound для несуществующего персонажа.
+    /// </summary>
+    [Fact]
+    public async Task GetBag_NonExistingCharacter_Returns404()
+    {
+        var id = Guid.NewGuid();
+
+        _mockRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync((PlayerCharacter?)null);
+
+        var result = await _controller.GetBag(id);
+
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    /// <summary>
+    /// Проверяет, что GetBag возвращает сумку с травами, если они есть.
+    /// </summary>
+    [Fact]
+    public async Task GetBag_CharacterWithHerbs_ReturnsBagWithHerbs()
+    {
+        var id = Guid.NewGuid();
+        var herb = new Herb { Id = Guid.NewGuid(), Name = "Тысячелистник" };
+        var character = new PlayerCharacter { Id = id, Name = "Герой" };
+        character.Bag.Herbs.Add(herb.Id, new GatheringResult { Herb = herb, Quantity = 5 });
+
+        _mockRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(character);
+
+        var result = await _controller.GetBag(id);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var bag = Assert.IsType<CharacterBag>(okResult.Value);
+        Assert.Single(bag.Herbs);
+        Assert.Equal(5, bag.Herbs[herb.Id].Quantity);
     }
 }
 
