@@ -1,8 +1,8 @@
 ﻿using PotionCraft.Contracts.Enums;
 
-namespace PotionCraft.Contracts.Models
+namespace PotionCraft.Contracts.Services
 {
-    internal class HerbPrice
+    internal class HerbPriceCalculator
     {
         /// <summary>
         /// Базовая цена
