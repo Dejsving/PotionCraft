@@ -73,5 +73,42 @@ namespace PotionCraft.Controllers
 
             return Ok(character.Bag);
         }
+
+        /// <summary>
+        /// Модель запроса для изменения количества монет.
+        /// </summary>
+        public class CoinsUpdateRequest
+        {
+            public int Gold { get; set; }
+            public int Silver { get; set; }
+            public int Copper { get; set; }
+            public bool IsAdd { get; set; }
+        }
+
+        /// <summary>
+        /// Изменяет количество монет в сумке персонажа.
+        /// </summary>
+        [HttpPost("{id:guid}/bag/coins")]
+        public async Task<IActionResult> UpdateCoins(Guid id, [FromBody] CoinsUpdateRequest request)
+        {
+            var character = await _characterRepository.GetByIdAsync(id);
+            if (character == null)
+                return NotFound(new { message = "Персонаж не найден" });
+
+            int totalCopperChange = (request.Gold * 100) + (request.Silver * 10) + request.Copper;
+
+            if (request.IsAdd)
+            {
+                character.Bag.Coins += totalCopperChange;
+            }
+            else
+            {
+                character.Bag.Coins = Math.Max(0, character.Bag.Coins - totalCopperChange);
+            }
+
+            await _characterRepository.UpdateAsync(character);
+
+            return Ok(character.Bag);
+        }
     }
 }

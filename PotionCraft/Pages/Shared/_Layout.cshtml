@@ -223,6 +223,52 @@
                 const bag = await response.json();
 
                 let html = '';
+                
+                const gold = bag.goldCoins ?? bag.GoldCoins ?? 0;
+                const silver = bag.silverCoins ?? bag.SilverCoins ?? 0;
+                const copper = bag.copperCoins ?? bag.CopperCoins ?? 0;
+
+                html += `<div class="d-flex justify-content-center align-items-center mb-1">
+                    <div class="me-4 d-flex align-items-center" title="Золотые монеты">
+                        <i class="bi bi-coin text-warning fs-4 me-1"></i>
+                        <span class="fs-5 fw-bold">${gold}</span>
+                    </div>
+                    <div class="me-4 d-flex align-items-center" title="Серебряные монеты">
+                        <i class="bi bi-coin text-secondary fs-4 me-1"></i>
+                        <span class="fs-5 fw-bold">${silver}</span>
+                    </div>
+                    <div class="d-flex align-items-center" title="Медные монеты">
+                        <i class="bi bi-coin fs-4 me-1" style="color: #cd7f32;"></i>
+                        <span class="fs-5 fw-bold">${copper}</span>
+                    </div>
+                    <div class="ms-3 d-flex align-items-center" title="Изменить кошелек">
+                        <i class="bi bi-pencil fs-6 text-muted" style="cursor: pointer;" id="toggleCoinsEditor"></i>
+                    </div>
+                </div>
+                <!-- Форма редактирования монет -->
+                <div id="coinsEditor" class="d-none bg-light p-2 rounded mb-3 border">
+                    <div class="d-flex align-items-center mb-2 justify-content-center">
+                        <input type="number" id="goldInput" class="form-control form-control-sm me-1" style="width: 60px;" min="0" value="0">
+                        <i class="bi bi-coin text-warning me-2"></i>
+                        
+                        <input type="number" id="silverInput" class="form-control form-control-sm me-1" style="width: 60px;" min="0" value="0">
+                        <i class="bi bi-coin text-secondary me-2"></i>
+                        
+                        <input type="number" id="copperInput" class="form-control form-control-sm me-1" style="width: 60px;" min="0" value="0">
+                        <i class="bi bi-coin me-2" style="color: #cd7f32;"></i>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <div class="btn-group me-2" role="group">
+                            <input type="radio" class="btn-check" name="coinOp" id="coinAdd" checked>
+                            <label class="btn btn-outline-success btn-sm" for="coinAdd"><i class="bi bi-plus-lg"></i></label>
+                            
+                            <input type="radio" class="btn-check" name="coinOp" id="coinSub">
+                            <label class="btn btn-outline-danger btn-sm" for="coinSub"><i class="bi bi-dash-lg"></i></label>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm flex-grow-1" style="max-width: 150px;" id="btnUpdateCoins">Добавить деньги</button>
+                    </div>
+                </div>`;
+
                 html += renderBagSection('Травы', 'bi-flower1', bag.herbs || bag.Herbs,
                     item => (item.herb || item.Herb)?.name || (item.herb || item.Herb)?.Name || 'Неизвестная трава',
                     item => (item.herb || item.Herb)?.rarity ?? (item.herb || item.Herb)?.Rarity ?? 0
@@ -239,6 +285,66 @@
                 );
 
                 body.innerHTML = html || '<p class="text-muted text-center py-4">Сумка пуста</p>';
+
+                // События для кошелька
+                const toggleEditor = document.getElementById('toggleCoinsEditor');
+                const editorPanel = document.getElementById('coinsEditor');
+                if (toggleEditor && editorPanel) {
+                    toggleEditor.addEventListener('click', () => {
+                        editorPanel.classList.toggle('d-none');
+                    });
+                }
+
+                const coinAdd = document.getElementById('coinAdd');
+                const coinSub = document.getElementById('coinSub');
+                const btnUpdate = document.getElementById('btnUpdateCoins');
+
+                const updateBtnText = () => {
+                    if (coinSub.checked) {
+                        btnUpdate.textContent = 'Потратить деньги';
+                        btnUpdate.classList.replace('btn-primary', 'btn-danger');
+                    } else {
+                        btnUpdate.textContent = 'Добавить деньги';
+                        btnUpdate.classList.replace('btn-danger', 'btn-primary');
+                    }
+                };
+
+                if (coinAdd) coinAdd.addEventListener('change', updateBtnText);
+                if (coinSub) coinSub.addEventListener('change', updateBtnText);
+
+                if (btnUpdate) {
+                    btnUpdate.addEventListener('click', async () => {
+                        const gold = parseInt(document.getElementById('goldInput').value) || 0;
+                        const silver = parseInt(document.getElementById('silverInput').value) || 0;
+                        const copper = parseInt(document.getElementById('copperInput').value) || 0;
+                        
+                        btnUpdate.disabled = true;
+
+                        try {
+                            const res = await fetch(`/api/characters/${characterId}/bag/coins`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    gold: gold,
+                                    silver: silver,
+                                    copper: copper,
+                                    isAdd: coinAdd.checked
+                                })
+                            });
+                            
+                            if (res.ok) {
+                                await loadBag();
+                            } else {
+                                alert('Ошибка обновления монет');
+                            }
+                        } catch (err) {
+                            alert('Ошибка соединения');
+                        } finally {
+                            if (btnUpdate) btnUpdate.disabled = false;
+                        }
+                    });
+                }
+
             } catch (err) {
                 body.innerHTML = `<p class="text-danger text-center py-4">Не удалось загрузить содержимое сумки</p>`;
             }
