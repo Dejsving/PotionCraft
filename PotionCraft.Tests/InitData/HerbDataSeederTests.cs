@@ -47,7 +47,7 @@ public class HerbDataSeederTests
     }
 
     /// <summary>
-    /// Проверяет, что трава с флаговым типом "Potion, Poison" корректно парсится.
+    /// Проверяет, что трава с флаговым типом "HealingModifier, PoisonModifier" корректно парсится.
     /// </summary>
     [Fact]
     public void LoadHerbsFromResource_ParsesFlaggedHerbType()
@@ -56,8 +56,8 @@ public class HerbDataSeederTests
 
         var chromiumSlime = herbs.FirstOrDefault(h => h.Name == "Хромовая слизь");
         Assert.NotNull(chromiumSlime);
-        Assert.True(chromiumSlime.HerbType.HasFlag(HerbTypeEnum.Potion));
-        Assert.True(chromiumSlime.HerbType.HasFlag(HerbTypeEnum.Poison));
+        Assert.True(chromiumSlime.HerbType.HasFlag(HerbTypeEnum.HealingModifier));
+        Assert.True(chromiumSlime.HerbType.HasFlag(HerbTypeEnum.PoisonModifier));
     }
 
     /// <summary>

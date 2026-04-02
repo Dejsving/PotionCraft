@@ -118,7 +118,7 @@ public static class HerbDataSeeder
     }
 
     /// <summary>
-    /// Конвертер для парсинга HerbTypeEnum из строки с поддержкой флагов через запятую (например, "Potion, Poison").
+    /// Конвертер для парсинга HerbTypeEnum из строки с поддержкой флагов через запятую (например, "HealingBase, PoisonModifier").
     /// </summary>
     internal class HerbTypeFlagsConverter : JsonConverter<HerbTypeEnum>
     {

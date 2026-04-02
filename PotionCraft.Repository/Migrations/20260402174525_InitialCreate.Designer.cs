@@ -11,7 +11,7 @@ using PotionCraft.Repository;
 namespace PotionCraft.Repository.Migrations
 {
     [DbContext(typeof(PotionCraftDbContext))]
-    [Migration("20260314133236_InitialCreate")]
+    [Migration("20260402174525_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -88,6 +88,37 @@ namespace PotionCraft.Repository.Migrations
 
             modelBuilder.Entity("PotionCraft.Contracts.PlayerCharacter", b =>
                 {
+                    b.OwnsOne("PotionCraft.Contracts.Models.CharacterBag", "Bag", b1 =>
+                        {
+                            b1.Property<Guid>("PlayerCharacterId")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<int>("Coins")
+                                .HasColumnType("INTEGER");
+
+                            b1.Property<string>("Herbs")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Poisons")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.Property<string>("Potions")
+                                .IsRequired()
+                                .HasColumnType("TEXT");
+
+                            b1.HasKey("PlayerCharacterId");
+
+                            b1.ToTable("PlayerCharacters");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PlayerCharacterId");
+                        });
+
                     b.OwnsOne("PotionCraft.Contracts.Tool", "AlchemistTool", b1 =>
                         {
                             b1.Property<Guid>("PlayerCharacterId")
@@ -155,6 +186,9 @@ namespace PotionCraft.Repository.Migrations
                         });
 
                     b.Navigation("AlchemistTool")
+                        .IsRequired();
+
+                    b.Navigation("Bag")
                         .IsRequired();
 
                     b.Navigation("HerbalismTool")

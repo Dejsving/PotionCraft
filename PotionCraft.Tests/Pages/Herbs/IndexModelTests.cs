@@ -41,7 +41,7 @@ namespace PotionCraft.Tests.Pages.Herbs
                 {
                     Name = "Мандрагора",
                     Description = "Корень в форме человека",
-                    HerbType = HerbTypeEnum.Potion,
+                    HerbType = HerbTypeEnum.HealingBase,
                     Rarity = RarityEnum.Rare,
                     Effect = "Восстанавливает здоровье",
                     Difficulty = 15,
@@ -55,7 +55,7 @@ namespace PotionCraft.Tests.Pages.Herbs
                 {
                     Name = "Болиголов",
                     Description = "Ядовитое растение",
-                    HerbType = HerbTypeEnum.Poison,
+                    HerbType = HerbTypeEnum.PoisonBase,
                     Rarity = RarityEnum.Common,
                     Effect = "Наносит урон ядом",
                     Difficulty = 10,
@@ -68,7 +68,7 @@ namespace PotionCraft.Tests.Pages.Herbs
                 {
                     Name = "Лунный цветок",
                     Description = "Светится в темноте",
-                    HerbType = HerbTypeEnum.Magic | HerbTypeEnum.Potion,
+                    HerbType = HerbTypeEnum.Magic | HerbTypeEnum.HealingBase,
                     Rarity = RarityEnum.VeryRare,
                     Effect = "Даёт ночное зрение",
                     Difficulty = 20,
@@ -145,7 +145,7 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Arrange
             var herbs = CreateTestHerbs();
             _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHerbType = HerbTypeEnum.Poison;
+            _model.FilterHerbType = HerbTypeEnum.PoisonBase;
 
             // Act
             await _model.OnGetAsync();
@@ -277,7 +277,7 @@ namespace PotionCraft.Tests.Pages.Herbs
             // Arrange
             var herbs = CreateTestHerbs();
             _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHerbType = HerbTypeEnum.Potion;
+            _model.FilterHerbType = HerbTypeEnum.HealingBase;
             _model.FilterHabitat = TerrainEnum.Forest;
 
             // Act

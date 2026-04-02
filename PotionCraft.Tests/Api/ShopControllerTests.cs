@@ -42,7 +42,7 @@ public class ShopControllerTests
             Id = Guid.NewGuid(),
             Name = name,
             Rarity = rarity,
-            HerbType = HerbTypeEnum.Potion,
+            HerbType = HerbTypeEnum.HealingBase,
             Description = "Тестовое описание",
             Effect = "Тестовый эффект",
             Difficulty = 10

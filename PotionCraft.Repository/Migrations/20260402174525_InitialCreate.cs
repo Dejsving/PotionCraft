@@ -47,6 +47,11 @@ namespace PotionCraft.Repository.Migrations
                     PoisonerTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
                     PoisonerTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
                     PoisonerTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
+                    Bag_Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Bag_Herbs = table.Column<string>(type: "TEXT", nullable: false),
+                    Bag_Potions = table.Column<string>(type: "TEXT", nullable: false),
+                    Bag_Poisons = table.Column<string>(type: "TEXT", nullable: false),
+                    Bag_Coins = table.Column<int>(type: "INTEGER", nullable: false),
                     SelectedBy = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
