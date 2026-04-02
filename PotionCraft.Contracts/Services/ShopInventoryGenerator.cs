@@ -24,12 +24,6 @@ namespace PotionCraft.Contracts.Services
         private static readonly int[] _maxQuantities = { 40, 15, 3, 1 };
 
         /// <summary>
-        /// Глобальный множитель количества (для особых событий или прокачки репутации).
-        /// По умолчанию 1.0. Можно менять в рантайме, если нужно устроить "День изобилия".
-        /// </summary>
-        private static double _globalQuantityMultiplier { get; set; } = 1.0;
-
-        /// <summary>
         /// Генерирует количество товара для заполнения магазина на основе его редкости.
         /// </summary>
         /// <param name="rarity">Уровень редкости предмета.</param>
@@ -54,20 +48,9 @@ namespace PotionCraft.Contracts.Services
             int min = _minQuantities[index];
             int max = _maxQuantities[index];
 
-            int baseQuantity = Random.Shared.Next(min, max + 1);
-
-            // 3. Применяем глобальный множитель и округляем
-            int finalQuantity = (int)Math.Round(baseQuantity * _globalQuantityMultiplier);
+            int finalQuantity = Random.Shared.Next(min, max + 1);
 
             return finalQuantity;
-        }
-
-        /// <summary>
-        /// Удобный метод, если нужно массово изменить завоз (например, +20% товаров).
-        /// </summary>
-        public static void SetGlobalMultiplier(double multiplier)
-        {
-            _globalQuantityMultiplier = multiplier > 0 ? multiplier : 1; // Защита от отрицательных значений
         }
     }
 }

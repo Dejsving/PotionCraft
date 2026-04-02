@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Extensions;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Contracts.Services;
@@ -105,7 +104,7 @@ namespace PotionCraft.Controllers
                         });
                     }
 
-                    totalBuyCostGold += HerbPriceCalculator.GetBuyPrice(herb.Rarity, 1) * item.Quantity;
+                    totalBuyCostGold += HerbPriceCalculator.GetBuyPrice(herb.Rarity, item.Quantity) * item.Quantity;
                 }
             }
 
@@ -136,7 +135,7 @@ namespace PotionCraft.Controllers
                         });
                     }
 
-                    totalSellRevenueGold += HerbPriceCalculator.GetSellPrice(herb.Rarity, 1) * item.Quantity;
+                    totalSellRevenueGold += HerbPriceCalculator.GetSellPrice(herb.Rarity, item.Quantity) * item.Quantity;
                 }
             }
 

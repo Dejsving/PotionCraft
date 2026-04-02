@@ -39,6 +39,42 @@ function getRarityBadge(rarity, rarityName) {
     return `<span class="badge bg-${color}">${rarityName || 'Неизвестно'}</span>`;
 }
 
+// ─── Ценообразование (зеркало HerbPriceCalculator) ─────────────────────────
+
+// Скорость падения цены от количества. Больше = быстрее падает.
+function getPriceDecayRate(rarity) {
+    return 0.1 + rarity / 3.0 * 0.4;
+}
+
+// Минимальный множитель цены (пол).
+function getAlpha(rarity) {
+    return 0.5 - rarity / 3.0 * 0.4;
+}
+
+// Множитель спроса: при qty=1 равен 1, при росте стремится к 1/alpha.
+function getDemandFactor(rarity, quantity) {
+    const alpha = getAlpha(rarity);
+    const decay = getPriceDecayRate(rarity);
+    return (1.0 / alpha) - ((1.0 / alpha) - 1.0) * Math.exp(-decay * (quantity - 1));
+}
+
+// Множитель предложения: при qty=1 равен 1, при росте стремится к alpha.
+function getSupplyFactor(rarity, quantity) {
+    const alpha = getAlpha(rarity);
+    const decay = getPriceDecayRate(rarity);
+    return alpha + (1.0 - alpha) * Math.exp(-decay * (quantity - 1));
+}
+
+// Рассчитывает общую стоимость покупки (цена за единицу при qty=1 * множитель * кол-во).
+function calcBuyTotal(baseBuyPrice, rarity, quantity) {
+    return Math.round(baseBuyPrice * getDemandFactor(rarity, quantity) * quantity * 100) / 100;
+}
+
+// Рассчитывает общую стоимость продажи (цена за единицу при qty=1 * множитель * кол-во).
+function calcSellTotal(baseSellPrice, rarity, quantity) {
+    return Math.round(baseSellPrice * getSupplyFactor(rarity, quantity) * quantity * 100) / 100;
+}
+
 // ─── Загрузка данных ───────────────────────────────────────────────────────
 
 async function loadShopInventory() {
@@ -260,7 +296,7 @@ function renderPlayerInventory() {
                      item.category === 'potion' ? 'bi-droplet-fill' : 'bi-exclamation-triangle-fill';
 
         html += `<a href="#" class="list-group-item list-group-item-action py-1 px-2 d-flex justify-content-between align-items-center player-item ${item.quantity <= 0 ? 'disabled text-muted' : ''}"
-            data-id="${item.id}" data-category="${item.category}" data-sell-price="${item.sellPrice}">
+            data-id="${item.id}" data-category="${item.category}" data-sell-price="${item.sellPrice}" data-rarity="${item.rarity}">
             <div>
                 <i class="bi ${icon} me-1"></i>
                 <span class="small">${item.name}</span>
@@ -288,12 +324,13 @@ function renderTradeBuy() {
 
     let html = '';
     for (const [id, entry] of tradeBuy) {
+        const totalCost = calcBuyTotal(entry.item.buyPrice, entry.item.rarity, entry.quantity);
         html += `<div class="d-flex justify-content-between align-items-center mb-1 trade-buy-item" data-id="${id}">
             <div class="small text-truncate me-1" style="max-width: 45%;">
                 <i class="bi bi-flower1 me-1"></i>${entry.item.name}
             </div>
             <div class="d-flex align-items-center">
-                <span class="small text-danger me-2">${formatGold(entry.item.buyPrice * entry.quantity)}</span>
+                <span class="small text-danger me-2">${formatGold(totalCost)}</span>
                 <input type="number" class="form-control form-control-sm text-center trade-buy-qty" data-id="${id}" value="${entry.quantity}" min="1" max="${entry.item.availableQuantity}" style="width: 50px; padding: 0 2px; height: 24px;" />
                 <button class="btn btn-outline-danger btn-sm py-0 px-1 ms-1 trade-buy-remove" data-id="${id}" title="Убрать">
                     <i class="bi bi-x"></i>
@@ -328,13 +365,14 @@ function renderTradeSell() {
     for (const [id, entry] of tradeSell) {
         const icon = entry.category === 'herb' ? 'bi-flower1' :
                      entry.category === 'potion' ? 'bi-droplet-fill' : 'bi-exclamation-triangle-fill';
+        const totalRevenue = calcSellTotal(entry.sellPrice, entry.rarity, entry.quantity);
 
         html += `<div class="d-flex justify-content-between align-items-center mb-1 trade-sell-item" data-id="${id}">
             <div class="small text-truncate me-1" style="max-width: 45%;">
                 <i class="bi ${icon} me-1"></i>${entry.name}
             </div>
             <div class="d-flex align-items-center">
-                <span class="small text-success me-2">${formatGold(entry.sellPrice * entry.quantity)}</span>
+                <span class="small text-success me-2">${formatGold(totalRevenue)}</span>
                 <input type="number" class="form-control form-control-sm text-center trade-sell-qty" data-id="${id}" value="${entry.quantity}" min="1" max="${getMaxSellQty(id, entry.category)}" style="width: 50px; padding: 0 2px; height: 24px;" />
                 <button class="btn btn-outline-danger btn-sm py-0 px-1 ms-1 trade-sell-remove" data-id="${id}" title="Убрать">
                     <i class="bi bi-x"></i>
@@ -350,12 +388,12 @@ function renderTradeSell() {
 function updateTradeBalance() {
     let totalBuy = 0;
     for (const [, entry] of tradeBuy) {
-        totalBuy += entry.item.buyPrice * entry.quantity;
+        totalBuy += calcBuyTotal(entry.item.buyPrice, entry.item.rarity, entry.quantity);
     }
 
     let totalSell = 0;
     for (const [, entry] of tradeSell) {
-        totalSell += entry.sellPrice * entry.quantity;
+        totalSell += calcSellTotal(entry.sellPrice, entry.rarity, entry.quantity);
     }
 
     const balance = totalSell - totalBuy;
@@ -435,6 +473,7 @@ function bindPlayerItemClicks() {
             const id = this.dataset.id;
             const category = this.dataset.category;
             const sellPrice = parseFloat(this.dataset.sellPrice) || 0;
+            const rarity = parseInt(this.dataset.rarity) || 0;
             const nameEl = this.querySelector('.small');
             const name = nameEl ? nameEl.textContent : 'Неизвестно';
 
@@ -452,7 +491,7 @@ function bindPlayerItemClicks() {
             if (tradeSell.has(id)) {
                 tradeSell.get(id).quantity++;
             } else {
-                tradeSell.set(id, { name: name, category: category, sellPrice: sellPrice, quantity: 1 });
+                tradeSell.set(id, { name: name, category: category, sellPrice: sellPrice, rarity: rarity, quantity: 1 });
             }
 
             renderPlayerInventory();
