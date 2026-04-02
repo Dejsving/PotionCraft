@@ -8,9 +8,9 @@ namespace PotionCraft.Contracts.Services
         /// <summary>
         /// Шанс появления предмета в магазине (от 0.0 до 1.0).
         /// Индексы соответствуют RarityEnum: 0 - Common, 1 - Unusual, 2 - Rare, 3 - VeryRare.
-        /// Common и Unusual появляются всегда (1.0). Rare - 40%, VeryRare - 10%.
+        /// Common - 50%, Unusual - 30%, Rare - 10%, VeryRare - 1%.
         /// </summary>
-        private static readonly double[] _spawnChances = { 1.0, 1.0, 0.4, 0.1 };
+        private static readonly double[] _spawnChances = { 0.5, 0.3, 0.1, 0.01 };
 
         /// <summary>
         /// Минимальное количество товара, если он всё-таки появился в магазине.
@@ -67,7 +67,7 @@ namespace PotionCraft.Contracts.Services
         /// </summary>
         public static void SetGlobalMultiplier(double multiplier)
         {
-            _globalQuantityMultiplier = Math.Max(0, multiplier); // Защита от отрицательных значений
+            _globalQuantityMultiplier = multiplier > 0 ? multiplier : 1; // Защита от отрицательных значений
         }
     }
 }

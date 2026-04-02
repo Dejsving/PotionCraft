@@ -107,6 +107,7 @@ function updatePlayerBalance() {
 function renderShopInventory() {
     const container = document.getElementById('shopInventoryList');
     const filtered = shopInventory.filter(item => {
+        if (item.availableQuantity <= 0) return false;
         if (activeShopFilter === 'all') return true;
         return item.category === activeShopFilter;
     });

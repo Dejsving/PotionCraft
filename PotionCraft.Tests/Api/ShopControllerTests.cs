@@ -84,10 +84,10 @@ public class ShopControllerTests
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         var items = Assert.IsAssignableFrom<List<ShopItem>>(okResult.Value);
-        // Товары могут быть отфильтрованы по quantity > 0
+        // Все травы возвращаются (включая те, у которых AvailableQuantity == 0)
+        Assert.Equal(2, items.Count);
         Assert.All(items, item =>
         {
-            Assert.True(item.AvailableQuantity > 0);
             Assert.True(item.BuyPrice > 0);
             Assert.True(item.SellPrice > 0);
             Assert.Equal("herb", item.Category);
@@ -110,6 +110,37 @@ public class ShopControllerTests
     }
 
     /// <summary>
+    /// Проверяет, что предметы с нулевым количеством всё равно возвращаются с корректными ценами.
+    /// </summary>
+    [Fact]
+    public async Task GetInventory_ZeroQuantityItems_StillHavePrices()
+    {
+        var herb = CreateHerb("Стебли Гифломы", RarityEnum.VeryRare);
+        _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+
+        // Вызываем много раз — VeryRare имеет 1% шанс появления, поэтому
+        // хотя бы в одном вызове AvailableQuantity будет 0
+        bool foundZeroQuantityWithPrice = false;
+        for (int i = 0; i < 200; i++)
+        {
+            var result = await _controller.GetInventory();
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var items = Assert.IsAssignableFrom<List<ShopItem>>(okResult.Value);
+
+            // Всегда должен возвращаться 1 элемент, даже если количество = 0
+            Assert.Single(items);
+            var item = items[0];
+            Assert.True(item.SellPrice > 0, "Цена продажи должна быть больше 0 даже при нулевом количестве");
+            Assert.True(item.BuyPrice > 0, "Цена покупки должна быть больше 0 даже при нулевом количестве");
+
+            if (item.AvailableQuantity == 0)
+                foundZeroQuantityWithPrice = true;
+        }
+
+        Assert.True(foundZeroQuantityWithPrice, "За 200 попыток должен был встретиться предмет с AvailableQuantity == 0");
+    }
+
+    /// <summary>
     /// Проверяет, что все товары в ассортименте имеют названия и корректные редкости.
     /// </summary>
     [Fact]
@@ -123,15 +154,13 @@ public class ShopControllerTests
         var okResult = Assert.IsType<OkObjectResult>(result);
         var items = Assert.IsAssignableFrom<List<ShopItem>>(okResult.Value);
 
-        if (items.Count > 0)
-        {
-            var item = items[0];
-            Assert.Equal(herb.Id, item.Id);
-            Assert.Equal("Лунник", item.Name);
-            Assert.Equal(1, item.Rarity);
-            Assert.Equal("Необычный", item.RarityName);
-            Assert.Equal("herb", item.Category);
-        }
+        Assert.Single(items);
+        var item = items[0];
+        Assert.Equal(herb.Id, item.Id);
+        Assert.Equal("Лунник", item.Name);
+        Assert.Equal(1, item.Rarity);
+        Assert.Equal("Необычный", item.RarityName);
+        Assert.Equal("herb", item.Category);
     }
 
     // ─── ExecuteTrade ─────────────────────────────────────────────────────────

@@ -53,7 +53,6 @@ namespace PotionCraft.Controllers
                 AvailableQuantity = ShopInventoryGenerator.GetQuantityForShop(h.Rarity),
                 HerbType = (int)h.HerbType
             })
-            .Where(i => i.AvailableQuantity > 0)
             .OrderBy(i => i.Rarity)
             .ThenBy(i => i.Name)
             .ToList();
