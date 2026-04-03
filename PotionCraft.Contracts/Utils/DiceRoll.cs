@@ -1,7 +1,7 @@
 namespace PotionCraft.Contracts.DiceRolls;
 
 /// <summary>
-/// Представляет контракт броска N-гранных кубиков.
+/// Представляет контракт броска N-гранных кубиков (только описание, без логики генерации).
 /// </summary>
 public class DiceRoll
 {
@@ -35,40 +35,6 @@ public class DiceRoll
 
         Sides = sides;
         Count = count;
-    }
-
-    /// <summary>
-    /// Совершает бросок и возвращает только итоговую сумму.
-    /// </summary>
-    public int Roll()
-    {
-        int sum = 0;
-        for (int i = 0; i < Count; i++)
-        {
-            // Random.Shared.Next(min, max) возвращает от min включительно до max НЕвключительно.
-            // Поэтому прибавляем 1 к количеству граней.
-            sum += Random.Shared.Next(1, Sides + 1);
-        }
-        return sum;
-    }
-
-    /// <summary>
-    /// Совершает бросок и возвращает детальный результат (сумму и значения каждого кубика).
-    /// Полезно для обработки критических успехов/провалов в игровой логике.
-    /// </summary>
-    public DiceRollResult RollDetailed()
-    {
-        var rolls = new int[Count];
-        int sum = 0;
-
-        for (int i = 0; i < Count; i++)
-        {
-            int roll = Random.Shared.Next(1, Sides + 1);
-            rolls[i] = roll;
-            sum += roll;
-        }
-
-        return new DiceRollResult(sum, rolls);
     }
 }
 

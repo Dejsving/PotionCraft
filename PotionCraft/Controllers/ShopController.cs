@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PotionCraft.Contracts.Extensions;
+using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
-using PotionCraft.Contracts.Services;
 using PotionCraft.Repository.Abstraction;
 
 namespace PotionCraft.Controllers
@@ -24,12 +24,25 @@ namespace PotionCraft.Controllers
         private readonly IPlayerCharacterRepository _characterRepository;
 
         /// <summary>
+        /// Калькулятор цен.
+        /// </summary>
+        private readonly IPriceCalculator _priceCalculator;
+
+        /// <summary>
+        /// Генератор инвентаря магазина.
+        /// </summary>
+        private readonly IInventoryGenerator _inventoryGenerator;
+
+        /// <summary>
         /// Инициализирует новый экземпляр контроллера магазина.
         /// </summary>
-        public ShopController(IHerbRepository herbRepository, IPlayerCharacterRepository characterRepository)
+        public ShopController(IHerbRepository herbRepository, IPlayerCharacterRepository characterRepository,
+            IPriceCalculator priceCalculator, IInventoryGenerator inventoryGenerator)
         {
             _herbRepository = herbRepository;
             _characterRepository = characterRepository;
+            _priceCalculator = priceCalculator;
+            _inventoryGenerator = inventoryGenerator;
         }
 
         /// <summary>
@@ -47,9 +60,9 @@ namespace PotionCraft.Controllers
                 Category = "herb",
                 Rarity = (int)h.Rarity,
                 RarityName = h.Rarity.GetDisplayName(),
-                BuyPrice = HerbPriceCalculator.GetBuyPrice(h.Rarity, 1),
-                SellPrice = HerbPriceCalculator.GetSellPrice(h.Rarity, 1),
-                AvailableQuantity = ShopInventoryGenerator.GetQuantityForShop(h.Rarity),
+                BuyPrice = _priceCalculator.GetBuyPrice(h.Rarity, 1),
+                SellPrice = _priceCalculator.GetSellPrice(h.Rarity, 1),
+                AvailableQuantity = _inventoryGenerator.GetQuantityForShop(h.Rarity),
                 HerbType = (int)h.HerbType
             })
             .OrderBy(i => i.Rarity)
@@ -114,7 +127,7 @@ namespace PotionCraft.Controllers
                         });
                     }
 
-                    totalBuyCostGold += HerbPriceCalculator.GetBuyPrice(herb.Rarity, item.Quantity) * item.Quantity;
+                    totalBuyCostGold += _priceCalculator.GetBuyPrice(herb.Rarity, item.Quantity) * item.Quantity;
                 }
             }
 
@@ -143,7 +156,7 @@ namespace PotionCraft.Controllers
                         });
                     }
 
-                    totalSellRevenueGold += HerbPriceCalculator.GetSellPrice(herb.Rarity, item.Quantity) * item.Quantity;
+                    totalSellRevenueGold += _priceCalculator.GetSellPrice(herb.Rarity, item.Quantity) * item.Quantity;
                 }
             }
 

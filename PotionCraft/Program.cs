@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using PotionCraft.Contracts.Interfaces;
+using PotionCraft.Contracts.Services;
 using PotionCraft.InitData;
 using PotionCraft.Repository;
 using PotionCraft.Repository.Abstraction;
@@ -25,6 +27,9 @@ namespace PotionCraft
 
             builder.Services.AddScoped<IPlayerCharacterRepository, PlayerCharacterRepository>();
             builder.Services.AddScoped<IHerbRepository, HerbRepository>();
+            builder.Services.AddSingleton<IDiceRoller, DiceRoller>();
+            builder.Services.AddSingleton<IPriceCalculator, HerbPriceCalculator>();
+            builder.Services.AddSingleton<IInventoryGenerator, ShopInventoryGenerator>();
             builder.Services.AddScoped<Services.Gathering.IGatheringService, Services.Gathering.GatheringService>();
 
             var app = builder.Build();

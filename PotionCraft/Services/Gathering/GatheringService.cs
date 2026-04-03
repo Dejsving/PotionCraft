@@ -1,5 +1,6 @@
 using PotionCraft.Contracts.DiceRolls;
 using PotionCraft.Contracts.Enums;
+using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;
 
@@ -173,12 +174,19 @@ public class GatheringService : IGatheringService
     private readonly IHerbRepository _herbRepository;
 
     /// <summary>
+    /// Сервис бросков кубиков.
+    /// </summary>
+    private readonly IDiceRoller _diceRoller;
+
+    /// <summary>
     /// Конструктор сервиса.
     /// </summary>
     /// <param name="herbRepository">Репозиторий трав.</param>
-    public GatheringService(IHerbRepository herbRepository)
+    /// <param name="diceRoller">Сервис бросков кубиков.</param>
+    public GatheringService(IHerbRepository herbRepository, IDiceRoller diceRoller)
     {
         _herbRepository = herbRepository;
+        _diceRoller = diceRoller;
     }
 
     /// <summary>
@@ -190,12 +198,12 @@ public class GatheringService : IGatheringService
         
         while (true)
         {
-            int roll = DiceRoll.TwoD6.Roll();
+            int roll = _diceRoller.Roll(DiceRoll.TwoD6);
             
             // Если выпадает 2-4 или 10-12, шанс на Элементальную воду
             if ((roll >= 2 && roll <= 4) || (roll >= 10 && roll <= 12))
             {
-                if (DiceRoll.D100.Roll() > 75)
+                if (_diceRoller.Roll(DiceRoll.D100) > 75)
                 {
                     var elementalWater = allHerbs.FirstOrDefault(h => h.Name.Equals("Элементальная вода", StringComparison.OrdinalIgnoreCase))
                                          ?? new Herb { Name = "Элементальная вода", Description = "Вспомогательный ингредиент для мощных зелий" };
@@ -213,7 +221,7 @@ public class GatheringService : IGatheringService
 
             if (rule == AdditionalRulesEnum.CheckCommon)
             {
-                int commonRoll = DiceRoll.TwoD6.Roll();
+                int commonRoll = _diceRoller.Roll(DiceRoll.TwoD6);
                 (herbName, rule) = GatheringTables[TerrainEnum.Everewhere][commonRoll];
             }
 
@@ -261,12 +269,12 @@ public class GatheringService : IGatheringService
         {
             AdditionalRulesEnum.OneOnly => 1,
             AdditionalRulesEnum.TwoOnly => 2,
-            AdditionalRulesEnum.TwoIfRain => request.IsRaining ? 2 : DiceRoll.D4.Roll(),
-            AdditionalRulesEnum.TwoIfCave => request.IsCave ? 2 : DiceRoll.D4.Roll(),
+            AdditionalRulesEnum.TwoIfRain => request.IsRaining ? 2 : _diceRoller.Roll(DiceRoll.D4),
+            AdditionalRulesEnum.TwoIfCave => request.IsCave ? 2 : _diceRoller.Roll(DiceRoll.D4),
             AdditionalRulesEnum.NightTwoDayReroll => 2, // Днем переброс, сюда дойдет только ночью
-            AdditionalRulesEnum.OneOrTwo => DiceRoll.D4.Roll() % 2 == 0 ? 2 : 1, // 1-2 шт.
+            AdditionalRulesEnum.OneOrTwo => _diceRoller.Roll(DiceRoll.D4) % 2 == 0 ? 2 : 1, // 1-2 шт.
             AdditionalRulesEnum.AddElementalWater => 1, // Элементальная вода всегда 1 шт.
-            _ => DiceRoll.D4.Roll() // результат броска D4 растений, если нет других правил
+            _ => _diceRoller.Roll(DiceRoll.D4) // результат броска D4 растений, если нет других правил
         };
     }
 }

@@ -5,6 +5,7 @@ using PotionCraft.Contracts;
 using PotionCraft.Contracts.DiceRolls;
 using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Extensions;
+using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;
 using PotionCraft.Services.Gathering;
@@ -18,12 +19,14 @@ namespace PotionCraft.Pages.Gathering
     {
         private readonly IPlayerCharacterRepository _characterRepository;
         private readonly IGatheringService _gatheringService;
+        private readonly IDiceRoller _diceRoller;
 
         public IndexModel(IPlayerCharacterRepository characterRepository,
-            IGatheringService gatheringService)
+            IGatheringService gatheringService, IDiceRoller diceRoller)
         {
             _characterRepository = characterRepository;
             _gatheringService = gatheringService;
+            _diceRoller = diceRoller;
             PrepareOptions();
         }
 
@@ -124,7 +127,7 @@ namespace PotionCraft.Pages.Gathering
             
             for (int i = 0; i < Input.RollsCount; i++)
             {
-                int baseRoll = DiceRoll.D20.Roll();
+                int baseRoll = _diceRoller.Roll(DiceRoll.D20);
                 int total = baseRoll + modifier;
                 RollResults.Add(total);
                 

@@ -1,4 +1,6 @@
+using Moq;
 using PotionCraft.Contracts.Enums;
+using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Services;
 
 namespace PotionCraft.Tests.Services;
@@ -9,6 +11,24 @@ namespace PotionCraft.Tests.Services;
 public class HerbPriceCalculatorTests
 {
     /// <summary>
+    /// Мок сервиса бросков кубиков.
+    /// </summary>
+    private readonly Mock<IDiceRoller> _diceRollerMock;
+
+    /// <summary>
+    /// Экземпляр калькулятора цен для тестирования.
+    /// </summary>
+    private readonly HerbPriceCalculator _calculator;
+
+    public HerbPriceCalculatorTests()
+    {
+        _diceRollerMock = new Mock<IDiceRoller>();
+        // По умолчанию шум = 0 (NextDouble = 0.5 даёт noise = 1.0)
+        _diceRollerMock.Setup(d => d.NextDouble()).Returns(0.5);
+        _calculator = new HerbPriceCalculator(_diceRollerMock.Object);
+    }
+
+    /// <summary>
     /// Проверяет, что цена продажи за единицу снижается при увеличении количества.
     /// </summary>
     [Theory]
@@ -18,21 +38,11 @@ public class HerbPriceCalculatorTests
     [InlineData(RarityEnum.VeryRare)]
     public void GetSellPrice_HigherQuantity_LowerUnitPrice(RarityEnum rarity)
     {
-        // Собираем по 50 замеров для каждого количества, чтобы усреднить случайный шум
-        const int samples = 50;
-        double avgPrice1 = 0, avgPrice10 = 0;
+        var price1 = _calculator.GetSellPrice(rarity, 1);
+        var price10 = _calculator.GetSellPrice(rarity, 10);
 
-        for (int i = 0; i < samples; i++)
-        {
-            avgPrice1 += HerbPriceCalculator.GetSellPrice(rarity, 1);
-            avgPrice10 += HerbPriceCalculator.GetSellPrice(rarity, 10);
-        }
-
-        avgPrice1 /= samples;
-        avgPrice10 /= samples;
-
-        Assert.True(avgPrice10 < avgPrice1,
-            $"Средняя цена продажи за единицу при qty=10 ({avgPrice10:F2}) должна быть ниже, чем при qty=1 ({avgPrice1:F2}) для {rarity}");
+        Assert.True(price10 < price1,
+            $"Цена продажи за единицу при qty=10 ({price10:F2}) должна быть ниже, чем при qty=1 ({price1:F2}) для {rarity}");
     }
 
     /// <summary>
@@ -45,20 +55,11 @@ public class HerbPriceCalculatorTests
     [InlineData(RarityEnum.VeryRare)]
     public void GetBuyPrice_HigherQuantity_HigherUnitPrice(RarityEnum rarity)
     {
-        const int samples = 50;
-        double avgPrice1 = 0, avgPrice10 = 0;
+        var price1 = _calculator.GetBuyPrice(rarity, 1);
+        var price10 = _calculator.GetBuyPrice(rarity, 10);
 
-        for (int i = 0; i < samples; i++)
-        {
-            avgPrice1 += HerbPriceCalculator.GetBuyPrice(rarity, 1);
-            avgPrice10 += HerbPriceCalculator.GetBuyPrice(rarity, 10);
-        }
-
-        avgPrice1 /= samples;
-        avgPrice10 /= samples;
-
-        Assert.True(avgPrice10 > avgPrice1,
-            $"Средняя цена покупки за единицу при qty=10 ({avgPrice10:F2}) должна быть выше, чем при qty=1 ({avgPrice1:F2}) для {rarity}");
+        Assert.True(price10 > price1,
+            $"Цена покупки за единицу при qty=10 ({price10:F2}) должна быть выше, чем при qty=1 ({price1:F2}) для {rarity}");
     }
 
     /// <summary>
@@ -71,11 +72,8 @@ public class HerbPriceCalculatorTests
     [InlineData(RarityEnum.VeryRare, 100)]
     public void GetSellPrice_AlwaysPositive(RarityEnum rarity, int quantity)
     {
-        for (int i = 0; i < 20; i++)
-        {
-            var price = HerbPriceCalculator.GetSellPrice(rarity, quantity);
-            Assert.True(price > 0, $"Цена продажи должна быть положительной: {price}");
-        }
+        var price = _calculator.GetSellPrice(rarity, quantity);
+        Assert.True(price > 0, $"Цена продажи должна быть положительной: {price}");
     }
 
     /// <summary>
@@ -88,11 +86,8 @@ public class HerbPriceCalculatorTests
     [InlineData(RarityEnum.VeryRare, 100)]
     public void GetBuyPrice_AlwaysPositive(RarityEnum rarity, int quantity)
     {
-        for (int i = 0; i < 20; i++)
-        {
-            var price = HerbPriceCalculator.GetBuyPrice(rarity, quantity);
-            Assert.True(price > 0, $"Цена покупки должна быть положительной: {price}");
-        }
+        var price = _calculator.GetBuyPrice(rarity, quantity);
+        Assert.True(price > 0, $"Цена покупки должна быть положительной: {price}");
     }
 
     /// <summary>
@@ -105,69 +100,61 @@ public class HerbPriceCalculatorTests
     [InlineData(RarityEnum.VeryRare)]
     public void BuyPrice_AlwaysHigherThanSellPrice_AtSameQuantity(RarityEnum rarity)
     {
-        const int samples = 50;
-        double avgBuy = 0, avgSell = 0;
+        var buyPrice = _calculator.GetBuyPrice(rarity, 1);
+        var sellPrice = _calculator.GetSellPrice(rarity, 1);
 
-        for (int i = 0; i < samples; i++)
-        {
-            avgBuy += HerbPriceCalculator.GetBuyPrice(rarity, 1);
-            avgSell += HerbPriceCalculator.GetSellPrice(rarity, 1);
-        }
-
-        avgBuy /= samples;
-        avgSell /= samples;
-
-        Assert.True(avgBuy > avgSell,
-            $"Средняя цена покупки ({avgBuy:F2}) должна быть выше средней цены продажи ({avgSell:F2}) для {rarity}");
+        Assert.True(buyPrice > sellPrice,
+            $"Цена покупки ({buyPrice:F2}) должна быть выше цены продажи ({sellPrice:F2}) для {rarity}");
     }
 
     /// <summary>
-    /// Проверяет, что общая стоимость покупки оптом (qty * unitPrice(qty)) выше, чем qty * unitPrice(1),
-    /// то есть оптовая покупка обходится дороже чем поштучная.
+    /// Проверяет, что общая стоимость покупки оптом выше, чем поштучная.
     /// </summary>
     [Theory]
     [InlineData(RarityEnum.Common, 5)]
     [InlineData(RarityEnum.Rare, 10)]
     public void GetBuyPrice_BulkTotalCost_HigherThanSingleUnitTotal(RarityEnum rarity, int quantity)
     {
-        const int samples = 50;
-        double avgBulkTotal = 0, avgSingleTotal = 0;
+        var bulkTotal = _calculator.GetBuyPrice(rarity, quantity) * quantity;
+        var singleTotal = _calculator.GetBuyPrice(rarity, 1) * quantity;
 
-        for (int i = 0; i < samples; i++)
-        {
-            avgBulkTotal += HerbPriceCalculator.GetBuyPrice(rarity, quantity) * quantity;
-            avgSingleTotal += HerbPriceCalculator.GetBuyPrice(rarity, 1) * quantity;
-        }
-
-        avgBulkTotal /= samples;
-        avgSingleTotal /= samples;
-
-        Assert.True(avgBulkTotal > avgSingleTotal,
-            $"Оптовая стоимость покупки ({avgBulkTotal:F2}) должна быть выше поштучной ({avgSingleTotal:F2})");
+        Assert.True(bulkTotal > singleTotal,
+            $"Оптовая стоимость покупки ({bulkTotal:F2}) должна быть выше поштучной ({singleTotal:F2})");
     }
 
     /// <summary>
-    /// Проверяет, что общая выручка от оптовой продажи (qty * unitPrice(qty)) ниже, чем qty * unitPrice(1),
-    /// то есть оптовая продажа приносит меньше чем поштучная.
+    /// Проверяет, что общая выручка от оптовой продажи ниже, чем поштучная.
     /// </summary>
     [Theory]
     [InlineData(RarityEnum.Common, 5)]
     [InlineData(RarityEnum.Rare, 10)]
     public void GetSellPrice_BulkTotalRevenue_LowerThanSingleUnitTotal(RarityEnum rarity, int quantity)
     {
-        const int samples = 50;
-        double avgBulkTotal = 0, avgSingleTotal = 0;
+        var bulkTotal = _calculator.GetSellPrice(rarity, quantity) * quantity;
+        var singleTotal = _calculator.GetSellPrice(rarity, 1) * quantity;
 
-        for (int i = 0; i < samples; i++)
-        {
-            avgBulkTotal += HerbPriceCalculator.GetSellPrice(rarity, quantity) * quantity;
-            avgSingleTotal += HerbPriceCalculator.GetSellPrice(rarity, 1) * quantity;
-        }
+        Assert.True(bulkTotal < singleTotal,
+            $"Оптовая выручка ({bulkTotal:F2}) должна быть ниже поштучной ({singleTotal:F2})");
+    }
 
-        avgBulkTotal /= samples;
-        avgSingleTotal /= samples;
+    /// <summary>
+    /// Проверяет, что шум корректно влияет на цену при разных значениях NextDouble.
+    /// </summary>
+    [Fact]
+    public void GetSellPrice_WithDifferentNoise_ProducesDifferentPrices()
+    {
+        var mockLow = new Mock<IDiceRoller>();
+        mockLow.Setup(d => d.NextDouble()).Returns(0.0); // минимальный шум
+        var calcLow = new HerbPriceCalculator(mockLow.Object);
 
-        Assert.True(avgBulkTotal < avgSingleTotal,
-            $"Оптовая выручка ({avgBulkTotal:F2}) должна быть ниже поштучной ({avgSingleTotal:F2})");
+        var mockHigh = new Mock<IDiceRoller>();
+        mockHigh.Setup(d => d.NextDouble()).Returns(1.0); // максимальный шум
+        var calcHigh = new HerbPriceCalculator(mockHigh.Object);
+
+        var priceLow = calcLow.GetSellPrice(RarityEnum.Common, 1);
+        var priceHigh = calcHigh.GetSellPrice(RarityEnum.Common, 1);
+
+        Assert.True(priceLow < priceHigh,
+            $"Цена с минимальным шумом ({priceLow:F2}) должна быть ниже цены с максимальным ({priceHigh:F2})");
     }
 }

@@ -1,7 +1,9 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+Ôªøusing Microsoft.AspNetCore.Mvc.RazorPages;
 using Moq;
 using PotionCraft.Contracts;
+using PotionCraft.Contracts.DiceRolls;
 using PotionCraft.Contracts.Enums;
+using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Pages.Gathering;
 using PotionCraft.Repository.Abstraction;
@@ -10,14 +12,26 @@ namespace PotionCraft.Tests.Pages.Gathering
 {
     public class IndexModelTests
     {
+        /// <summary>
+        /// –°–æ–∑–¥–∞—ë—Ç –º–æ–∫ IDiceRoller —Å –ø—Ä–µ–¥—Å–∫–∞–∑—É–µ–º—ã–º –∑–Ω–∞—á–µ–Ω–∏–µ–º –¥–ª—è D20.
+        /// </summary>
+        private static Mock<IDiceRoller> CreateDiceRollerMock(int d20Result = 10)
+        {
+            var mock = new Mock<IDiceRoller>();
+            mock.Setup(d => d.Roll(It.Is<DiceRoll>(dr => dr.Sides == 20 && dr.Count == 1)))
+                .Returns(d20Result);
+            return mock;
+        }
+
         [Fact]
         public void OnGet_InitializesDefaults()
         {
             // Arrange
             var mockRepo = new Mock<IPlayerCharacterRepository>();
             var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "“‡‚‡" }, Quantity = 1 });
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "–¢—Ä–∞–≤–∞" }, Quantity = 1 });
+            var diceRollerMock = CreateDiceRollerMock();
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, diceRollerMock.Object);
 
             // Act
             model.OnGet();
@@ -38,8 +52,8 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Arrange
             var mockRepo = new Mock<IPlayerCharacterRepository>();
             var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "“‡‚‡" }, Quantity = 1 });
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "–¢—Ä–∞–≤–∞" }, Quantity = 1 });
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
             model.Input.CharacterId = null;
 
             // Act
@@ -49,7 +63,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             Assert.IsType<PageResult>(result);
             Assert.False(model.ModelState.IsValid);
             Assert.Contains(model.ModelState.Values,
-                v => v.Errors.Any(e => e.ErrorMessage.Contains("‚˚·ÂËÚÂ ÔÂÒÓÌ‡Ê‡")));
+                v => v.Errors.Any(e => e.ErrorMessage.Contains("–≤—ã–±–µ—Ä–∏—Ç–µ –ø–µ—Ä—Å–æ–Ω–∞–∂–∞")));
         }
 
         [Fact]
@@ -60,7 +74,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             var character = new PlayerCharacter
             {
                 Id = characterId,
-                Name = "–¢–µ—Å—Ç –ü–µ—Ä—Å–æ–Ω–∞–∂",
+                Name = "–†—û–†¬µ–°–É–°‚Äö –†—ü–†¬µ–°–Ç–°–É–†—ï–†–Ö–†¬∞–†¬∂",
                 Wisdom = 20, // Mod = +5
                 ProficiencyBonus = 4,
                 HerbalismTool = new Tool { Proficiency = true } // +9 total modifier
@@ -70,8 +84,8 @@ namespace PotionCraft.Tests.Pages.Gathering
             mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
             
             var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "“‡‚‡" }, Quantity = 1 });
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "–¢—Ä–∞–≤–∞" }, Quantity = 1 });
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
             model.Input.CharacterId = characterId;
             model.Input.Difficulty = 5; // Very low to guarantee successes usually
             model.Input.RollsCount = 3;
@@ -82,7 +96,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Assert
             Assert.IsType<PageResult>(result);
             Assert.True(model.ModelState.IsValid);
-            Assert.Equal("–¢–µ—Å—Ç –ü–µ—Ä—Å–æ–Ω–∞–∂", model.CharacterName);
+            Assert.Equal("–†—û–†¬µ–°–É–°‚Äö –†—ü–†¬µ–°–Ç–°–É–†—ï–†–Ö–†¬∞–†¬∂", model.CharacterName);
             Assert.NotNull(model.TotalSuccesses);
             Assert.Equal(3, model.RollResults.Count);
         }
@@ -93,19 +107,19 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Arrange
             var mockRepo = new Mock<IPlayerCharacterRepository>();
             var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
 
             var herb1 = new PotionCraft.Contracts.Models.Herb
             {
-                Id = Guid.NewGuid(), Name = "–ÓÏ‡¯Í‡", Rarity = RarityEnum.Common
+                Id = Guid.NewGuid(), Name = "–†–æ–º–∞—à–∫–∞", Rarity = RarityEnum.Common
             };
             var herb2 = new PotionCraft.Contracts.Models.Herb
             {
-                Id = Guid.NewGuid(), Name = "ÿ‡ÎÙÂÈ", Rarity = RarityEnum.Common
+                Id = Guid.NewGuid(), Name = "–®–∞–ª—Ñ–µ–π", Rarity = RarityEnum.Common
             };
             var herb3 = new PotionCraft.Contracts.Models.Herb
             {
-                Id = Guid.NewGuid(), Name = "∆ÂÌ¸¯ÂÌ¸", Rarity = RarityEnum.Rare
+                Id = Guid.NewGuid(), Name = "–ñ–µ–Ω—å—à–µ–Ω—å", Rarity = RarityEnum.Rare
             };
 
             model.GatheredHerbs = new Dictionary<Guid, PotionCraft.Contracts.Models.GatheringResult>
@@ -119,7 +133,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             var clipboardText = model.GetClipboardText();
 
             // Assert
-            var expected = "Œ·˚˜Ì˚È:\n- –ÓÏ‡¯Í‡ 2\n- ÿ‡ÎÙÂÈ 3\n–Â‰ÍËÈ:\n- ∆ÂÌ¸¯ÂÌ¸ 1";
+            var expected = "–û–±—ã—á–Ω—ã–π:\n- –†–æ–º–∞—à–∫–∞ 2\n- –®–∞–ª—Ñ–µ–π 3\n–†–µ–¥–∫–∏–π:\n- –ñ–µ–Ω—å—à–µ–Ω—å 1";
             
             Assert.Equal(expected, clipboardText.Replace("\r\n", "\n"));
         }
@@ -130,7 +144,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Arrange
             var mockRepo = new Mock<IPlayerCharacterRepository>();
             var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
 
             model.GatheredHerbs = new Dictionary<Guid, PotionCraft.Contracts.Models.GatheringResult>();
 
@@ -149,7 +163,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             var character = new PlayerCharacter
             {
                 Id = characterId,
-                Name = "“ÂÒÚ œÂÒÓÌ‡Ê",
+                Name = "–¢–µ—Å—Ç –ü–µ—Ä—Å–æ–Ω–∞–∂",
                 Wisdom = 20,
                 ProficiencyBonus = 4,
                 HerbalismTool = new Tool { Proficiency = true }
@@ -158,7 +172,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             var herb = new Herb
             {
                 Id = Guid.NewGuid(),
-                Name = " Ó‚¸Ú‡‚‡",
+                Name = "–ö—Ä–æ–≤—å—Ç—Ä–∞–≤–∞",
                 Rarity = RarityEnum.Common
             };
 
@@ -171,7 +185,7 @@ namespace PotionCraft.Tests.Pages.Gathering
                 .Setup(s => s.GatherHerbAsync(It.IsAny<GatheringRequest>()))
                 .ReturnsAsync(new GatheringResult { Herb = herb, Quantity = 1 });
 
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
             model.Input.CharacterId = characterId;
             model.Input.Difficulty = 1;
             model.Input.RollsCount = 1;
@@ -193,14 +207,14 @@ namespace PotionCraft.Tests.Pages.Gathering
             var herb = new Herb
             {
                 Id = Guid.NewGuid(),
-                Name = " Ó‚¸Ú‡‚‡",
+                Name = "–ö—Ä–æ–≤—å—Ç—Ä–∞–≤–∞",
                 Rarity = RarityEnum.Common
             };
 
             var character = new PlayerCharacter
             {
                 Id = characterId,
-                Name = "“ÂÒÚ œÂÒÓÌ‡Ê",
+                Name = "–¢–µ—Å—Ç –ü–µ—Ä—Å–æ–Ω–∞–∂",
                 Wisdom = 20,
                 ProficiencyBonus = 4,
                 HerbalismTool = new Tool { Proficiency = true },
@@ -222,7 +236,7 @@ namespace PotionCraft.Tests.Pages.Gathering
                 .Setup(s => s.GatherHerbAsync(It.IsAny<GatheringRequest>()))
                 .ReturnsAsync(new GatheringResult { Herb = herb, Quantity = 7 });
 
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
             model.Input.CharacterId = characterId;
             model.Input.Difficulty = 1;
             model.Input.RollsCount = 1;
@@ -230,7 +244,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Act
             await model.OnPostAsync();
 
-            // Assert ó ·˚ÎÓ 7, ‚˚Ô‡ÎÓ 7, ‰ÓÎÊÌÓ ÒÚ‡Ú¸ 14
+            // Assert ‚Äî –±—ã–ª–æ 7, –≤—ã–ø–∞–ª–æ 7, –¥–æ–ª–∂–Ω–æ —Å—Ç–∞—Ç—å 14
             Assert.Equal(14, character.Bag.Herbs[herb.Id].Quantity);
             mockRepo.Verify(repo => repo.UpdateAsync(character), Times.Once);
         }
@@ -243,7 +257,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             var character = new PlayerCharacter
             {
                 Id = characterId,
-                Name = "“ÂÒÚ œÂÒÓÌ‡Ê",
+                Name = "–¢–µ—Å—Ç –ü–µ—Ä—Å–æ–Ω–∞–∂",
                 Wisdom = 6,
                 ProficiencyBonus = 0,
                 HerbalismTool = new Tool { Proficiency = false }
@@ -253,7 +267,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
 
             var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object);
+            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
             model.Input.CharacterId = characterId;
             model.Input.Difficulty = 30;
             model.Input.RollsCount = 1;

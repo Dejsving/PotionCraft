@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PotionCraft.Contracts;
 using PotionCraft.Contracts.Enums;
+using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
+using PotionCraft.Contracts.Services;
 using PotionCraft.Controllers;
 using PotionCraft.Repository.Abstraction;
 
@@ -19,6 +21,12 @@ public class ShopControllerTests
     /// <summary>Макет репозитория персонажей.</summary>
     private readonly Mock<IPlayerCharacterRepository> _mockCharRepo;
 
+    /// <summary>Макет калькулятора цен.</summary>
+    private readonly Mock<IPriceCalculator> _mockPriceCalculator;
+
+    /// <summary>Макет генератора инвентаря.</summary>
+    private readonly Mock<IInventoryGenerator> _mockInventoryGenerator;
+
     /// <summary>Тестируемый контроллер.</summary>
     private readonly ShopController _controller;
 
@@ -29,7 +37,19 @@ public class ShopControllerTests
     {
         _mockHerbRepo = new Mock<IHerbRepository>();
         _mockCharRepo = new Mock<IPlayerCharacterRepository>();
-        _controller = new ShopController(_mockHerbRepo.Object, _mockCharRepo.Object);
+        _mockPriceCalculator = new Mock<IPriceCalculator>();
+        _mockInventoryGenerator = new Mock<IInventoryGenerator>();
+
+        // Настройка реалистичных цен по умолчанию
+        _mockPriceCalculator.Setup(p => p.GetBuyPrice(It.IsAny<RarityEnum>(), It.IsAny<int>()))
+            .Returns(15.0);
+        _mockPriceCalculator.Setup(p => p.GetSellPrice(It.IsAny<RarityEnum>(), It.IsAny<int>()))
+            .Returns(5.0);
+        _mockInventoryGenerator.Setup(g => g.GetQuantityForShop(It.IsAny<RarityEnum>()))
+            .Returns(10);
+
+        _controller = new ShopController(_mockHerbRepo.Object, _mockCharRepo.Object,
+            _mockPriceCalculator.Object, _mockInventoryGenerator.Object);
     }
 
     /// <summary>
@@ -117,27 +137,18 @@ public class ShopControllerTests
     {
         var herb = CreateHerb("Стебли Гифломы", RarityEnum.VeryRare);
         _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+        _mockInventoryGenerator.Setup(g => g.GetQuantityForShop(RarityEnum.VeryRare)).Returns(0);
 
-        // Вызываем много раз — VeryRare имеет 1% шанс появления, поэтому
-        // хотя бы в одном вызове AvailableQuantity будет 0
-        bool foundZeroQuantityWithPrice = false;
-        for (int i = 0; i < 200; i++)
-        {
-            var result = await _controller.GetInventory();
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var items = Assert.IsAssignableFrom<List<ShopItem>>(okResult.Value);
+        var result = await _controller.GetInventory();
 
-            // Всегда должен возвращаться 1 элемент, даже если количество = 0
-            Assert.Single(items);
-            var item = items[0];
-            Assert.True(item.SellPrice > 0, "Цена продажи должна быть больше 0 даже при нулевом количестве");
-            Assert.True(item.BuyPrice > 0, "Цена покупки должна быть больше 0 даже при нулевом количестве");
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var items = Assert.IsAssignableFrom<List<ShopItem>>(okResult.Value);
 
-            if (item.AvailableQuantity == 0)
-                foundZeroQuantityWithPrice = true;
-        }
-
-        Assert.True(foundZeroQuantityWithPrice, "За 200 попыток должен был встретиться предмет с AvailableQuantity == 0");
+        Assert.Single(items);
+        var item = items[0];
+        Assert.Equal(0, item.AvailableQuantity);
+        Assert.True(item.SellPrice > 0, "Цена продажи должна быть больше 0 даже при нулевом количестве");
+        Assert.True(item.BuyPrice > 0, "Цена покупки должна быть больше 0 даже при нулевом количестве");
     }
 
     /// <summary>
@@ -405,6 +416,10 @@ public class ShopControllerTests
     {
         var herb = CreateHerb("Дорогая трава", RarityEnum.VeryRare);
         var character = CreateCharacter(1); // Только 1 медная монета
+
+        // Цена покупки VeryRare = 1000 золотых
+        _mockPriceCalculator.Setup(p => p.GetBuyPrice(RarityEnum.VeryRare, It.IsAny<int>()))
+            .Returns(1000.0);
 
         var request = new TradeRequest
         {

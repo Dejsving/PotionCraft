@@ -1,9 +1,12 @@
 using PotionCraft.Contracts.Enums;
-using System;
+using PotionCraft.Contracts.Interfaces;
 
 namespace PotionCraft.Contracts.Services
 {
-    public static class ShopInventoryGenerator
+    /// <summary>
+    /// Генератор инвентаря магазина на основе редкости предметов.
+    /// </summary>
+    public class ShopInventoryGenerator : IInventoryGenerator
     {
         /// <summary>
         /// Шанс появления предмета в магазине (от 0.0 до 1.0).
@@ -24,11 +27,21 @@ namespace PotionCraft.Contracts.Services
         private static readonly int[] _maxQuantities = { 40, 15, 3, 1 };
 
         /// <summary>
-        /// Генерирует количество товара для заполнения магазина на основе его редкости.
+        /// Сервис генерации случайных чисел.
         /// </summary>
-        /// <param name="rarity">Уровень редкости предмета.</param>
-        /// <returns>Сгенерированное количество товара (может быть 0 для редких вещей).</returns>
-        public static int GetQuantityForShop(RarityEnum rarity)
+        private readonly IDiceRoller _diceRoller;
+
+        /// <summary>
+        /// Создаёт экземпляр генератора инвентаря магазина.
+        /// </summary>
+        /// <param name="diceRoller">Сервис генерации случайных чисел.</param>
+        public ShopInventoryGenerator(IDiceRoller diceRoller)
+        {
+            _diceRoller = diceRoller;
+        }
+
+        /// <inheritdoc />
+        public int GetQuantityForShop(RarityEnum rarity)
         {
             int index = (int)rarity;
 
@@ -39,7 +52,7 @@ namespace PotionCraft.Contracts.Services
             }
 
             // 1. Проверяем, появится ли вообще этот товар в магазине
-            if (Random.Shared.NextDouble() > _spawnChances[index])
+            if (_diceRoller.NextDouble() > _spawnChances[index])
             {
                 return 0; // Не повезло, товара сегодня нет
             }
@@ -48,7 +61,7 @@ namespace PotionCraft.Contracts.Services
             int min = _minQuantities[index];
             int max = _maxQuantities[index];
 
-            int finalQuantity = Random.Shared.Next(min, max + 1);
+            int finalQuantity = _diceRoller.Next(min, max + 1);
 
             return finalQuantity;
         }

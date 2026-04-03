@@ -1,8 +1,12 @@
 ﻿using PotionCraft.Contracts.Enums;
+using PotionCraft.Contracts.Interfaces;
 
 namespace PotionCraft.Contracts.Services
 {
-    public static class HerbPriceCalculator
+    /// <summary>
+    /// Калькулятор цен на травы с учётом редкости, количества и случайного разброса.
+    /// </summary>
+    public class HerbPriceCalculator : IPriceCalculator
     {
         /// <summary>
         /// Базовая цена
@@ -18,6 +22,20 @@ namespace PotionCraft.Contracts.Services
         /// Амплитуда случайного разброса. 0.1 = ±10%.
         /// </summary>
         private static double _delta { get; set; } = 0.1;
+
+        /// <summary>
+        /// Сервис генерации случайных чисел.
+        /// </summary>
+        private readonly IDiceRoller _diceRoller;
+
+        /// <summary>
+        /// Создаёт экземпляр калькулятора цен.
+        /// </summary>
+        /// <param name="diceRoller">Сервис генерации случайных чисел.</param>
+        public HerbPriceCalculator(IDiceRoller diceRoller)
+        {
+            _diceRoller = diceRoller;
+        }
 
         /// <summary>
         /// Скорость падения цены от количества. Больше = быстрее падает.
@@ -44,7 +62,7 @@ namespace PotionCraft.Contracts.Services
         /// <param name="quantity">Количество товаров.</param>
         /// <param name="isBuy">true — цена покупки, false — цена продажи.</param>
         /// <returns>Рассчитанная цена, округлённая до двух знаков после запятой.</returns>
-        private static double CalculatePrice(RarityEnum rarity, int quantity, bool isBuy)
+        private double CalculatePrice(RarityEnum rarity, int quantity, bool isBuy)
         {
             var alpha = GetAlpha(rarity);
             var priceDecayRate = GetPriceDecayRate(rarity);
@@ -70,29 +88,19 @@ namespace PotionCraft.Contracts.Services
             }
 
             // Случайный шум в диапазоне [-_delta, +_delta]
-            var noise = 1.0 + _delta * (Random.Shared.NextDouble() * 2.0 - 1);
+            var noise = 1.0 + _delta * (_diceRoller.NextDouble() * 2.0 - 1);
 
             var price = _basePrice[basePriceIndex] * factor * noise;
 
             return Math.Round(price, 2);
         }
 
-        /// <summary>
-        /// Рассчитывает цену продажи товара на основе его редкости и запрашиваемого количества.
-        /// </summary>
-        /// <param name="rarity">Уровень редкости предмета.</param>
-        /// <param name="quantity">Количество товаров для покупки.</param>
-        /// <returns>Рассчитанная цена покупки, округленная до двух знаков после запятой.</returns>
-        public static double GetSellPrice(RarityEnum rarity, int quantity)
+        /// <inheritdoc />
+        public double GetSellPrice(RarityEnum rarity, int quantity)
             => CalculatePrice(rarity, quantity, isBuy: false);
 
-        /// <summary>
-        /// Рассчитывает цену покупки товара на основе его редкости и запрашиваемого количества.
-        /// </summary>
-        /// <param name="rarity">Уровень редкости предмета.</param>
-        /// <param name="quantity">Количество товаров для покупки.</param>
-        /// <returns>Рассчитанная цена покупки, округленная до двух знаков после запятой.</returns>
-        public static double GetBuyPrice(RarityEnum rarity, int quantity)
+        /// <inheritdoc />
+        public double GetBuyPrice(RarityEnum rarity, int quantity)
             => CalculatePrice(rarity, quantity, isBuy: true);
     }
 }
