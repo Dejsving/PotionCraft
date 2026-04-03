@@ -74,6 +74,18 @@ namespace PotionCraft.Controllers
                 });
             }
 
+            // Валидация: количество должно быть положительным
+            var invalidItem = request.ItemsToBuy.Concat(request.ItemsToSell)
+                .FirstOrDefault(i => i.Quantity <= 0);
+            if (invalidItem != null)
+            {
+                return BadRequest(new TradeResult
+                {
+                    Success = false,
+                    Message = $"Количество товара должно быть положительным. Получено: {invalidItem.Quantity}."
+                });
+            }
+
             var character = await _characterRepository.GetByIdAsync(request.CharacterId);
             if (character == null)
             {
@@ -91,8 +103,6 @@ namespace PotionCraft.Controllers
             double totalBuyCostGold = 0;
             foreach (var item in request.ItemsToBuy)
             {
-                if (item.Quantity <= 0) continue;
-
                 if (item.Category == "herb")
                 {
                     if (!herbLookup.TryGetValue(item.ItemId, out var herb))
@@ -112,8 +122,6 @@ namespace PotionCraft.Controllers
             double totalSellRevenueGold = 0;
             foreach (var item in request.ItemsToSell)
             {
-                if (item.Quantity <= 0) continue;
-
                 if (item.Category == "herb")
                 {
                     if (!herbLookup.TryGetValue(item.ItemId, out var herb))
@@ -155,8 +163,6 @@ namespace PotionCraft.Controllers
             // Применяем изменения: покупка
             foreach (var item in request.ItemsToBuy)
             {
-                if (item.Quantity <= 0) continue;
-
                 if (item.Category == "herb" && herbLookup.TryGetValue(item.ItemId, out var herb))
                 {
                     if (character.Bag.Herbs.TryGetValue(item.ItemId, out var existing))
@@ -177,8 +183,6 @@ namespace PotionCraft.Controllers
             // Применяем изменения: продажа
             foreach (var item in request.ItemsToSell)
             {
-                if (item.Quantity <= 0) continue;
-
                 if (item.Category == "herb" && character.Bag.Herbs.TryGetValue(item.ItemId, out var bagItem))
                 {
                     bagItem.Quantity -= item.Quantity;

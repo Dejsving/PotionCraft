@@ -561,4 +561,93 @@ public class ShopControllerTests
         Assert.True(tradeResult.UpdatedBag.Coins > 0);
         Assert.Equal(character.Bag.Coins, tradeResult.UpdatedBag.Coins);
     }
+
+    /// <summary>
+    /// Проверяет, что покупка с отрицательным количеством возвращает 400 BadRequest.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteTrade_NegativeQuantityInBuy_Returns400()
+    {
+        var character = CreateCharacter(100000);
+        var herb = CreateHerb("Зверобой", RarityEnum.Common);
+
+        var request = new TradeRequest
+        {
+            CharacterId = character.Id,
+            ItemsToBuy = new List<TradeItem>
+            {
+                new TradeItem { ItemId = herb.Id, Quantity = -3, Category = "herb" }
+            },
+            ItemsToSell = new List<TradeItem>()
+        };
+
+        _mockCharRepo.Setup(r => r.GetByIdAsync(character.Id)).ReturnsAsync(character);
+        _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+
+        var result = await _controller.ExecuteTrade(request);
+
+        var badResult = Assert.IsType<BadRequestObjectResult>(result);
+        var tradeResult = Assert.IsType<TradeResult>(badResult.Value);
+        Assert.False(tradeResult.Success);
+        Assert.Contains("-3", tradeResult.Message);
+    }
+
+    /// <summary>
+    /// Проверяет, что продажа с отрицательным количеством возвращает 400 BadRequest.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteTrade_NegativeQuantityInSell_Returns400()
+    {
+        var character = CreateCharacter(0);
+        var herb = CreateHerb("Зверобой", RarityEnum.Common);
+        character.Bag.Herbs[herb.Id] = new GatheringResult { Herb = herb, Quantity = 5 };
+
+        var request = new TradeRequest
+        {
+            CharacterId = character.Id,
+            ItemsToBuy = new List<TradeItem>(),
+            ItemsToSell = new List<TradeItem>
+            {
+                new TradeItem { ItemId = herb.Id, Quantity = -1, Category = "herb" }
+            }
+        };
+
+        _mockCharRepo.Setup(r => r.GetByIdAsync(character.Id)).ReturnsAsync(character);
+        _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+
+        var result = await _controller.ExecuteTrade(request);
+
+        var badResult = Assert.IsType<BadRequestObjectResult>(result);
+        var tradeResult = Assert.IsType<TradeResult>(badResult.Value);
+        Assert.False(tradeResult.Success);
+    }
+
+    /// <summary>
+    /// Проверяет, что покупка с нулевым количеством возвращает 400 BadRequest.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteTrade_ZeroQuantity_Returns400()
+    {
+        var character = CreateCharacter(100000);
+        var herb = CreateHerb("Зверобой", RarityEnum.Common);
+
+        var request = new TradeRequest
+        {
+            CharacterId = character.Id,
+            ItemsToBuy = new List<TradeItem>
+            {
+                new TradeItem { ItemId = herb.Id, Quantity = 0, Category = "herb" }
+            },
+            ItemsToSell = new List<TradeItem>()
+        };
+
+        _mockCharRepo.Setup(r => r.GetByIdAsync(character.Id)).ReturnsAsync(character);
+        _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+
+        var result = await _controller.ExecuteTrade(request);
+
+        var badResult = Assert.IsType<BadRequestObjectResult>(result);
+        var tradeResult = Assert.IsType<TradeResult>(badResult.Value);
+        Assert.False(tradeResult.Success);
+    }
 }
