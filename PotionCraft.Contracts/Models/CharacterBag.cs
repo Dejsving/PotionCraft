@@ -44,4 +44,26 @@ public class CharacterBag
     /// Количество медных монет (единицы).
     /// </summary>
     public int CopperCoins => Coins % 10;
+
+    /// <summary>
+    /// Добавляет траву в сумку или увеличивает количество уже имеющейся травы.
+    /// </summary>
+    /// <param name="herbId">Идентификатор травы.</param>
+    /// <param name="herb">Трава для добавления.</param>
+    /// <param name="quantity">Количество добавляемой травы.</param>
+    public void AddOrUpdateHerb(Guid herbId, Herb herb, int quantity)
+    {
+        if (Herbs.TryGetValue(herbId, out var existing))
+        {
+            existing.Quantity += quantity;
+        }
+        else
+        {
+            Herbs[herbId] = new GatheringResult
+            {
+                Herb = herb,
+                Quantity = quantity
+            };
+        }
+    }
 }

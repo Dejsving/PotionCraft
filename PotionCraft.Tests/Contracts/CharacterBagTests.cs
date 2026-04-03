@@ -122,4 +122,54 @@ public class CharacterBagTests
         Assert.Equal(expectedSilver, bag.SilverCoins);
         Assert.Equal(expectedCopper, bag.CopperCoins);
     }
+
+    /// <summary>
+    /// Проверяет, что AddOrUpdateHerb добавляет новую траву в пустую сумку.
+    /// </summary>
+    [Fact]
+    public void AddOrUpdateHerb_NewHerb_AddsToEmptyBag()
+    {
+        var bag = new CharacterBag();
+        var herb = new Herb { Id = Guid.NewGuid(), Name = "Лаванда" };
+
+        bag.AddOrUpdateHerb(herb.Id, herb, 5);
+
+        Assert.Single(bag.Herbs);
+        Assert.Equal(5, bag.Herbs[herb.Id].Quantity);
+        Assert.Equal("Лаванда", bag.Herbs[herb.Id].Herb!.Name);
+    }
+
+    /// <summary>
+    /// Проверяет, что AddOrUpdateHerb увеличивает количество уже существующей травы.
+    /// </summary>
+    [Fact]
+    public void AddOrUpdateHerb_ExistingHerb_IncreasesQuantity()
+    {
+        var bag = new CharacterBag();
+        var herb = new Herb { Id = Guid.NewGuid(), Name = "Ромашка" };
+        bag.Herbs[herb.Id] = new GatheringResult { Herb = herb, Quantity = 3 };
+
+        bag.AddOrUpdateHerb(herb.Id, herb, 2);
+
+        Assert.Single(bag.Herbs);
+        Assert.Equal(5, bag.Herbs[herb.Id].Quantity);
+    }
+
+    /// <summary>
+    /// Проверяет, что AddOrUpdateHerb корректно работает при добавлении нескольких разных трав.
+    /// </summary>
+    [Fact]
+    public void AddOrUpdateHerb_MultipleDifferentHerbs_AddsAll()
+    {
+        var bag = new CharacterBag();
+        var herb1 = new Herb { Id = Guid.NewGuid(), Name = "Мята" };
+        var herb2 = new Herb { Id = Guid.NewGuid(), Name = "Шалфей" };
+
+        bag.AddOrUpdateHerb(herb1.Id, herb1, 1);
+        bag.AddOrUpdateHerb(herb2.Id, herb2, 4);
+
+        Assert.Equal(2, bag.Herbs.Count);
+        Assert.Equal(1, bag.Herbs[herb1.Id].Quantity);
+        Assert.Equal(4, bag.Herbs[herb2.Id].Quantity);
+    }
 }

@@ -178,18 +178,7 @@ namespace PotionCraft.Controllers
             {
                 if (item.Category == "herb" && herbLookup.TryGetValue(item.ItemId, out var herb))
                 {
-                    if (character.Bag.Herbs.TryGetValue(item.ItemId, out var existing))
-                    {
-                        existing.Quantity += item.Quantity;
-                    }
-                    else
-                    {
-                        character.Bag.Herbs[item.ItemId] = new GatheringResult
-                        {
-                            Herb = herb,
-                            Quantity = item.Quantity
-                        };
-                    }
+                    character.Bag.AddOrUpdateHerb(item.ItemId, herb, item.Quantity);
                 }
             }
 

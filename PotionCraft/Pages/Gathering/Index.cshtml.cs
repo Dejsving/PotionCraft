@@ -181,25 +181,12 @@ namespace PotionCraft.Pages.Gathering
         /// <param name="character">Персонаж, в сумку которого добавляются травы.</param>
         private void AddHerbsToBag(PlayerCharacter character)
         {
-            var updatedHerbs = new Dictionary<Guid, GatheringResult>(character.Bag.Herbs);
+            character.Bag.Herbs = new Dictionary<Guid, GatheringResult>(character.Bag.Herbs);
 
             foreach (var (herbId, result) in GatheredHerbs)
             {
-                if (updatedHerbs.TryGetValue(herbId, out var existingInBag))
-                {
-                    existingInBag.Quantity += result.Quantity;
-                }
-                else
-                {
-                    updatedHerbs.Add(herbId, new GatheringResult
-                    {
-                        Herb = result.Herb,
-                        Quantity = result.Quantity
-                    });
-                }
+                character.Bag.AddOrUpdateHerb(herbId, result.Herb!, result.Quantity);
             }
-
-            character.Bag.Herbs = updatedHerbs;
         }
 
         private void PrepareOptions()
