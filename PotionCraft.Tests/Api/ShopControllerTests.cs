@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.Sqlite;
 using Moq;
 using PotionCraft.Contracts;
 using PotionCraft.Contracts.Enums;
@@ -6,14 +7,16 @@ using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Contracts.Services;
 using PotionCraft.Controllers;
+using PotionCraft.Repository;
 using PotionCraft.Repository.Abstraction;
+using PotionCraft.Tests.Infrastructure;
 
 namespace PotionCraft.Tests.Api;
 
 /// <summary>
 /// Тесты для ShopController (ассортимент и сделки).
 /// </summary>
-public class ShopControllerTests
+public class ShopControllerTests : IDisposable
 {
     /// <summary>Макет репозитория трав.</summary>
     private readonly Mock<IHerbRepository> _mockHerbRepo;
@@ -26,6 +29,12 @@ public class ShopControllerTests
 
     /// <summary>Макет генератора инвентаря.</summary>
     private readonly Mock<IInventoryGenerator> _mockInventoryGenerator;
+
+    /// <summary>Тестовый контекст базы данных.</summary>
+    private readonly PotionCraftDbContext _dbContext;
+
+    /// <summary>Соединение SQLite in-memory для тестов.</summary>
+    private readonly SqliteConnection _connection;
 
     /// <summary>Тестируемый контроллер.</summary>
     private readonly ShopController _controller;
@@ -40,6 +49,8 @@ public class ShopControllerTests
         _mockPriceCalculator = new Mock<IPriceCalculator>();
         _mockInventoryGenerator = new Mock<IInventoryGenerator>();
 
+        (_dbContext, _connection) = TestDbContextFactory.Create();
+
         // Настройка реалистичных цен по умолчанию
         _mockPriceCalculator.Setup(p => p.GetBuyPrice(It.IsAny<RarityEnum>(), It.IsAny<int>()))
             .Returns(15.0);
@@ -49,7 +60,16 @@ public class ShopControllerTests
             .Returns(10);
 
         _controller = new ShopController(_mockHerbRepo.Object, _mockCharRepo.Object,
-            _mockPriceCalculator.Object, _mockInventoryGenerator.Object);
+            _mockPriceCalculator.Object, _mockInventoryGenerator.Object, _dbContext);
+    }
+
+    /// <summary>
+    /// Освобождает ресурсы тестового контекста БД и соединения.
+    /// </summary>
+    public void Dispose()
+    {
+        _dbContext.Dispose();
+        _connection.Dispose();
     }
 
     /// <summary>
@@ -664,5 +684,63 @@ public class ShopControllerTests
         var badResult = Assert.IsType<BadRequestObjectResult>(result);
         var tradeResult = Assert.IsType<TradeResult>(badResult.Value);
         Assert.False(tradeResult.Success);
+    }
+
+    /// <summary>
+    /// Проверяет, что при ошибке в UpdateAsync транзакция откатывается и исключение пробрасывается.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteTrade_UpdateAsyncThrows_TransactionRolledBackAndExceptionRethrown()
+    {
+        var herb = CreateHerb("Зверобой", RarityEnum.Common);
+        var character = CreateCharacter(100000);
+
+        var request = new TradeRequest
+        {
+            CharacterId = character.Id,
+            ItemsToBuy = new List<TradeItem>
+            {
+                new TradeItem { ItemId = herb.Id, Quantity = 1, Category = "herb" }
+            },
+            ItemsToSell = new List<TradeItem>()
+        };
+
+        _mockCharRepo.Setup(r => r.GetByIdAsync(character.Id)).ReturnsAsync(character);
+        _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+        _mockCharRepo.Setup(r => r.UpdateAsync(It.IsAny<PlayerCharacter>()))
+            .ThrowsAsync(new InvalidOperationException("Ошибка БД"));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _controller.ExecuteTrade(request));
+    }
+
+    /// <summary>
+    /// Проверяет, что успешная сделка фиксирует транзакцию (CommitAsync не выбрасывает исключение).
+    /// </summary>
+    [Fact]
+    public async Task ExecuteTrade_SuccessfulTrade_CommitsTransaction()
+    {
+        var herb = CreateHerb("Зверобой", RarityEnum.Common);
+        var character = CreateCharacter(100000);
+
+        var request = new TradeRequest
+        {
+            CharacterId = character.Id,
+            ItemsToBuy = new List<TradeItem>
+            {
+                new TradeItem { ItemId = herb.Id, Quantity = 1, Category = "herb" }
+            },
+            ItemsToSell = new List<TradeItem>()
+        };
+
+        _mockCharRepo.Setup(r => r.GetByIdAsync(character.Id)).ReturnsAsync(character);
+        _mockHerbRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Herb> { herb });
+        _mockCharRepo.Setup(r => r.UpdateAsync(It.IsAny<PlayerCharacter>())).Returns(Task.CompletedTask);
+
+        var result = await _controller.ExecuteTrade(request);
+
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var tradeResult = Assert.IsType<TradeResult>(okResult.Value);
+        Assert.True(tradeResult.Success);
+        _mockCharRepo.Verify(r => r.UpdateAsync(character), Times.Once);
     }
 }

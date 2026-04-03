@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using PotionCraft.Contracts.Extensions;
 using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
+using PotionCraft.Repository;
 using PotionCraft.Repository.Abstraction;
 
 namespace PotionCraft.Controllers
@@ -34,15 +35,21 @@ namespace PotionCraft.Controllers
         private readonly IInventoryGenerator _inventoryGenerator;
 
         /// <summary>
+        /// Контекст базы данных для управления транзакциями.
+        /// </summary>
+        private readonly PotionCraftDbContext _dbContext;
+
+        /// <summary>
         /// Инициализирует новый экземпляр контроллера магазина.
         /// </summary>
         public ShopController(IHerbRepository herbRepository, IPlayerCharacterRepository characterRepository,
-            IPriceCalculator priceCalculator, IInventoryGenerator inventoryGenerator)
+            IPriceCalculator priceCalculator, IInventoryGenerator inventoryGenerator, PotionCraftDbContext dbContext)
         {
             _herbRepository = herbRepository;
             _characterRepository = characterRepository;
             _priceCalculator = priceCalculator;
             _inventoryGenerator = inventoryGenerator;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -173,32 +180,43 @@ namespace PotionCraft.Controllers
                 });
             }
 
-            // Применяем изменения: покупка
-            foreach (var item in request.ItemsToBuy)
+            // Применяем изменения в транзакции
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            try
             {
-                if (item.Category == "herb" && herbLookup.TryGetValue(item.ItemId, out var herb))
+                // Применяем изменения: покупка
+                foreach (var item in request.ItemsToBuy)
                 {
-                    character.Bag.AddOrUpdateHerb(item.ItemId, herb, item.Quantity);
-                }
-            }
-
-            // Применяем изменения: продажа
-            foreach (var item in request.ItemsToSell)
-            {
-                if (item.Category == "herb" && character.Bag.Herbs.TryGetValue(item.ItemId, out var bagItem))
-                {
-                    bagItem.Quantity -= item.Quantity;
-                    if (bagItem.Quantity <= 0)
+                    if (item.Category == "herb" && herbLookup.TryGetValue(item.ItemId, out var herb))
                     {
-                        character.Bag.Herbs.Remove(item.ItemId);
+                        character.Bag.AddOrUpdateHerb(item.ItemId, herb, item.Quantity);
                     }
                 }
+
+                // Применяем изменения: продажа
+                foreach (var item in request.ItemsToSell)
+                {
+                    if (item.Category == "herb" && character.Bag.Herbs.TryGetValue(item.ItemId, out var bagItem))
+                    {
+                        bagItem.Quantity -= item.Quantity;
+                        if (bagItem.Quantity <= 0)
+                        {
+                            character.Bag.Herbs.Remove(item.ItemId);
+                        }
+                    }
+                }
+
+                // Обновляем баланс
+                character.Bag.Coins += balanceChangeCopper;
+
+                await _characterRepository.UpdateAsync(character);
+                await transaction.CommitAsync();
             }
-
-            // Обновляем баланс
-            character.Bag.Coins += balanceChangeCopper;
-
-            await _characterRepository.UpdateAsync(character);
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
 
             return Ok(new TradeResult
             {
