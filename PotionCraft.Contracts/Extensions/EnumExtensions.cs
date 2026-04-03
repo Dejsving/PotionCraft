@@ -7,11 +7,12 @@ namespace PotionCraft.Contracts.Extensions
     {
         public static string GetDisplayName(this Enum enumValue)
         {
-            return enumValue.GetType()
+            var displayAttribute = enumValue.GetType()
                             .GetMember(enumValue.ToString())
                             .First()
-                            .GetCustomAttribute<DisplayAttribute>()!
-                            .GetName()!;
+                            .GetCustomAttribute<DisplayAttribute>();
+
+            return displayAttribute?.GetName() ?? enumValue.ToString();
         }
     }
 }
