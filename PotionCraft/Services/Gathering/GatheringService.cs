@@ -57,20 +57,6 @@ public class GatheringService : IGatheringService
             { 11, ("Зловонная луковица", AdditionalRulesEnum.None) },
             { 12, ("Ко-Глонд", AdditionalRulesEnum.OneOrTwo) }
         },
-        [TerrainEnum.UnderWater] = new() // Тот же рулбук для Подводной
-        {
-            { 2, ("Водополох", AdditionalRulesEnum.OneOrTwo) },
-            { 3, ("Шляпка мухомора", AdditionalRulesEnum.OnlyOnCoast) },
-            { 4, ("Нектар Гиацинта", AdditionalRulesEnum.None) },
-            { 5, ("Хромовая слизь", AdditionalRulesEnum.OneOrTwo) },
-            { 6, ("Повсеместный ингредиент", AdditionalRulesEnum.CheckCommon) },
-            { 7, ("Повсеместный ингредиент", AdditionalRulesEnum.CheckCommon) },
-            { 8, ("Повсеместный ингредиент", AdditionalRulesEnum.CheckCommon) },
-            { 9, ("Веточка лаванды", AdditionalRulesEnum.OnlyOnCoast) },
-            { 10, ("Синий Кривожаб", AdditionalRulesEnum.OnlyOnCoast) },
-            { 11, ("Зловонная луковица", AdditionalRulesEnum.None) },
-            { 12, ("Ко-Глонд", AdditionalRulesEnum.OneOrTwo) }
-        },
         [TerrainEnum.Deserts] = new()
         {
             { 2, ("Ко-Глонд", AdditionalRulesEnum.None) },
@@ -170,6 +156,14 @@ public class GatheringService : IGatheringService
             { 12, ("Стебли Гифломы", AdditionalRulesEnum.None) }
         }
     };
+
+    /// <summary>
+    /// Статический конструктор: UnderWater использует ту же таблицу, что и Coast.
+    /// </summary>
+    static GatheringService()
+    {
+        GatheringTables[TerrainEnum.UnderWater] = GatheringTables[TerrainEnum.Coast];
+    }
 
     private readonly IHerbRepository _herbRepository;
 
