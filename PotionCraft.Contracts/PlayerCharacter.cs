@@ -58,6 +58,11 @@ public class PlayerCharacter
     public Guid? SelectedBy { get; set; }
 
     /// <summary>
+    /// Токен оптимистичной конкурентности. Обновляется автоматически при каждом сохранении.
+    /// </summary>
+    public byte[] RowVersion { get; set; } = [];
+
+    /// <summary>
     /// Модификатор мудрости на основе её значения.
     /// </summary>
     public int WisdomModifier

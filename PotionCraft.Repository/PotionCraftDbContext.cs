@@ -20,6 +20,37 @@ namespace PotionCraft.Repository
         public DbSet<Herb> Herbs { get; set; }
 
         /// <summary>
+        /// Сохраняет изменения, предварительно обновляя токены конкурентности.
+        /// </summary>
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            UpdateRowVersions();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        /// <summary>
+        /// Асинхронно сохраняет изменения, предварительно обновляя токены конкурентности.
+        /// </summary>
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        {
+            UpdateRowVersions();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        /// <summary>
+        /// Обновляет RowVersion для добавленных и изменённых сущностей PlayerCharacter.
+        /// Необходимо для SQLite, который не поддерживает автоматический rowversion.
+        /// </summary>
+        private void UpdateRowVersions()
+        {
+            foreach (var entry in ChangeTracker.Entries<PlayerCharacter>()
+                .Where(e => e.State == EntityState.Modified || e.State == EntityState.Added))
+            {
+                entry.Entity.RowVersion = Guid.NewGuid().ToByteArray();
+            }
+        }
+
+        /// <summary>
         /// Создаёт ValueComparer для словаря Dictionary&lt;Guid, TValue&gt; на основе JSON-сериализации.
         /// </summary>
         private static ValueComparer<Dictionary<Guid, TValue>> CreateDictionaryComparer<TValue>(JsonSerializerOptions jsonOptions)
@@ -38,6 +69,10 @@ namespace PotionCraft.Repository
             modelBuilder.Entity<PlayerCharacter>()
                 .HasIndex(pc => pc.Name)
                 .IsUnique();
+
+            modelBuilder.Entity<PlayerCharacter>()
+                .Property(pc => pc.RowVersion)
+                .IsConcurrencyToken();
 
             modelBuilder.Entity<PlayerCharacter>()
                 .OwnsOne(pc => pc.AlchemistTool);
