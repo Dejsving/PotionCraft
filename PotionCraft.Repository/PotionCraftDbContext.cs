@@ -19,6 +19,18 @@ namespace PotionCraft.Repository
         
         public DbSet<Herb> Herbs { get; set; }
 
+        /// <summary>
+        /// Создаёт ValueComparer для словаря Dictionary&lt;Guid, TValue&gt; на основе JSON-сериализации.
+        /// </summary>
+        private static ValueComparer<Dictionary<Guid, TValue>> CreateDictionaryComparer<TValue>(JsonSerializerOptions jsonOptions)
+        {
+            return new ValueComparer<Dictionary<Guid, TValue>>(
+                (c1, c2) => JsonSerializer.Serialize(c1, jsonOptions) == JsonSerializer.Serialize(c2, jsonOptions),
+                c => JsonSerializer.Serialize(c, jsonOptions).GetHashCode(),
+                c => JsonSerializer.Deserialize<Dictionary<Guid, TValue>>(
+                    JsonSerializer.Serialize(c, jsonOptions), jsonOptions)!);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var jsonOptions = new JsonSerializerOptions();
@@ -36,17 +48,8 @@ namespace PotionCraft.Repository
             modelBuilder.Entity<PlayerCharacter>()
                 .OwnsOne(pc => pc.PoisonerTool);
 
-            var herbsComparer = new ValueComparer<Dictionary<Guid, GatheringResult>>(
-                (c1, c2) => JsonSerializer.Serialize(c1, jsonOptions) == JsonSerializer.Serialize(c2, jsonOptions),
-                c => JsonSerializer.Serialize(c, jsonOptions).GetHashCode(),
-                c => JsonSerializer.Deserialize<Dictionary<Guid, GatheringResult>>(
-                    JsonSerializer.Serialize(c, jsonOptions), jsonOptions)!);
-
-            var potionBagComparer = new ValueComparer<Dictionary<Guid, PotionBagItem>>(
-                (c1, c2) => JsonSerializer.Serialize(c1, jsonOptions) == JsonSerializer.Serialize(c2, jsonOptions),
-                c => JsonSerializer.Serialize(c, jsonOptions).GetHashCode(),
-                c => JsonSerializer.Deserialize<Dictionary<Guid, PotionBagItem>>(
-                    JsonSerializer.Serialize(c, jsonOptions), jsonOptions)!);
+            var herbsComparer = CreateDictionaryComparer<GatheringResult>(jsonOptions);
+            var potionBagComparer = CreateDictionaryComparer<PotionBagItem>(jsonOptions);
 
             modelBuilder.Entity<PlayerCharacter>()
                 .OwnsOne(pc => pc.Bag, bag =>
