@@ -38,27 +38,53 @@ namespace PotionCraft.Contracts.Services
         }
 
         /// <summary>
+        /// Общая формула расчёта цены с учётом редкости, количества и направления сделки (покупка/продажа).
+        /// </summary>
+        /// <param name="rarity">Уровень редкости предмета.</param>
+        /// <param name="quantity">Количество товаров.</param>
+        /// <param name="isBuy">true — цена покупки, false — цена продажи.</param>
+        /// <returns>Рассчитанная цена, округлённая до двух знаков после запятой.</returns>
+        private static double CalculatePrice(RarityEnum rarity, int quantity, bool isBuy)
+        {
+            var alpha = GetAlpha(rarity);
+            var priceDecayRate = GetPriceDecayRate(rarity);
+            var expFactor = Math.Exp(-priceDecayRate * (quantity - 1));
+
+            double factor;
+            int basePriceIndex;
+
+            if (isBuy)
+            {
+                // Фактор спроса: экспоненциальный рост цены при покупке большого количества
+                // При quantity = 1 множитель равен 1, при росте стремится к 1 / alpha
+                var inverseAlpha = 1.0 / alpha;
+                factor = inverseAlpha - (inverseAlpha - 1.0) * expFactor;
+                basePriceIndex = (int)rarity + 1;
+            }
+            else
+            {
+                // Фактор предложения: экспоненциальное снижение к полу alpha
+                // При quantity = 1 множитель равен 1, при росте стремится к alpha
+                factor = alpha + (1.0 - alpha) * expFactor;
+                basePriceIndex = (int)rarity;
+            }
+
+            // Случайный шум в диапазоне [-_delta, +_delta]
+            var noise = 1.0 + _delta * (Random.Shared.NextDouble() * 2.0 - 1);
+
+            var price = _basePrice[basePriceIndex] * factor * noise;
+
+            return Math.Round(price, 2);
+        }
+
+        /// <summary>
         /// Рассчитывает цену продажи товара на основе его редкости и запрашиваемого количества.
         /// </summary>
         /// <param name="rarity">Уровень редкости предмета.</param>
         /// <param name="quantity">Количество товаров для покупки.</param>
         /// <returns>Рассчитанная цена покупки, округленная до двух знаков после запятой.</returns>
         public static double GetSellPrice(RarityEnum rarity, int quantity)
-        {
-            var _alpha = GetAlpha(rarity);
-            var _priceDecayRate = GetPriceDecayRate(rarity);
-
-            // Фактор предложения: экспоненциальное снижение к полу _alpha
-            // При quantity = 1 множитель равен 1, при росте стремится к _alpha
-            var supply = _alpha + (1.0 - _alpha) * Math.Exp(-_priceDecayRate * (quantity - 1));
-
-            // Случайный шум в диапазоне [-_delta, +_delta]
-            var noise = 1.0 + _delta * (Random.Shared.NextDouble() * 2.0 - 1);
-
-            var price = _basePrice[(int)rarity] * supply * noise;
-
-            return Math.Round(price, 2);
-        }
+            => CalculatePrice(rarity, quantity, isBuy: false);
 
         /// <summary>
         /// Рассчитывает цену покупки товара на основе его редкости и запрашиваемого количества.
@@ -67,21 +93,6 @@ namespace PotionCraft.Contracts.Services
         /// <param name="quantity">Количество товаров для покупки.</param>
         /// <returns>Рассчитанная цена покупки, округленная до двух знаков после запятой.</returns>
         public static double GetBuyPrice(RarityEnum rarity, int quantity)
-        {
-            var _alpha = GetAlpha(rarity);
-            var _priceDecayRate = GetPriceDecayRate(rarity);
-
-            // Фактор спроса: экспоненциальный рост цены при покупке большого количества
-            // При quantity = 1 множитель равен 1, при росте стремится к 1 / _alpha
-            var demand = (1.0 / _alpha) - ((1.0 / _alpha) - 1.0)
-                * Math.Exp(-_priceDecayRate * (quantity - 1));
-
-            // Случайный шум в диапазоне [-_delta, +_delta]
-            var noise = 1.0 + _delta * (Random.Shared.NextDouble() * 2.0 - 1);
-
-            var price = _basePrice[(int)rarity + 1] * demand * noise;
-
-            return Math.Round(price, 2);
-        }
+            => CalculatePrice(rarity, quantity, isBuy: true);
     }
 }
