@@ -2,19 +2,35 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Запустить PotionCraft (http)",
+            "name": "Запустить Server (https)",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
+            "projectPath": "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
+            "launchProfile": "https",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Запустить Server (http)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
             "launchProfile": "http",
             "preLaunchTask": "build"
         },
         {
-            "name": "Запустить PotionCraft (https)",
+            "name": "Запустить Client (https)",
             "type": "dotnet",
             "request": "launch",
-            "projectPath": "${workspaceFolder}/PotionCraft/PotionCraft.csproj",
+            "projectPath": "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
             "launchProfile": "https",
+            "preLaunchTask": "build"
+        },
+        {
+            "name": "Запустить Client (http)",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
+            "launchProfile": "http",
             "preLaunchTask": "build"
         },
         {
@@ -23,6 +39,16 @@
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft.Tests/PotionCraft.Tests.csproj",
             "preLaunchTask": "build"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Server + Client",
+            "configurations": [
+                "Запустить Server (https)",
+                "Запустить Client (https)"
+            ],
+            "stopAll": true
         }
     ]
 }
