@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -15,14 +15,15 @@ namespace PotionCraft.Repository.Migrations
                 name: "Herbs",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: false),
-                    HerbType = table.Column<int>(type: "INTEGER", nullable: false),
-                    Rarity = table.Column<int>(type: "INTEGER", nullable: false),
-                    Effect = table.Column<string>(type: "TEXT", nullable: false),
-                    Difficulty = table.Column<int>(type: "INTEGER", nullable: false),
-                    Habitats = table.Column<string>(type: "TEXT", nullable: false)
+                    Id             = table.Column<Guid>(type: "TEXT",    nullable: false),
+                    Name           = table.Column<string>(type: "TEXT",  nullable: false),
+                    Description    = table.Column<string>(type: "TEXT",  nullable: false),
+                    HerbType       = table.Column<int>(type: "INTEGER",  nullable: false),
+                    Rarity         = table.Column<int>(type: "INTEGER",  nullable: false),
+                    Effect         = table.Column<string>(type: "TEXT",  nullable: false),
+                    ModifierEffect = table.Column<int>(type: "INTEGER",  nullable: false, defaultValue: 0),
+                    Difficulty     = table.Column<int>(type: "INTEGER",  nullable: false),
+                    Habitats       = table.Column<string>(type: "TEXT",  nullable: false)
                 },
                 constraints: table =>
                 {
@@ -33,26 +34,27 @@ namespace PotionCraft.Repository.Migrations
                 name: "PlayerCharacters",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Intelligence = table.Column<int>(type: "INTEGER", nullable: false),
-                    Wisdom = table.Column<int>(type: "INTEGER", nullable: false),
-                    ProficiencyBonus = table.Column<int>(type: "INTEGER", nullable: false),
+                    Id                        = table.Column<Guid>(type: "TEXT",    nullable: false),
+                    Name                      = table.Column<string>(type: "TEXT",  nullable: false),
+                    Intelligence              = table.Column<int>(type: "INTEGER",  nullable: false),
+                    Wisdom                    = table.Column<int>(type: "INTEGER",  nullable: false),
+                    ProficiencyBonus          = table.Column<int>(type: "INTEGER",  nullable: false),
+                    RowVersion                = table.Column<byte[]>(type: "BLOB",  nullable: false, rowVersion: true),
                     AlchemistTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AlchemistTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AlchemistTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
+                    AlchemistTool_Expertise   = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AlchemistTool_Modifier    = table.Column<int>(type: "INTEGER",  nullable: false),
                     HerbalismTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HerbalismTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
-                    HerbalismTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
-                    PoisonerTool_Proficiency = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PoisonerTool_Expertise = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PoisonerTool_Modifier = table.Column<int>(type: "INTEGER", nullable: false),
-                    Bag_Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Bag_Herbs = table.Column<string>(type: "TEXT", nullable: false),
-                    Bag_Potions = table.Column<string>(type: "TEXT", nullable: false),
-                    Bag_Poisons = table.Column<string>(type: "TEXT", nullable: false),
-                    Bag_Coins = table.Column<int>(type: "INTEGER", nullable: false),
-                    SelectedBy = table.Column<Guid>(type: "TEXT", nullable: true)
+                    HerbalismTool_Expertise   = table.Column<bool>(type: "INTEGER", nullable: false),
+                    HerbalismTool_Modifier    = table.Column<int>(type: "INTEGER",  nullable: false),
+                    PoisonerTool_Proficiency  = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PoisonerTool_Expertise    = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PoisonerTool_Modifier     = table.Column<int>(type: "INTEGER",  nullable: false),
+                    Bag_Id                    = table.Column<Guid>(type: "TEXT",    nullable: false),
+                    Bag_Herbs                 = table.Column<string>(type: "TEXT",  nullable: false),
+                    Bag_Potions               = table.Column<string>(type: "TEXT",  nullable: false),
+                    Bag_Poisons               = table.Column<string>(type: "TEXT",  nullable: false),
+                    Bag_Coins                 = table.Column<int>(type: "INTEGER",  nullable: false),
+                    SelectedBy                = table.Column<Guid>(type: "TEXT",    nullable: true)
                 },
                 constraints: table =>
                 {
@@ -69,11 +71,8 @@ namespace PotionCraft.Repository.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Herbs");
-
-            migrationBuilder.DropTable(
-                name: "PlayerCharacters");
+            migrationBuilder.DropTable(name: "Herbs");
+            migrationBuilder.DropTable(name: "PlayerCharacters");
         }
     }
 }

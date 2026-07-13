@@ -71,6 +71,7 @@ public static class HerbDataSeeder
             HerbType = dto.HerbType,
             Rarity = dto.Rarity,
             Effect = dto.Effect,
+            ModifierEffect = dto.ModifierEffect,
             Difficulty = dto.Difficulty,
             Habitats = dto.Habitats
         };
@@ -105,6 +106,11 @@ public static class HerbDataSeeder
         /// Описание эффекта.
         /// </summary>
         public string Effect { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Машиночитаемый эффект модификатора.
+        /// </summary>
+        public HerbModifierEffectEnum ModifierEffect { get; set; } = HerbModifierEffectEnum.None;
 
         /// <summary>
         /// Сложность.

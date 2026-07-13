@@ -38,6 +38,11 @@ public class Herb
     public string Effect { get; set; } = string.Empty;
 
     /// <summary>
+    /// Машиночитаемый эффект модификатора. None для не-модификаторов.
+    /// </summary>
+    public HerbModifierEffectEnum ModifierEffect { get; set; } = HerbModifierEffectEnum.None;
+
+    /// <summary>
     /// Изменение сложности зелья при добавлении ингредиента
     /// </summary>
     public int Difficulty { get; set; }

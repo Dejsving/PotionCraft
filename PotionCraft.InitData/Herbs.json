@@ -1,10 +1,11 @@
-﻿[
+[
 	{
 		"Name": "Кровьтрава",
 		"Description": "Самое скучно и обыкновенное растение, которое можно найти в дикой местности- это тёмно-коричневая трава. У него нет абсолютно никаких замечательных качеств, кроме как относительно безвредных. При должной сноровке и умении она может стать отличным средством пропитания. Травники не считают эту траву чем-то особенным, но всё же склонны к её сбору, поскольку она практически не занимает места в сумках.",
 		"HerbType": "HealingModifier",
 		"Rarity": "Common",
 		"Effect": "Может быть смешано с любым другим ингредиентом содержащим Эффект Зелья, что бы стать источником еды на 1 день. Не может быть заменён другими ингредиентами.",
+		"ModifierEffect": "FoodSourceConversion",
 		"Habitats": {
 			"Mountains": 15,
 			"Deserts": 5
@@ -17,6 +18,7 @@
 		"HerbType": "HealingModifier, PoisonModifier",
 		"Rarity": "Rare",
 		"Effect": "Итоговый Эффект после всех вычислений становится абсолютно противоположным. Это зависит от ДМ, относительно каждого зелья/яда.",
+		"ModifierEffect": "UniversalInvertEffect",
 		"Habitats": {
 			"Coast": 5,
 			"Underdark": 5,
@@ -30,6 +32,7 @@
 		"HerbType": "HealingModifier",
 		"Rarity": "Unusual",
 		"Effect": "Увеличивает тип кости на 1 за любой исцеляющий эффект.",
+		"ModifierEffect": "HealingUpgradeDiceType",
 		"Habitats": {
 			"Mountains": 5,
 			"Deserts": 4
@@ -42,6 +45,7 @@
 		"HerbType": "HealingModifier, PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Задерживает Эффект действия ингредиентов на 1к6 раундов.",
+		"ModifierEffect": "UniversalDelayEffect",
 		"Habitats": {
 			"Forest": 4,
 			"Swamp": 4
@@ -54,6 +58,7 @@
 		"HerbType": "HealingBase",
 		"Rarity": "Common",
 		"Effect": "Стабилизирует температуру тела, что бы выдержать холод или влажность на 1 час. Не может быть заменён другими ингредиентами.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 7,
 			"Arctic": 10
@@ -66,6 +71,7 @@
 		"HerbType": "HealingModifier",
 		"Rarity": "Unusual",
 		"Effect": "Удвойте кол-во костей при броске любого исцеляющего Эффекта, но разделите результат броска на 2 (с округлением вниз); цель получает это количество исцеления в течениии 2 раундов.",
+		"ModifierEffect": "HealingDoubleCountHalveResultOverTime",
 		"Habitats": {
 			"Underdark": 9,
 			"Hills": 10
@@ -78,6 +84,7 @@
 		"HerbType": "HealingBase",
 		"Rarity": "Common",
 		"Effect": "Уменьшает на 1к6 раундов эффект яда на цели, однако не может убрать его полностью, один раунд всё равно будет нанесён урон от яда.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Coast": 4,
 			"Meadows": 12,
@@ -91,6 +98,7 @@
 		"HerbType": "HealingModifier, PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Делает зелье или токсин более стабильный для его безопасного создания.",
+		"ModifierEffect": "UniversalStabilizeBrew",
 		"Habitats": {
 			"Coast": 9,
 			"Hills": 5,
@@ -105,6 +113,7 @@
 		"HerbType": "HealingBase",
 		"Rarity": "Common",
 		"Effect": "Ослабляет любую болезнь или яд наполовину в течении 2к12 часов. Препятствует только уже существующим ядам или заболеваниям.Не может быть заменён другими ингредиентами.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Everewhere": 2
 		},
@@ -116,6 +125,7 @@
 		"HerbType": "HealingModifier",
 		"Rarity": "Common",
 		"Effect": "Удваивает кол-во костей при броске любого исцеляющего Эффекта, но убирает Мод. Алхимии. Сочетается с другими Мод.",
+		"ModifierEffect": "HealingDoubleCountRemoveAlchemyMod",
 		"Habitats": {
 			"Everewhere": 10
 		},
@@ -127,6 +137,7 @@
 		"HerbType": "HealingBase",
 		"Rarity": "Common",
 		"Effect": "Исцеляет 2к4+ Мод. Алхимии.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Everewhere": 5
 		},
@@ -138,6 +149,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Заменяет урон ядом на холод или урон некротической энергией; цель всё еще отравлена на 1 мин. при провале Спас. броска ТЕЛ; Этот токсин всё еще наносит урон ядом при сверке с другими ингредиентами.",
+		"ModifierEffect": "PoisonChangeToColdOrNecrotic",
 		"Habitats": {
 			"Arctic": 9,
 			"Mountains": 4
@@ -150,6 +162,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Меняет любой эффект яда на не летальный, цель падает без сознания.",
+		"ModifierEffect": "PoisonNonLethalUnconscious",
 		"Habitats": {
 			"Coast": 3,
 			"Swamp": 5,
@@ -163,6 +176,7 @@
 		"HerbType": "PoisonBase",
 		"Rarity": "VeryRare",
 		"Effect": "Медленно парализует врага. Цель должна преуспеть в спасброске телосложения 8 + Мод. Алхимии каждый ход в течении 4х ходов. Пока под этим эффектом, цель считается замедленной с помощью заклинания замедление. При провале цель парализуется на 4 часа. Не может быть заменён другими ингредиентами.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Mountains": 2
 		},
@@ -174,6 +188,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Цель не заметит никакого урона яда, пока не пройдёт 5 ходов с момента начала действия яда.",
+		"ModifierEffect": "PoisonDelayedNotice",
 		"Habitats": {
 			"Deserts": 5,
 			"Meadows": 10
@@ -186,6 +201,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Изменяет урон от яда на огненный или кислотный урон; цель всё еще отравлена на 1 мин. при провале Спас. броска ТЕЛ; Этот токсин всё еще наносит урон ядом при варке.",
+		"ModifierEffect": "PoisonChangeToFireOrAcid",
 		"Habitats": {
 			"Meadows": 3,
 			"Mountains": 9,
@@ -199,6 +215,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Rare",
 		"Effect": "Когда цель отравлена, замедляет её скорость на 10 футов на 1 минуту. Не может быть заменён другими ингредиентами.",
+		"ModifierEffect": "PoisonSlowTarget",
 		"Habitats": {
 			"Arctic": 5,
 			"Mountains": 3
@@ -211,6 +228,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Common",
 		"Effect": "Пока отравлена, цель имеет помехи на проверки. Не может быть заменён другими ингредиентами.",
+		"ModifierEffect": "PoisonDisadvantageOnChecks",
 		"Habitats": {
 			"Forest": 2,
 			"Hills": 12,
@@ -224,6 +242,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Unusual",
 		"Effect": "Удваивает кол-во костей на любой Эффект Токсина, но уменьшает время действия Эффекта вдвое. Сочетается с другими мод.",
+		"ModifierEffect": "PoisonDoubleCountHalveDuration",
 		"Habitats": {
 			"Everewhere": 3
 		},
@@ -235,6 +254,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Rare",
 		"Effect": "Изменяет урон ядом на урон от света; цель всё еще отравлена на 1 мин. при провале Спас. броска ТЕЛ; Этот токсин всё еще наносит урон ядом при варке.",
+		"ModifierEffect": "PoisonChangeToRadiant",
 		"Habitats": {
 			"Underdark": 11
 		},
@@ -246,6 +266,7 @@
 		"HerbType": "PoisonModifier",
 		"Rarity": "Unusual",
 		"Effect": "Увеличивает тип кости на 1 за любой Мод. Токсина.",
+		"ModifierEffect": "PoisonUpgradeDiceType",
 		"Habitats": {
 			"Swamp": 3,
 			"Deserts": 11
@@ -258,6 +279,7 @@
 		"HerbType": "PoisonBase",
 		"Rarity": "Common",
 		"Effect": "1к4 + Мод. Алхимии урона ядом за раунд. Цель считается отравленной на 1 минуту.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Everewhere": 8
 		},
@@ -269,6 +291,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Unusual",
 		"Effect": "+1 к броскам атаки, когда используется на оружие.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Forest": 9,
 			"Meadows": 5,
@@ -282,6 +305,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт Зелье газообразной формы.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Coast": 10,
 			"Forest": 11,
@@ -296,6 +320,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт Зелье ясновидения.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Coast": 12,
 			"Deserts": 2,
@@ -309,6 +334,7 @@
 		"HerbType": "Magic",
 		"Rarity": "VeryRare",
 		"Effect": "Игрок создаёт Зелье живучести.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 4,
 			"Swamp": 2,
@@ -322,6 +348,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Ингредиент требуемый для всех Магических зелий. Подробнее в Экосистемах.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Special": 0
 		},
@@ -333,6 +360,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт Зелье чтения мыслей.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 8,
 			"Arctic": 11
@@ -345,6 +373,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Unusual",
 		"Effect": "Игрок создаёт Зелье подводного дыхания.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Coast": 2,
 			"Swamp": 11,
@@ -358,6 +387,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Unusual",
 		"Effect": "Игрок создаёт Зелье увеличения.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Forest": 10,
 			"Arctic": 4,
@@ -371,6 +401,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт Зелье героизма.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 10,
 			"Mountains": 10
@@ -383,6 +414,7 @@
 		"HerbType": "Magic",
 		"Rarity": "VeryRare",
 		"Effect": "Игрок создаёт Зелье долголетия.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 6,
 			"Arctic": 3
@@ -395,6 +427,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Unusual",
 		"Effect": "Игрок создаёт Масло ускользания.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Forest": 3,
 			"Hills": 3
@@ -407,6 +440,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт зелье Зелье силы великана.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 2,
 			"Swamp": 12,
@@ -420,6 +454,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт Зелье неуязвимости.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Hills": 11,
 			"Mountains": 11
@@ -432,6 +467,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Common",
 		"Effect": "Игрок создаёт Зелье лазанья.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Meadows": 9,
 			"Deserts": 10
@@ -444,6 +480,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "При употреблении позволяет использовать случайное элементальное дыхание 3 раза. Не может быть заменён другим ингредиентом.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 3,
 			"Arctic": 2
@@ -456,6 +493,7 @@
 		"HerbType": "Magic",
 		"Rarity": "VeryRare",
 		"Effect": "Игрок создаёт Зелье скорости.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Hills": 4,
 			"Meadows": 11
@@ -468,6 +506,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Unusual",
 		"Effect": "Игрок создаёт Зелье дружбы с животными.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Forest": 5
 		},
@@ -475,10 +514,11 @@
 	},
 	{
 		"Name": "Корень пустоты",
-		"Description": "Этот темно-серый толстый корень часто встречается в самых экстремальных условиях. Обычно он растет либо в пустынных, либо в арктических условиях и, по-видимому, скорость роста каждого корня разная. Травники, как правило, очень осторожны, когда извлекают этот корень из земли, так как он, кажется, бросает вызов гравитации и хочет “улететь” прочь.",
+		"Description": "Этот темно-серый толстый корень часто встречается в самых экстремальных условиях. Обычно он растет либо в пустынных, либо в арктических условиях и, по-видимому, скорость роста каждого корня разная. Травники, как правило, очень осторожны, когда извлекают этот корень из земли, так как он, кажется, бросает вызов гравитации и хочет "улететь" прочь.",
 		"HerbType": "Magic",
 		"Rarity": "VeryRare",
 		"Effect": "Игрок создаёт Зелье полёта.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Arctic": 12,
 			"Deserts": 12
@@ -491,6 +531,7 @@
 		"HerbType": "Magic",
 		"Rarity": "VeryRare",
 		"Effect": "Игрок создаёт Зелье невидимости.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Underdark": 12,
 			"Forest": 12
@@ -503,6 +544,7 @@
 		"HerbType": "Magic",
 		"Rarity": "Rare",
 		"Effect": "Игрок создаёт Зелье уменьшения.",
+		"ModifierEffect": "None",
 		"Habitats": {
 			"Coast": 11,
 			"Swamp": 10,

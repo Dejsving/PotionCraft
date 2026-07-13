@@ -1,0 +1,344 @@
+@page
+@model PotionCraft.Pages.Alchemy.IndexModel
+@{
+    ViewData["Title"] = "Алхимия";
+}
+
+<h1>Алхимия</h1>
+
+<div class="row mt-3 mb-3">
+    <div class="col-12 d-flex align-items-center flex-wrap gap-3">
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" role="switch" id="bagFilterCheck">
+            <label class="form-check-label fw-semibold" for="bagFilterCheck">
+                <i class="bi bi-backpack2-fill me-1"></i>Только содержимое сумки
+            </label>
+        </div>
+        <span id="bag-filter-warning" class="text-danger small d-none">
+            <i class="bi bi-exclamation-triangle me-1"></i><span id="bag-filter-warning-text">Персонаж не выбран</span>
+        </span>
+        <span id="bag-filter-loading" class="text-muted small d-none">
+            <span class="spinner-border spinner-border-sm" role="status"></span>
+            Загрузка сумки...
+        </span>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header fw-bold bg-success text-white">
+                <i class="bi bi-flower1 me-2"></i>Основной ингредиент
+            </div>
+            <div class="card-body">
+                <label class="form-label text-muted small">Трава-основа определяет тип зелья</label>
+                <select id="baseSelect" class="form-select">
+                    <option value="">— Выберите основу —</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center bg-info text-white">
+                <span class="fw-bold">
+                    <i class="bi bi-plus-circle me-2"></i>Модификаторы
+                    <span class="badge bg-white text-info ms-2" id="modifier-count-badge">0 / 3</span>
+                </span>
+                <button type="button" class="btn btn-light btn-sm" id="addModifierBtn" disabled>
+                    <i class="bi bi-plus-lg me-1"></i>Добавить
+                </button>
+            </div>
+            <div class="card-body">
+                <p class="text-muted text-center small" id="no-base-hint">
+                    <i class="bi bi-arrow-left me-1"></i>Сначала выберите основной ингредиент
+                </p>
+                <p class="text-muted text-center small d-none" id="no-modifiers-hint">
+                    Нажмите «Добавить», чтобы выбрать модификаторы
+                </p>
+                <p class="text-muted small d-none mb-2" id="max-modifiers-hint">
+                    Достигнут максимум — зелье содержащее более 3 модификаторов нестабильно (игромеханически бросок автоматически проваливается)
+                </p>
+                <div id="modifiers-container"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-primary shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-flask me-2"></i><strong>Параметры зелья</strong>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    <span class="fw-bold fs-5 me-3">Сложность:</span>
+                    <span id="difficulty-badge" class="badge bg-secondary fs-4 px-4 py-2">10</span>
+                </div>
+                <hr />
+                <div id="effects-section">
+                    <p class="text-muted fst-italic">Добавьте ингредиенты, чтобы увидеть эффекты зелья.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const HERBS = @Html.Raw(Model.HerbsJson);
+    const HEALING_BASE = 1, HEALING_MODIFIER = 2, POISON_BASE = 4, POISON_MODIFIER = 8;
+    const BASE_DIFFICULTY = 10, MAX_MODIFIERS = 3;
+
+    let modifierCounter = 0;
+    let bagHerbCounts = new Map(); // lowercase herbId -> quantity
+
+    // ── Utilities ─────────────────────────────────────────────────
+
+    function esc(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    function hasFlag(v, f) { return (v & f) !== 0; }
+    function isBagFilter() { return document.getElementById('bagFilterCheck').checked; }
+    function getBagQty(id) { return bagHerbCounts.get(id.toLowerCase()) || 0; }
+
+    // Count how many times each herbId is in use across all slots, excluding one <select>
+    function getUsedCounts(excludeSel) {
+        const counts = new Map();
+        const baseVal = document.getElementById('baseSelect').value;
+        if (baseVal) counts.set(baseVal, (counts.get(baseVal) || 0) + 1);
+        document.querySelectorAll('.modifier-select').forEach(sel => {
+            if (sel !== excludeSel && sel.value)
+                counts.set(sel.value, (counts.get(sel.value) || 0) + 1);
+        });
+        return counts;
+    }
+
+    function availableQty(herbId, excludeSel) {
+        if (!isBagFilter()) return Infinity;
+        const used = getUsedCounts(excludeSel).get(herbId) || 0;
+        return getBagQty(herbId) - used;
+    }
+
+    // ── Herb helpers ──────────────────────────────────────────────
+
+    function baseHerbs() {
+        return HERBS.filter(h => hasFlag(h.herbType, HEALING_BASE) || hasFlag(h.herbType, POISON_BASE));
+    }
+    function modifiersForBase(baseId) {
+        const base = HERBS.find(h => h.id === baseId);
+        if (!base) return [];
+        if (hasFlag(base.herbType, HEALING_BASE)) return HERBS.filter(h => hasFlag(h.herbType, HEALING_MODIFIER));
+        if (hasFlag(base.herbType, POISON_BASE))  return HERBS.filter(h => hasFlag(h.herbType, POISON_MODIFIER));
+        return [];
+    }
+    function selectedBase() {
+        const id = document.getElementById('baseSelect').value;
+        return id ? HERBS.find(h => h.id === id) ?? null : null;
+    }
+    function selectedModifiers() {
+        return Array.from(document.querySelectorAll('.modifier-select'))
+            .filter(s => s.value).map(s => HERBS.find(h => h.id === s.value)).filter(Boolean);
+    }
+
+    // ── Options builder ───────────────────────────────────────────
+
+    function buildOptions(herbs, currentVal, excludeSel) {
+        const filter = isBagFilter();
+        let html = '<option value="">— Выберите —</option>';
+        for (const h of herbs) {
+            const avail = availableQty(h.id, excludeSel);
+            if (filter && avail <= 0 && h.id !== currentVal) continue;
+            const sel = h.id === currentVal ? ' selected' : '';
+            const qty = filter ? ` (x${getBagQty(h.id)})` : '';
+            html += `<option value="${h.id}"${sel}>${esc(h.name)}${qty}</option>`;
+        }
+        return html;
+    }
+
+    // ── Refresh ───────────────────────────────────────────────────
+
+    function refreshBaseSelect() {
+        const el = document.getElementById('baseSelect');
+        const cur = el.value;
+        const filter = isBagFilter();
+        let html = '<option value="">— Выберите основу —</option>';
+        for (const h of baseHerbs()) {
+            if (filter && getBagQty(h.id) <= 0 && h.id !== cur) continue;
+            const sel = h.id === cur ? ' selected' : '';
+            const qty = filter ? ` (x${getBagQty(h.id)})` : '';
+            html += `<option value="${h.id}"${sel}>${esc(h.name)}${qty}</option>`;
+        }
+        el.innerHTML = html;
+
+        if (filter && cur && getBagQty(cur) <= 0) {
+            el.value = '';
+            onBaseChanged();
+        }
+    }
+
+    function refreshAllModifiers() {
+        const base = selectedBase();
+        if (!base) return;
+        const avail = modifiersForBase(base.id);
+        document.querySelectorAll('.modifier-row').forEach(row => {
+            const sel = row.querySelector('.modifier-select');
+            const cur = sel.value;
+            sel.innerHTML = buildOptions(avail, cur, sel);
+            sel.value = cur;
+        });
+    }
+
+    function updateUI() {
+        const base = selectedBase();
+        const rowCount = document.querySelectorAll('.modifier-row').length;
+        document.getElementById('no-base-hint').classList.toggle('d-none', !!base);
+        document.getElementById('no-modifiers-hint').classList.toggle('d-none', !base || rowCount > 0);
+        document.getElementById('max-modifiers-hint').classList.toggle('d-none', rowCount < MAX_MODIFIERS);
+        document.getElementById('modifier-count-badge').textContent = `${rowCount} / ${MAX_MODIFIERS}`;
+        document.getElementById('addModifierBtn').disabled = !base || rowCount >= MAX_MODIFIERS;
+    }
+
+    // ── Recalculate ───────────────────────────────────────────────
+
+    function recalculate() {
+        const base = selectedBase();
+        const mods = selectedModifiers();
+        let difficulty = BASE_DIFFICULTY;
+        const effects = [];
+
+        if (base) {
+            difficulty += base.difficulty;
+            if (base.effect) effects.push({ name: base.name, effect: base.effect });
+        }
+        for (const m of mods) {
+            difficulty += m.difficulty;
+            if (m.effect) effects.push({ name: m.name, effect: m.effect });
+        }
+
+        const badge = document.getElementById('difficulty-badge');
+        badge.textContent = difficulty;
+        let cls = 'bg-secondary';
+        if (base) cls = difficulty <= 10 ? 'bg-success'
+                      : difficulty <= 15 ? 'bg-warning text-dark'
+                      : difficulty <= 20 ? 'bg-danger'
+                      : 'bg-dark';
+        badge.className = `badge fs-4 px-4 py-2 ${cls}`;
+
+        const sec = document.getElementById('effects-section');
+        if (!effects.length) {
+            sec.innerHTML = '<p class="text-muted fst-italic">Добавьте ингредиенты, чтобы увидеть эффекты зелья.</p>';
+        } else {
+            let html = '<h6 class="fw-bold mb-3 text-primary">Особенности зелья</h6>';
+            for (const e of effects)
+                html += `<div class="mb-2 p-2 bg-light rounded"><span class="fw-semibold text-primary">${esc(e.name)}:</span> <span class="text-dark">${esc(e.effect)}</span></div>`;
+            sec.innerHTML = html;
+        }
+        updateUI();
+    }
+
+    // ── Event handlers ────────────────────────────────────────────
+
+    function onBaseChanged() {
+        document.querySelectorAll('.modifier-row').forEach(r => r.remove());
+        modifierCounter = 0;
+        recalculate();
+    }
+
+    function onModifierChanged() {
+        refreshAllModifiers();
+        recalculate();
+    }
+
+    async function onBagFilterToggle() {
+        const active = isBagFilter();
+        const warning = document.getElementById('bag-filter-warning');
+        const loading = document.getElementById('bag-filter-loading');
+        warning.classList.add('d-none');
+
+        if (!active) {
+            refreshBaseSelect();
+            refreshAllModifiers();
+            recalculate();
+            return;
+        }
+
+        const data = window.sessionStorage.getItem('active_character');
+        let characterId;
+        try { const c = JSON.parse(data ?? ''); characterId = c.id || c.Id; } catch {}
+        if (!characterId) {
+            document.getElementById('bag-filter-warning-text').textContent = 'Персонаж не выбран';
+            warning.classList.remove('d-none');
+            document.getElementById('bagFilterCheck').checked = false;
+            return;
+        }
+
+        loading.classList.remove('d-none');
+        try {
+            const res = await fetch(`/api/characters/${characterId}/bag`);
+            if (!res.ok) throw new Error();
+            const bag = await res.json();
+            const herbs = bag.herbs || bag.Herbs || {};
+            bagHerbCounts = new Map();
+            for (const key in herbs) {
+                const item = herbs[key];
+                const herb = item.herb || item.Herb;
+                const qty = item.quantity ?? item.Quantity ?? 0;
+                if (herb) bagHerbCounts.set((herb.id || herb.Id || '').toLowerCase(), qty);
+            }
+        } catch {
+            loading.classList.add('d-none');
+            document.getElementById('bag-filter-warning-text').textContent = 'Не удалось загрузить сумку';
+            warning.classList.remove('d-none');
+            document.getElementById('bagFilterCheck').checked = false;
+            return;
+        }
+        loading.classList.add('d-none');
+
+        refreshBaseSelect();
+        refreshAllModifiers();
+        recalculate();
+    }
+
+    function addModifierRow() {
+        const base = selectedBase();
+        if (!base || document.querySelectorAll('.modifier-row').length >= MAX_MODIFIERS) return;
+
+        const avail = modifiersForBase(base.id);
+        modifierCounter++;
+        const rowId = `mod-row-${modifierCounter}`;
+
+        const row = document.createElement('div');
+        row.className = 'modifier-row d-flex align-items-center gap-2 mb-2';
+        row.id = rowId;
+        row.innerHTML = `
+            <select class="form-select modifier-select">${buildOptions(avail, '', null)}</select>
+            <button type="button" class="btn btn-outline-danger btn-sm flex-shrink-0"
+                    onclick="removeModifierRow('${rowId}')"><i class="bi bi-x-lg"></i></button>`;
+        row.querySelector('select').addEventListener('change', onModifierChanged);
+        document.getElementById('modifiers-container').appendChild(row);
+
+        refreshAllModifiers();
+        recalculate();
+    }
+
+    function removeModifierRow(rowId) {
+        document.getElementById(rowId)?.remove();
+        refreshAllModifiers();
+        recalculate();
+    }
+
+    // ── Init ──────────────────────────────────────────────────────
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const baseSelect = document.getElementById('baseSelect');
+        for (const h of baseHerbs()) baseSelect.add(new Option(h.name, h.id));
+        baseSelect.addEventListener('change', onBaseChanged);
+        document.getElementById('addModifierBtn').addEventListener('click', addModifierRow);
+        document.getElementById('bagFilterCheck').addEventListener('change', onBagFilterToggle);
+        updateUI();
+    });
+</script>
+}
