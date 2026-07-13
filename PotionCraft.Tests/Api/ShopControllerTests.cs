@@ -6,7 +6,7 @@ using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Contracts.Services;
-using PotionCraft.Controllers;
+using PotionCraft.Server.Controllers;
 using PotionCraft.Repository;
 using PotionCraft.Repository.Abstraction;
 using PotionCraft.Tests.Infrastructure;

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PotionCraft.Contracts;
 using PotionCraft.Contracts.Models;
-using PotionCraft.Controllers;
+using PotionCraft.Server.Controllers;
 using PotionCraft.Repository.Abstraction;
 
 namespace PotionCraft.Tests.Api;

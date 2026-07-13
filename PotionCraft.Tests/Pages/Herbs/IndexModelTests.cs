@@ -1,38 +1,37 @@
-﻿using Moq;
+using Moq;
 using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Pages.Herbs;
-using PotionCraft.Repository.Abstraction;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace PotionCraft.Tests.Pages.Herbs
 {
-    /// <summary>
-    /// Тесты для модели страницы списка трав (IndexModel).
-    /// </summary>
+    internal class MockHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly HttpResponseMessage _response;
+        public MockHttpMessageHandler(HttpResponseMessage response) => _response = response;
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            => Task.FromResult(_response);
+    }
+
     public class IndexModelTests
     {
-        /// <summary>
-        /// Мок-репозиторий трав.
-        /// </summary>
-        private readonly Mock<IHerbRepository> _mockRepository;
-
-        /// <summary>
-        /// Тестируемая модель страницы.
-        /// </summary>
-        private readonly IndexModel _model;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="IndexModelTests"/>.
-        /// </summary>
-        public IndexModelTests()
+        private static IndexModel CreateModel(List<Herb> herbs)
         {
-            _mockRepository = new Mock<IHerbRepository>();
-            _model = new IndexModel(_mockRepository.Object);
+            var json = JsonSerializer.Serialize(herbs);
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+            var handler = new MockHttpMessageHandler(response);
+            var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://localhost:7088") };
+            var mockFactory = new Mock<IHttpClientFactory>();
+            mockFactory.Setup(f => f.CreateClient("PotionCraftApi")).Returns(httpClient);
+            return new IndexModel(mockFactory.Object);
         }
 
-        /// <summary>
-        /// Создаёт тестовый набор трав.
-        /// </summary>
         private static List<Herb> CreateTestHerbs()
         {
             return new List<Herb>
@@ -81,516 +80,304 @@ namespace PotionCraft.Tests.Pages.Herbs
             };
         }
 
-        /// <summary>
-        /// Проверяет, что OnGetAsync загружает все травы без фильтров.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_NoFilters_ReturnsAllHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Equal(3, _model.Herbs.Count);
+            var model = CreateModel(CreateTestHerbs());
+            await model.OnGetAsync();
+            Assert.Equal(3, model.Herbs.Count);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по названию травы.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByName_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterName = "Мандрагора";
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Мандрагора", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterName = "Мандрагора";
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Мандрагора", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по описанию травы.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByDescription_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterDescription = "Ядовитое";
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterDescription = "Ядовитое";
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Болиголов", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по типу травы.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByHerbType_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHerbType = HerbTypeEnum.PoisonBase;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterHerbType = HerbTypeEnum.PoisonBase;
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Болиголов", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по типу Magic — должен вернуть травы, содержащие флаг Magic.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByHerbTypeMagic_ReturnsHerbsWithMagicFlag()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHerbType = HerbTypeEnum.Magic;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Лунный цветок", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterHerbType = HerbTypeEnum.Magic;
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Лунный цветок", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по редкости травы.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByRarity_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterRarity = RarityEnum.Common;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterRarity = RarityEnum.Common;
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Болиголов", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по эффекту травы.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByEffect_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterEffect = "ночное зрение";
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Лунный цветок", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterEffect = "ночное зрение";
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Лунный цветок", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по сложности.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByDifficulty_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterDifficulty = 15;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Мандрагора", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterDifficulty = 15;
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Мандрагора", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет фильтрацию по среде обитания.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByHabitat_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHabitat = TerrainEnum.Swamp;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Single(_model.Herbs);
-            Assert.Equal("Болиголов", _model.Herbs[0].Name);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterHabitat = TerrainEnum.Swamp;
+            await model.OnGetAsync();
+            Assert.Single(model.Herbs);
+            Assert.Equal("Болиголов", model.Herbs[0].Name);
         }
 
-        /// <summary>
-        /// Проверяет, что фильтрация по среде обитания Forest возвращает все травы с лесом.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_FilterByForestHabitat_ReturnsMultipleHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHabitat = TerrainEnum.Forest;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Equal(2, _model.Herbs.Count);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterHabitat = TerrainEnum.Forest;
+            await model.OnGetAsync();
+            Assert.Equal(2, model.Herbs.Count);
         }
 
-        /// <summary>
-        /// Проверяет комбинированную фильтрацию по нескольким полям.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_MultipleFilters_ReturnsMatchingHerbs()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterHerbType = HerbTypeEnum.HealingBase;
-            _model.FilterHabitat = TerrainEnum.Forest;
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Equal(2, _model.Herbs.Count);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterHerbType = HerbTypeEnum.HealingBase;
+            model.FilterHabitat = TerrainEnum.Forest;
+            await model.OnGetAsync();
+            Assert.Equal(2, model.Herbs.Count);
         }
 
-        /// <summary>
-        /// Проверяет, что если ни одна трава не подходит под фильтр, возвращается пустой список.
-        /// </summary>
         [Fact]
         public async Task OnGetAsync_NoMatchingFilters_ReturnsEmptyList()
         {
-            // Arrange
-            var herbs = CreateTestHerbs();
-            _mockRepository.Setup(r => r.GetAllAsync()).ReturnsAsync(herbs);
-            _model.FilterName = "Несуществующая трава";
-
-            // Act
-            await _model.OnGetAsync();
-
-            // Assert
-            Assert.Empty(_model.Herbs);
+            var model = CreateModel(CreateTestHerbs());
+            model.FilterName = "Несуществующая трава";
+            await model.OnGetAsync();
+            Assert.Empty(model.Herbs);
         }
 
-        /// <summary>
-        /// Проверяет сортировку по названию в прямом порядке (по алфавиту).
-        /// </summary>
+        // ─── Sorting (pure method tests, no HTTP) ────────────────────────────
+
+        private static IndexModel CreateSortModel()
+            => CreateModel(new List<Herb>());
+
         [Fact]
         public void ApplySorting_SortByNameAsc_ReturnsSortedByNameAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Name";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Name";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderBy(h => h.Name).Select(h => h.Name).ToList();
             Assert.Equal(expected, result.Select(h => h.Name).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по названию в обратном порядке (по алфавиту убыванием).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByNameDesc_ReturnsSortedByNameDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Name";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Name";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderByDescending(h => h.Name).Select(h => h.Name).ToList();
             Assert.Equal(expected, result.Select(h => h.Name).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по описанию в прямом порядке (по алфавиту).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByDescriptionAsc_ReturnsSortedByDescriptionAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Description";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Description";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderBy(h => h.Description).Select(h => h.Description).ToList();
             Assert.Equal(expected, result.Select(h => h.Description).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по описанию в обратном порядке.
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByDescriptionDesc_ReturnsSortedByDescriptionDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Description";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Description";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderByDescending(h => h.Description).Select(h => h.Description).ToList();
             Assert.Equal(expected, result.Select(h => h.Description).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по типу травы в прямом порядке (по числовому значению enum).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByHerbTypeAsc_ReturnsSortedByHerbTypeAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "HerbType";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "HerbType";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderBy(h => (int)h.HerbType).Select(h => (int)h.HerbType).ToList();
             Assert.Equal(expected, result.Select(h => (int)h.HerbType).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по типу травы в обратном порядке (по числовому значению enum убыванием).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByHerbTypeDesc_ReturnsSortedByHerbTypeDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "HerbType";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "HerbType";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderByDescending(h => (int)h.HerbType).Select(h => (int)h.HerbType).ToList();
             Assert.Equal(expected, result.Select(h => (int)h.HerbType).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по редкости в прямом порядке (по числовому значению enum).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByRarityAsc_ReturnsSortedByRarityAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Rarity";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Rarity";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderBy(h => (int)h.Rarity).Select(h => (int)h.Rarity).ToList();
             Assert.Equal(expected, result.Select(h => (int)h.Rarity).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по редкости в обратном порядке (по числовому значению enum убыванием).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByRarityDesc_ReturnsSortedByRarityDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Rarity";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Rarity";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderByDescending(h => (int)h.Rarity).Select(h => (int)h.Rarity).ToList();
             Assert.Equal(expected, result.Select(h => (int)h.Rarity).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по сложности в прямом порядке.
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByDifficultyAsc_ReturnsSortedByDifficultyAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Difficulty";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Difficulty";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderBy(h => h.Difficulty).Select(h => h.Difficulty).ToList();
             Assert.Equal(expected, result.Select(h => h.Difficulty).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по сложности в обратном порядке.
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByDifficultyDesc_ReturnsSortedByDifficultyDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Difficulty";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Difficulty";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderByDescending(h => h.Difficulty).Select(h => h.Difficulty).ToList();
             Assert.Equal(expected, result.Select(h => h.Difficulty).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по эффекту в прямом порядке (по алфавиту).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByEffectAsc_ReturnsSortedByEffectAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Effect";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Effect";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderBy(h => h.Effect).Select(h => h.Effect).ToList();
             Assert.Equal(expected, result.Select(h => h.Effect).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по эффекту в обратном порядке.
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByEffectDesc_ReturnsSortedByEffectDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Effect";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = "Effect";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             var expected = herbs.OrderByDescending(h => h.Effect).Select(h => h.Effect).ToList();
             Assert.Equal(expected, result.Select(h => h.Effect).ToList());
         }
 
-        /// <summary>
-        /// Проверяет сортировку по среде обитания в прямом порядке
-        /// (по минимальному числовому значению первой среды обитания).
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByHabitatAsc_ReturnsSortedByMinHabitatKeyAscending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Habitat";
-            _model.SortDesc = false;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
-            // Болиголов: Swamp=4, Мандрагора: Forest=3 → min=3, Лунный цветок: Underdark=2 → min=2
-            // Ожидаемый порядок по возрастанию: Лунный цветок (2), Мандрагора (3), Болиголов (4)
+            var model = CreateSortModel();
+            model.SortBy = "Habitat";
+            model.SortDesc = false;
+            var result = model.ApplySorting(herbs);
             Assert.Equal("Лунный цветок", result[0].Name);
             Assert.Equal("Мандрагора", result[1].Name);
             Assert.Equal("Болиголов", result[2].Name);
         }
 
-        /// <summary>
-        /// Проверяет сортировку по среде обитания в обратном порядке.
-        /// </summary>
         [Fact]
         public void ApplySorting_SortByHabitatDesc_ReturnsSortedByMinHabitatKeyDescending()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = "Habitat";
-            _model.SortDesc = true;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
-            // Ожидаемый порядок по убыванию: Болиголов (4), Мандрагора (3), Лунный цветок (2)
+            var model = CreateSortModel();
+            model.SortBy = "Habitat";
+            model.SortDesc = true;
+            var result = model.ApplySorting(herbs);
             Assert.Equal("Болиголов", result[0].Name);
             Assert.Equal("Мандрагора", result[1].Name);
             Assert.Equal("Лунный цветок", result[2].Name);
         }
 
-        /// <summary>
-        /// Проверяет, что при отсутствии SortBy список возвращается без изменений.
-        /// </summary>
         [Fact]
         public void ApplySorting_NoSortBy_ReturnsOriginalOrder()
         {
-            // Arrange
             var herbs = CreateTestHerbs();
-            _model.SortBy = null;
-
-            // Act
-            var result = _model.ApplySorting(herbs);
-
-            // Assert
+            var model = CreateSortModel();
+            model.SortBy = null;
+            var result = model.ApplySorting(herbs);
             Assert.Equal(herbs.Select(h => h.Name), result.Select(h => h.Name));
         }
     }

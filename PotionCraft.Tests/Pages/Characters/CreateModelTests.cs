@@ -1,126 +1,101 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Moq;
-using PotionCraft.Contracts;
 using PotionCraft.Pages.Characters;
-using PotionCraft.Repository.Abstraction;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace PotionCraft.Tests.Pages.Characters
 {
-    /// <summary>
-    /// Тесты для меню создания персонажа (CreateModel).
-    /// </summary>
+    internal class MockHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly HttpResponseMessage _response;
+        public MockHttpMessageHandler(HttpResponseMessage response) => _response = response;
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            => Task.FromResult(_response);
+    }
+
     public class CreateModelTests
     {
-        /// <summary>
-        /// Макет хранилища персонажей.
-        /// </summary>
-        private readonly Mock<IPlayerCharacterRepository> _mockRepository;
-
-        /// <summary>
-        /// Тестируемый экземпляр модели.
-        /// </summary>
-        private readonly CreateModel _model;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="CreateModelTests"/>.
-        /// </summary>
-        public CreateModelTests()
+        private static IHttpClientFactory CreateHttpClientFactory(HttpResponseMessage response)
         {
-            _mockRepository = new Mock<IPlayerCharacterRepository>();
-            _model = new CreateModel(_mockRepository.Object);
+            var handler = new MockHttpMessageHandler(response);
+            var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://localhost:7088") };
+            var mockFactory = new Mock<IHttpClientFactory>();
+            mockFactory.Setup(f => f.CreateClient("PotionCraftApi")).Returns(httpClient);
+            return mockFactory.Object;
         }
 
-        /// <summary>
-        /// Проверяет, что OnPostAsync возвращает PageResult,
-        /// когда состояние модели является недопустимым.
-        /// </summary>
         [Fact]
         public async Task OnPostAsync_InvalidModelState_ReturnsPageResult()
         {
             // Arrange
-            _model.ModelState.AddModelError("Name", "Name is required");
+            var factory = CreateHttpClientFactory(new HttpResponseMessage(HttpStatusCode.OK));
+            var model = new CreateModel(factory);
+            model.ModelState.AddModelError("Name", "Name is required");
 
             // Act
-            var result = await _model.OnPostAsync();
+            var result = await model.OnPostAsync();
 
             // Assert
             Assert.IsType<PageResult>(result);
         }
 
-        /// <summary>
-        /// Проверяет, что OnPostAsync добавляет персонажа и перенаправляет на страницу выбора
-        /// с параметром autoSelect, содержащим идентификатор созданного персонажа.
-        /// </summary>
         [Fact]
-        public async Task OnPostAsync_ValidModel_AddsCharacterAndRedirectsToSelectWithAutoSelect()
+        public async Task OnPostAsync_ValidModel_RedirectsToSelectWithAutoSelect()
         {
             // Arrange
-            _model.Name = "Test Character";
-            _model.Intelligence = 15;
-            _model.Wisdom = 14;
-            _model.ProficiencyBonus = 3;
-            _model.HerbalismProficiencyLevel = 2; // Expertise
-            _model.HerbalismToolModifier = 2;
-            _model.AlchemistProficiencyLevel = 1; // Proficiency
-            _model.AlchemistToolModifier = -1;
-            _model.PoisonerProficiencyLevel = 0;  // None
-            _model.PoisonerToolModifier = 0;
-
-            Guid capturedId = Guid.Empty;
-            _mockRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayerCharacter>()))
-                           .Callback<PlayerCharacter>(c => capturedId = c.Id)
-                           .Returns(Task.CompletedTask);
+            var newCharacterId = Guid.NewGuid();
+            var responseBody = JsonSerializer.Serialize(new { Id = newCharacterId });
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            };
+            var factory = CreateHttpClientFactory(response);
+            var model = new CreateModel(factory);
+            model.Name = "Test Character";
+            model.Intelligence = 15;
+            model.Wisdom = 14;
+            model.ProficiencyBonus = 3;
+            model.HerbalismProficiencyLevel = 2;
+            model.HerbalismToolModifier = 2;
+            model.AlchemistProficiencyLevel = 1;
+            model.AlchemistToolModifier = -1;
+            model.PoisonerProficiencyLevel = 0;
+            model.PoisonerToolModifier = 0;
 
             // Act
-            var result = await _model.OnPostAsync();
+            var result = await model.OnPostAsync();
 
             // Assert
             var redirectResult = Assert.IsType<RedirectToPageResult>(result);
             Assert.Equal("Select", redirectResult.PageName);
             Assert.NotNull(redirectResult.RouteValues);
             Assert.True(redirectResult.RouteValues!.ContainsKey("autoSelect"));
-            Assert.Equal(capturedId, redirectResult.RouteValues["autoSelect"]);
-            Assert.NotEqual(Guid.Empty, capturedId);
-
-            _mockRepository.Verify(repo => repo.AddAsync(It.Is<PlayerCharacter>(c =>
-                c.Name == "Test Character" &&
-                c.Intelligence == 15 &&
-                c.Wisdom == 14 &&
-                c.ProficiencyBonus == 3 &&
-                c.HerbalismTool.Proficiency == true &&
-                c.HerbalismTool.Expertise == true &&
-                c.HerbalismTool.Modifier == 2 &&
-                c.AlchemistTool.Proficiency == true &&
-                c.AlchemistTool.Expertise == false &&
-                c.AlchemistTool.Modifier == -1 &&
-                c.PoisonerTool.Proficiency == false &&
-                c.PoisonerTool.Expertise == false &&
-                c.PoisonerTool.Modifier == 0
-            )), Times.Once);
         }
 
-        /// <summary>
-        /// Проверяет, что OnPostAsync возвращает PageResult с ошибкой,
-        /// когда репозиторий выдает исключение InvalidOperationException.
-        /// </summary>
         [Fact]
-        public async Task OnPostAsync_RepositoryThrowsInvalidOperationException_ReturnsPageResultWithModelError()
+        public async Task OnPostAsync_ServerReturnsBadRequest_ReturnsPageResultWithModelError()
         {
             // Arrange
-            _model.Name = "Duplicate name";
-            var exceptionMessage = "Character already exists";
-            
-            _mockRepository.Setup(repo => repo.AddAsync(It.IsAny<PlayerCharacter>()))
-                           .ThrowsAsync(new InvalidOperationException(exceptionMessage));
+            var errorMessage = "Character already exists";
+            var responseBody = JsonSerializer.Serialize(new { Message = errorMessage });
+            var response = new HttpResponseMessage(HttpStatusCode.BadRequest)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            };
+            var factory = CreateHttpClientFactory(response);
+            var model = new CreateModel(factory);
+            model.Name = "Duplicate name";
 
             // Act
-            var result = await _model.OnPostAsync();
+            var result = await model.OnPostAsync();
 
             // Assert
             Assert.IsType<PageResult>(result);
-            Assert.True(_model.ModelState.ContainsKey("Name"));
-            Assert.Equal(exceptionMessage, _model.ModelState["Name"]!.Errors[0].ErrorMessage);
+            Assert.True(model.ModelState.ContainsKey("Name"));
+            Assert.Equal(errorMessage, model.ModelState["Name"]!.Errors[0].ErrorMessage);
         }
     }
 }

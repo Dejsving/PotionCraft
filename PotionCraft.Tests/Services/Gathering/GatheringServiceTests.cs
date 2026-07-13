@@ -4,7 +4,7 @@ using PotionCraft.Contracts.Enums;
 using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;
-using PotionCraft.Services.Gathering;
+using PotionCraft.Server.Services.Gathering;
 
 namespace PotionCraft.Tests.Services.Gathering;
 

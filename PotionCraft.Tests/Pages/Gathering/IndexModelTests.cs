@@ -1,37 +1,41 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Moq;
-using PotionCraft.Contracts;
-using PotionCraft.Contracts.DiceRolls;
 using PotionCraft.Contracts.Enums;
-using PotionCraft.Contracts.Interfaces;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Pages.Gathering;
-using PotionCraft.Repository.Abstraction;
+using System.Net;
+using System.Text;
+using System.Text.Json;
 
 namespace PotionCraft.Tests.Pages.Gathering
 {
+    internal class MockHttpMessageHandler : HttpMessageHandler
+    {
+        private readonly HttpResponseMessage _response;
+        public MockHttpMessageHandler(HttpResponseMessage response) => _response = response;
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            => Task.FromResult(_response);
+    }
+
     public class IndexModelTests
     {
-        /// <summary>
-        /// Создаёт мок IDiceRoller с предсказуемым значением для D20.
-        /// </summary>
-        private static Mock<IDiceRoller> CreateDiceRollerMock(int d20Result = 10)
+        private static IHttpClientFactory CreateHttpClientFactory(HttpResponseMessage response)
         {
-            var mock = new Mock<IDiceRoller>();
-            mock.Setup(d => d.Roll(It.Is<DiceRoll>(dr => dr.Sides == 20 && dr.Count == 1)))
-                .Returns(d20Result);
-            return mock;
+            var handler = new MockHttpMessageHandler(response);
+            var httpClient = new HttpClient(handler) { BaseAddress = new Uri("https://localhost:7088") };
+            var mockFactory = new Mock<IHttpClientFactory>();
+            mockFactory.Setup(f => f.CreateClient("PotionCraftApi")).Returns(httpClient);
+            return mockFactory.Object;
         }
+
+        private static IHttpClientFactory CreateUnusedHttpClientFactory()
+            => CreateHttpClientFactory(new HttpResponseMessage(HttpStatusCode.OK));
 
         [Fact]
         public void OnGet_InitializesDefaults()
         {
             // Arrange
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "Трава" }, Quantity = 1 });
-            var diceRollerMock = CreateDiceRollerMock();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, diceRollerMock.Object);
+            var model = new IndexModel(CreateUnusedHttpClientFactory());
 
             // Act
             model.OnGet();
@@ -50,10 +54,7 @@ namespace PotionCraft.Tests.Pages.Gathering
         public async Task OnPostAsync_WithoutCharacterId_AddsModelError()
         {
             // Arrange
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "Трава" }, Quantity = 1 });
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
+            var model = new IndexModel(CreateUnusedHttpClientFactory());
             model.Input.CharacterId = null;
 
             // Act
@@ -71,23 +72,22 @@ namespace PotionCraft.Tests.Pages.Gathering
         {
             // Arrange
             var characterId = Guid.NewGuid();
-            var character = new PlayerCharacter
+            var rollResults = new List<int> { 15, 12, 8 };
+            var apiResponse = new
             {
-                Id = characterId,
-                Name = "РўРµСЃС‚ РџРµСЂСЃРѕРЅР°Р¶",
-                Wisdom = 20, // Mod = +5
-                ProficiencyBonus = 4,
-                HerbalismTool = new Tool { Proficiency = true } // +9 total modifier
+                characterName = "Тест Персонаж",
+                rollResults = rollResults,
+                totalSuccesses = 2,
+                gatheredHerbs = new Dictionary<string, object>()
             };
-            
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
-            
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock.Setup(s => s.GatherHerbAsync(It.IsAny<PotionCraft.Contracts.Models.GatheringRequest>())).ReturnsAsync(new PotionCraft.Contracts.Models.GatheringResult { Herb = new PotionCraft.Contracts.Models.Herb { Name = "Трава" }, Quantity = 1 });
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
+            var responseBody = JsonSerializer.Serialize(apiResponse);
+            var response = new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(responseBody, Encoding.UTF8, "application/json")
+            };
+            var model = new IndexModel(CreateHttpClientFactory(response));
             model.Input.CharacterId = characterId;
-            model.Input.Difficulty = 5; // Very low to guarantee successes usually
+            model.Input.Difficulty = 5;
             model.Input.RollsCount = 3;
 
             // Act
@@ -96,7 +96,7 @@ namespace PotionCraft.Tests.Pages.Gathering
             // Assert
             Assert.IsType<PageResult>(result);
             Assert.True(model.ModelState.IsValid);
-            Assert.Equal("РўРµСЃС‚ РџРµСЂСЃРѕРЅР°Р¶", model.CharacterName);
+            Assert.Equal("Тест Персонаж", model.CharacterName);
             Assert.NotNull(model.TotalSuccesses);
             Assert.Equal(3, model.RollResults.Count);
         }
@@ -105,24 +105,13 @@ namespace PotionCraft.Tests.Pages.Gathering
         public void GetClipboardText_GroupsAndSortsProperly()
         {
             // Arrange
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
+            var model = new IndexModel(CreateUnusedHttpClientFactory());
 
-            var herb1 = new PotionCraft.Contracts.Models.Herb
-            {
-                Id = Guid.NewGuid(), Name = "Ромашка", Rarity = RarityEnum.Common
-            };
-            var herb2 = new PotionCraft.Contracts.Models.Herb
-            {
-                Id = Guid.NewGuid(), Name = "Шалфей", Rarity = RarityEnum.Common
-            };
-            var herb3 = new PotionCraft.Contracts.Models.Herb
-            {
-                Id = Guid.NewGuid(), Name = "Женьшень", Rarity = RarityEnum.Rare
-            };
+            var herb1 = new Herb { Id = Guid.NewGuid(), Name = "Ромашка", Rarity = RarityEnum.Common };
+            var herb2 = new Herb { Id = Guid.NewGuid(), Name = "Шалфей", Rarity = RarityEnum.Common };
+            var herb3 = new Herb { Id = Guid.NewGuid(), Name = "Женьшень", Rarity = RarityEnum.Rare };
 
-            model.GatheredHerbs = new Dictionary<Guid, PotionCraft.Contracts.Models.GatheringResult>
+            model.GatheredHerbs = new Dictionary<Guid, GatheringResult>
             {
                 { herb1.Id, new() { Herb = herb1, Quantity = 2 } },
                 { herb2.Id, new() { Herb = herb2, Quantity = 3 } },
@@ -134,7 +123,6 @@ namespace PotionCraft.Tests.Pages.Gathering
 
             // Assert
             var expected = "Обычный:\n- Ромашка 2\n- Шалфей 3\nРедкий:\n- Женьшень 1";
-            
             Assert.Equal(expected, clipboardText.Replace("\r\n", "\n"));
         }
 
@@ -142,142 +130,14 @@ namespace PotionCraft.Tests.Pages.Gathering
         public void GetClipboardText_ReturnsEmpty_WhenNoHerbs()
         {
             // Arrange
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
-
-            model.GatheredHerbs = new Dictionary<Guid, PotionCraft.Contracts.Models.GatheringResult>();
+            var model = new IndexModel(CreateUnusedHttpClientFactory());
+            model.GatheredHerbs = new Dictionary<Guid, GatheringResult>();
 
             // Act
             var clipboardText = model.GetClipboardText();
 
             // Assert
             Assert.Equal(string.Empty, clipboardText);
-        }
-
-        [Fact]
-        public async Task OnPostAsync_WithSuccesses_AddsHerbsToBag()
-        {
-            // Arrange
-            var characterId = Guid.NewGuid();
-            var character = new PlayerCharacter
-            {
-                Id = characterId,
-                Name = "Тест Персонаж",
-                Wisdom = 20,
-                ProficiencyBonus = 4,
-                HerbalismTool = new Tool { Proficiency = true }
-            };
-
-            var herb = new Herb
-            {
-                Id = Guid.NewGuid(),
-                Name = "Кровьтрава",
-                Rarity = RarityEnum.Common
-            };
-
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
-            mockRepo.Setup(repo => repo.UpdateAsync(It.IsAny<PlayerCharacter>())).Returns(Task.CompletedTask);
-
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock
-                .Setup(s => s.GatherHerbAsync(It.IsAny<GatheringRequest>()))
-                .ReturnsAsync(new GatheringResult { Herb = herb, Quantity = 1 });
-
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
-            model.Input.CharacterId = characterId;
-            model.Input.Difficulty = 1;
-            model.Input.RollsCount = 1;
-
-            // Act
-            await model.OnPostAsync();
-
-            // Assert
-            Assert.True(character.Bag.Herbs.ContainsKey(herb.Id));
-            Assert.Equal(character.Bag.Herbs[herb.Id].Quantity, model.GatheredHerbs[herb.Id].Quantity);
-            mockRepo.Verify(repo => repo.UpdateAsync(character), Times.Once);
-        }
-
-        [Fact]
-        public async Task OnPostAsync_WithSuccesses_AddsToExistingHerbsInBag()
-        {
-            // Arrange
-            var characterId = Guid.NewGuid();
-            var herb = new Herb
-            {
-                Id = Guid.NewGuid(),
-                Name = "Кровьтрава",
-                Rarity = RarityEnum.Common
-            };
-
-            var character = new PlayerCharacter
-            {
-                Id = characterId,
-                Name = "Тест Персонаж",
-                Wisdom = 20,
-                ProficiencyBonus = 4,
-                HerbalismTool = new Tool { Proficiency = true },
-                Bag = new CharacterBag
-                {
-                    Herbs = new Dictionary<Guid, GatheringResult>
-                    {
-                        { herb.Id, new GatheringResult { Herb = herb, Quantity = 7 } }
-                    }
-                }
-            };
-
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
-            mockRepo.Setup(repo => repo.UpdateAsync(It.IsAny<PlayerCharacter>())).Returns(Task.CompletedTask);
-
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            gatheringServiceMock
-                .Setup(s => s.GatherHerbAsync(It.IsAny<GatheringRequest>()))
-                .ReturnsAsync(new GatheringResult { Herb = herb, Quantity = 7 });
-
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
-            model.Input.CharacterId = characterId;
-            model.Input.Difficulty = 1;
-            model.Input.RollsCount = 1;
-
-            // Act
-            await model.OnPostAsync();
-
-            // Assert — было 7, выпало 7, должно стать 14
-            Assert.Equal(14, character.Bag.Herbs[herb.Id].Quantity);
-            mockRepo.Verify(repo => repo.UpdateAsync(character), Times.Once);
-        }
-
-        [Fact]
-        public async Task OnPostAsync_WithNoSuccesses_DoesNotUpdateBag()
-        {
-            // Arrange
-            var characterId = Guid.NewGuid();
-            var character = new PlayerCharacter
-            {
-                Id = characterId,
-                Name = "Тест Персонаж",
-                Wisdom = 6,
-                ProficiencyBonus = 0,
-                HerbalismTool = new Tool { Proficiency = false }
-            };
-
-            var mockRepo = new Mock<IPlayerCharacterRepository>();
-            mockRepo.Setup(repo => repo.GetByIdAsync(characterId)).ReturnsAsync(character);
-
-            var gatheringServiceMock = new Mock<PotionCraft.Services.Gathering.IGatheringService>();
-            var model = new IndexModel(mockRepo.Object, gatheringServiceMock.Object, CreateDiceRollerMock().Object);
-            model.Input.CharacterId = characterId;
-            model.Input.Difficulty = 30;
-            model.Input.RollsCount = 1;
-
-            // Act
-            await model.OnPostAsync();
-
-            // Assert
-            Assert.Empty(character.Bag.Herbs);
-            mockRepo.Verify(repo => repo.UpdateAsync(It.IsAny<PlayerCharacter>()), Times.Never);
         }
     }
 }
