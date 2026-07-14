@@ -41,6 +41,70 @@
                 "reveal": "always",
                 "panel": "shared"
             }
+        },
+        {
+            "label": "start client (https)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
+                "--launch-profile",
+                "https",
+                "--no-build"
+            ],
+            "dependsOn": [
+                "build"
+            ],
+            "dependsOrder": "sequence",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Now listening on:",
+                    "endsPattern": "Application started\\. Press Ctrl\\+C to shut down\\."
+                }
+            },
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "start server (https)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
+                "--launch-profile",
+                "https",
+                "--no-build"
+            ],
+            "dependsOn": [
+                "build"
+            ],
+            "dependsOrder": "sequence",
+            "isBackground": true,
+            "problemMatcher": {
+                "owner": "custom",
+                "pattern": {
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Now listening on:",
+                    "endsPattern": "Application started\\. Press Ctrl\\+C to shut down\\."
+                }
+            },
+            "presentation": {
+                "reveal": "silent"
+            }
         }
     ]
 }
