@@ -1,0 +1,39 @@
+[Unit]
+Description=PotionCraft Server
+
+# Запуск службы только после того, как сеть полностью инициализирована
+After=network.target
+
+[Service]
+# Рабочая директория приложения
+WorkingDirectory=/opt/PotionCraft.Server
+ExecStart=/opt/PotionCraft.Server/PotionCraft.Server
+
+# Автоматический перезапуск при падении процесса
+Restart=always
+
+# Задержка перед перезапуском приложения после сбоя (в секундах)
+RestartSec=10
+
+# Сигнал для корректной остановки приложения
+KillSignal=SIGINT
+
+# Имя для логов в syslog / journalctl
+SyslogIdentifier=potioncraft-server
+
+# Пользователь, от имени которого будет запущен процесс
+User=artur
+
+# Группа, от имени которой будет запущен процесс
+Group=artur
+
+# Окружение приложения
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+# Настройка портов (Kestrel будет слушать этот адрес. Полезно, если перед ним стоит Nginx или Apache)
+Environment=ASPNETCORE_URLS=http://*:5001
+
+[Install]
+# Уровень запуска для автоматического старта при загрузке системы
+WantedBy=multi-user.target

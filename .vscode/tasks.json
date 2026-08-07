@@ -105,6 +105,98 @@
             "presentation": {
                 "reveal": "silent"
             }
+        },
+        {
+          "label": "publish server (linux-x64, self-contained)",
+          "type": "process",
+          "command": "dotnet",
+          "args": [
+            "publish",
+            "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
+            "--configuration",
+            "Release",
+            "--runtime",
+            "linux-x64",
+            "--self-contained",
+            "true",
+            "-o",
+            "${workspaceFolder}/artifacts/publish/server"
+          ],
+          "problemMatcher": "$msCompile",
+          "presentation": {
+            "reveal": "always",
+            "panel": "shared"
+          }
+        },
+        {
+          "label": "publish client (linux-x64, self-contained)",
+          "type": "process",
+          "command": "dotnet",
+          "args": [
+            "publish",
+            "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
+            "--configuration",
+            "Release",
+            "--runtime",
+            "linux-x64",
+            "--self-contained",
+            "true",
+            "-o",
+            "${workspaceFolder}/artifacts/publish/client"
+          ],
+          "problemMatcher": "$msCompile",
+          "presentation": {
+            "reveal": "always",
+            "panel": "shared"
+          }
+        },
+        {
+          "label": "publish all (linux-x64)",
+          "dependsOn": [
+            "publish server (linux-x64, self-contained)",
+            "publish client (linux-x64, self-contained)"
+          ],
+          "dependsOrder": "sequence"
+                },
+                {
+                    "label": "deploy server (ssh)",
+                    "type": "process",
+                    "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-ExecutionPolicy",
+                        "Bypass",
+                        "-File",
+                        "${workspaceFolder}/deploy/ps-scripts/deploy-server.ps1"
+                    ],
+                    "presentation": {
+                        "reveal": "always",
+                        "panel": "shared"
+                    }
+                },
+                {
+                    "label": "deploy client (ssh)",
+                    "type": "process",
+                    "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-ExecutionPolicy",
+                        "Bypass",
+                        "-File",
+                        "${workspaceFolder}/deploy/ps-scripts/deploy-client.ps1"
+                    ],
+                    "presentation": {
+                        "reveal": "always",
+                        "panel": "shared"
+                    }
+                },
+                {
+                    "label": "deploy all (ssh)",
+                    "dependsOn": [
+                        "deploy server (ssh)",
+                        "deploy client (ssh)"
+                    ],
+                    "dependsOrder": "sequence"
         }
     ]
 }

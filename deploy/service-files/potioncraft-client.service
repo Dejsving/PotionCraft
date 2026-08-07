@@ -1,0 +1,42 @@
+[Unit]
+Description=PotionCraft Client
+
+# Запуск службы только после того, как сеть полностью инициализирована
+After=network.target
+
+[Service]
+# Рабочая директория приложения
+WorkingDirectory=/opt/PotionCraft.Client
+ExecStart=/opt/PotionCraft.Client/PotionCraft.Client
+
+# Автоматический перезапуск при падении процесса
+Restart=always
+
+# Задержка перед перезапуском приложения после сбоя (в секундах)
+RestartSec=10
+
+# Сигнал для корректной остановки приложения
+KillSignal=SIGINT
+
+# Имя для логов в syslog / journalctl
+SyslogIdentifier=potioncraft-client
+
+# Пользователь, от имени которого будет запущен процесс
+User=artur
+
+# Группа, от имени которой будет запущен процесс
+Group=artur
+
+# Окружение приложения
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+# Адрес, который слушает клиентское приложение
+Environment=ASPNETCORE_URLS=http://*:7088
+
+# Базовый URL API (обязателен для PotionCraft.Client)
+Environment=ApiBaseUrl=http://localhost:5000
+
+[Install]
+# Уровень запуска для автоматического старта при загрузке системы
+WantedBy=multi-user.target

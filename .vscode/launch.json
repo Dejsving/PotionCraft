@@ -49,6 +49,13 @@
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft.Tests/PotionCraft.Tests.csproj",
             "preLaunchTask": "build"
+        },
+        {
+            "name": "Deploy all (ssh)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "echo Deploy pipeline finished.",
+            "preLaunchTask": "deploy all (ssh)"
         }
     ],
     "compounds": [
