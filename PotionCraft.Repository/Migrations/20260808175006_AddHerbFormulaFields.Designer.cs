@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PotionCraft.Repository;
 
@@ -10,9 +11,11 @@ using PotionCraft.Repository;
 namespace PotionCraft.Repository.Migrations
 {
     [DbContext(typeof(PotionCraftDbContext))]
-    partial class PotionCraftDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260808175006_AddHerbFormulaFields")]
+    partial class AddHerbFormulaFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.2");
@@ -45,9 +48,6 @@ namespace PotionCraft.Repository.Migrations
 
                     b.Property<bool?>("FormulaIncludesAlchemyMod")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("FormulaPrefix")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Habitats")
                         .IsRequired()

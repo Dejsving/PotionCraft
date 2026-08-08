@@ -16,19 +16,48 @@ namespace PotionCraft.InitData;
 public static class HerbDataSeeder
 {
     /// <summary>
-    /// Заполняет таблицу Herbs данными из встроенного ресурса Herbs.json, если таблица пуста.
+    /// Синхронизирует таблицу Herbs с данными из встроенного ресурса Herbs.json: обновляет существующие травы по имени (сохраняя их Id, на который ссылаются сумки персонажей) и добавляет новые.
     /// </summary>
     /// <param name="dbContext">Контекст базы данных.</param>
     public static async Task SeedHerbsAsync(PotionCraftDbContext dbContext)
     {
-        if (await dbContext.Herbs.AnyAsync())
+        var seedHerbs = LoadHerbsFromResource();
+        var existingByName = await dbContext.Herbs.ToDictionaryAsync(h => h.Name);
+
+        foreach (var seedHerb in seedHerbs)
         {
-            return;
+            if (existingByName.TryGetValue(seedHerb.Name, out var existing))
+            {
+                ApplySeedData(existing, seedHerb);
+            }
+            else
+            {
+                await dbContext.Herbs.AddAsync(seedHerb);
+            }
         }
 
-        var herbs = LoadHerbsFromResource();
-        await dbContext.Herbs.AddRangeAsync(herbs);
         await dbContext.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// Обновляет изменяемые поля существующей травы данными из Herbs.json, не трогая её Id.
+    /// </summary>
+    private static void ApplySeedData(Herb existing, Herb seedHerb)
+    {
+        existing.Description = seedHerb.Description;
+        existing.HerbType = seedHerb.HerbType;
+        existing.Rarity = seedHerb.Rarity;
+        existing.Effect = seedHerb.Effect;
+        existing.ModifierEffect = seedHerb.ModifierEffect;
+        existing.Difficulty = seedHerb.Difficulty;
+        existing.Habitats = seedHerb.Habitats;
+        existing.FormulaDiceCount = seedHerb.FormulaDiceCount;
+        existing.FormulaDiceType = seedHerb.FormulaDiceType;
+        existing.FormulaIncludesAlchemyMod = seedHerb.FormulaIncludesAlchemyMod;
+        existing.FormulaPrefix = seedHerb.FormulaPrefix;
+        existing.DamageType = seedHerb.DamageType;
+        existing.ReplacementDamageTypes = seedHerb.ReplacementDamageTypes;
+        existing.RequiresDmJudgement = seedHerb.RequiresDmJudgement;
     }
 
     /// <summary>
@@ -73,7 +102,14 @@ public static class HerbDataSeeder
             Effect = dto.Effect,
             ModifierEffect = dto.ModifierEffect,
             Difficulty = dto.Difficulty,
-            Habitats = dto.Habitats
+            Habitats = dto.Habitats,
+            FormulaDiceCount = dto.Formula?.DiceCount,
+            FormulaDiceType = dto.Formula?.DiceType,
+            FormulaIncludesAlchemyMod = dto.Formula?.IncludesAlchemyMod,
+            FormulaPrefix = dto.Formula?.Prefix,
+            DamageType = dto.DamageType,
+            ReplacementDamageTypes = dto.ReplacementDamageTypes,
+            RequiresDmJudgement = dto.RequiresDmJudgement
         };
     }
 
@@ -121,6 +157,52 @@ public static class HerbDataSeeder
         /// Среда обитания и значения бросков.
         /// </summary>
         public Dictionary<TerrainEnum, int> Habitats { get; set; } = new();
+
+        /// <summary>
+        /// Структурированная формула базового эффекта (кости + Мод. Алхимии). Null для трав без вычисляемой формулы.
+        /// </summary>
+        public HerbFormulaDto? Formula { get; set; }
+
+        /// <summary>
+        /// Тип урона базового эффекта (для трав с уроном, например ядов).
+        /// </summary>
+        public DamageTypeEnum? DamageType { get; set; }
+
+        /// <summary>
+        /// Варианты типов урона, которыми модификатор может заменить исходный тип урона.
+        /// </summary>
+        public IReadOnlyList<DamageTypeEnum>? ReplacementDamageTypes { get; set; }
+
+        /// <summary>
+        /// Итоговый эффект не вычисляется автоматически и оставляется на решение Мастера (например, Хромовая слизь).
+        /// </summary>
+        public bool RequiresDmJudgement { get; set; }
+    }
+
+    /// <summary>
+    /// DTO для десериализации структурированной формулы базового эффекта из JSON.
+    /// </summary>
+    internal class HerbFormulaDto
+    {
+        /// <summary>
+        /// Количество костей.
+        /// </summary>
+        public int DiceCount { get; set; }
+
+        /// <summary>
+        /// Тип кости.
+        /// </summary>
+        public DiceTypeEnum DiceType { get; set; }
+
+        /// <summary>
+        /// Признак того, что к результату прибавляется Мод. Алхимии.
+        /// </summary>
+        public bool IncludesAlchemyMod { get; set; }
+
+        /// <summary>
+        /// Текстовый префикс перед вычисленной формулой (например, "Исцеляет ").
+        /// </summary>
+        public string? Prefix { get; set; }
     }
 
     /// <summary>

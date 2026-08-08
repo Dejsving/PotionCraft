@@ -29,6 +29,7 @@ namespace PotionCraft.Server
             builder.Services.AddSingleton<IDiceRoller, DiceRoller>();
             builder.Services.AddSingleton<IPriceCalculator, HerbPriceCalculator>();
             builder.Services.AddSingleton<IInventoryGenerator, ShopInventoryGenerator>();
+            builder.Services.AddSingleton<IPotionEffectResolver, PotionEffectResolver>();
             builder.Services.AddScoped<IGatheringService, GatheringService>();
 
             builder.Services.AddCors(options =>

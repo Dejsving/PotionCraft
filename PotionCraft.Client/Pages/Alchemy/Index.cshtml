@@ -94,6 +94,7 @@
 
     let modifierCounter = 0;
     let bagHerbCounts = new Map(); // lowercase herbId -> quantity
+    let recalcToken = 0; // защита от гонки при быстрых повторных вызовах recalculate()
 
     // ── Utilities ─────────────────────────────────────────────────
 
@@ -203,20 +204,13 @@
 
     // ── Recalculate ───────────────────────────────────────────────
 
-    function recalculate() {
+    async function recalculate() {
         const base = selectedBase();
-        const mods = selectedModifiers();
+        const mods = selectedModifiers(); // порядок = порядок добавления строк в UI
         let difficulty = BASE_DIFFICULTY;
-        const effects = [];
 
-        if (base) {
-            difficulty += base.difficulty;
-            if (base.effect) effects.push({ name: base.name, effect: base.effect });
-        }
-        for (const m of mods) {
-            difficulty += m.difficulty;
-            if (m.effect) effects.push({ name: m.name, effect: m.effect });
-        }
+        if (base) difficulty += base.difficulty;
+        for (const m of mods) difficulty += m.difficulty;
 
         const badge = document.getElementById('difficulty-badge');
         badge.textContent = difficulty;
@@ -227,16 +221,64 @@
                       : 'bg-dark';
         badge.className = `badge fs-4 px-4 py-2 ${cls}`;
 
-        const sec = document.getElementById('effects-section');
-        if (!effects.length) {
-            sec.innerHTML = '<p class="text-muted fst-italic">Добавьте ингредиенты, чтобы увидеть эффекты зелья.</p>';
-        } else {
-            let html = '<h6 class="fw-bold mb-3 text-primary">Особенности зелья</h6>';
-            for (const e of effects)
-                html += `<div class="mb-2 p-2 bg-light rounded"><span class="fw-semibold text-primary">${esc(e.name)}:</span> <span class="text-dark">${esc(e.effect)}</span></div>`;
-            sec.innerHTML = html;
-        }
         updateUI();
+
+        const sec = document.getElementById('effects-section');
+        if (!base) {
+            sec.innerHTML = '<p class="text-muted fst-italic">Добавьте ингредиенты, чтобы увидеть эффекты зелья.</p>';
+            return;
+        }
+
+        const myToken = ++recalcToken;
+        sec.innerHTML = '<p class="text-muted small"><span class="spinner-border spinner-border-sm me-1"></span>Расчёт эффекта...</p>';
+
+        try {
+            const res = await fetch(apiUrl('/api/alchemy/resolve'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    baseHerbId: base.id,
+                    modifierHerbIds: mods.map(m => m.id)
+                })
+            });
+            if (!res.ok) throw new Error();
+            const data = await res.json();
+            if (myToken === recalcToken) renderEffectResult(base, mods, data);
+        } catch {
+            if (myToken === recalcToken)
+                sec.innerHTML = '<p class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Не удалось рассчитать эффект зелья.</p>';
+        }
+    }
+
+    function renderEffectResult(base, mods, data) {
+        const sec = document.getElementById('effects-section');
+        let html = '<h6 class="fw-bold mb-2 text-primary">Состав зелья</h6>';
+
+        if (base.effect)
+            html += `<div class="mb-2 p-2 bg-light rounded"><span class="fw-semibold">Базовый эффект:</span> ${esc(base.effect)}</div>`;
+        for (const m of mods) {
+            if (m.effect)
+                html += `<div class="mb-2 p-2 bg-light rounded"><span class="fw-semibold">${esc(m.name)}:</span> ${esc(m.effect)}</div>`;
+        }
+
+        html += '<hr>';
+        html += '<h6 class="fw-bold mb-2 text-primary">Итоговый эффект зелья</h6>';
+
+        if (!data.isFixedEffect) {
+            html += `<div class="p-2 bg-light rounded mb-2 fw-semibold">${esc(data.formulaText)}</div>`;
+        } else {
+            html += `<div class="mb-2 p-2 bg-light rounded">${esc(data.generatedDescription)}</div>`;
+        }
+
+        if (data.notes && data.notes.length) {
+            html += data.notes.map(n => `<div class="mb-2 p-2 bg-light rounded">${esc(n)}</div>`).join('');
+        }
+
+        if (data.dmJudgementNote) {
+            html += `<div class="mb-2 p-2 bg-warning-subtle border border-warning rounded"><i class="bi bi-exclamation-triangle me-1"></i>${esc(data.dmJudgementNote)}</div>`;
+        }
+
+        sec.innerHTML = html;
     }
 
     // ── Event handlers ────────────────────────────────────────────
@@ -277,7 +319,7 @@
 
         loading.classList.remove('d-none');
         try {
-            const res = await fetch(`/api/characters/${characterId}/bag`);
+            const res = await fetch(apiUrl(`/api/characters/${characterId}/bag`));
             if (!res.ok) throw new Error();
             const bag = await res.json();
             const herbs = bag.herbs || bag.Herbs || {};

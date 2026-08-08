@@ -113,6 +113,18 @@ namespace PotionCraft.Repository
                 .HasConversion(
                     v => JsonSerializer.Serialize(v, jsonOptions),
                     v => JsonSerializer.Deserialize<Dictionary<TerrainEnum, int>>(v, jsonOptions) as IReadOnlyDictionary<TerrainEnum, int> ?? new Dictionary<TerrainEnum, int>());
+
+            var damageTypesComparer = new ValueComparer<IReadOnlyList<DamageTypeEnum>?>(
+                (c1, c2) => JsonSerializer.Serialize(c1, jsonOptions) == JsonSerializer.Serialize(c2, jsonOptions),
+                c => c == null ? 0 : JsonSerializer.Serialize(c, jsonOptions).GetHashCode(),
+                c => c == null ? null : JsonSerializer.Deserialize<List<DamageTypeEnum>>(JsonSerializer.Serialize(c, jsonOptions), jsonOptions));
+
+            modelBuilder.Entity<Herb>()
+                .Property(h => h.ReplacementDamageTypes)
+                .HasConversion(
+                    v => v == null ? null : JsonSerializer.Serialize(v, jsonOptions),
+                    v => v == null ? null : JsonSerializer.Deserialize<List<DamageTypeEnum>>(v, jsonOptions))
+                .Metadata.SetValueComparer(damageTypesComparer);
         }
     }
 }

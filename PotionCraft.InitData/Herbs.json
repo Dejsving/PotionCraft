@@ -19,6 +19,7 @@
 		"Rarity": "Rare",
 		"Effect": "Итоговый Эффект после всех вычислений становится абсолютно противоположным. Это зависит от ДМ, относительно каждого зелья/яда.",
 		"ModifierEffect": "UniversalInvertEffect",
+		"RequiresDmJudgement": true,
 		"Habitats": {
 			"Coast": 5,
 			"Underdark": 5,
@@ -136,8 +137,14 @@
 		"Description": "Наиболее распространенным ингредиентом, встречающимся в арсенале врачей и целителей, являются эти светло-розовые корни. Они имеют длину от 3 до 5 дюймов и гладкую, пушистую текстуру. Они используются каждый день умелыми алхимиками и целителями для создания отваров необычайной целебной силы.",
 		"HerbType": "HealingBase",
 		"Rarity": "Common",
-		"Effect": "Исцеляет 2к4+ Мод. Алхимии.",
+		"Effect": "Исцеляет 2к4 + Мод. Алхимии.",
 		"ModifierEffect": "None",
+		"Formula": {
+			"DiceCount": 2,
+			"DiceType": "D4",
+			"IncludesAlchemyMod": true,
+			"Prefix": "Исцеляет "
+		},
 		"Habitats": {
 			"Everewhere": 5
 		},
@@ -150,6 +157,7 @@
 		"Rarity": "Common",
 		"Effect": "Заменяет урон ядом на холод или урон некротической энергией; цель всё еще отравлена на 1 мин. при провале Спас. броска ТЕЛ; Этот токсин всё еще наносит урон ядом при сверке с другими ингредиентами.",
 		"ModifierEffect": "PoisonChangeToColdOrNecrotic",
+		"ReplacementDamageTypes": ["Cold", "Necrotic"],
 		"Habitats": {
 			"Arctic": 9,
 			"Mountains": 4
@@ -202,6 +210,7 @@
 		"Rarity": "Common",
 		"Effect": "Изменяет урон от яда на огненный или кислотный урон; цель всё еще отравлена на 1 мин. при провале Спас. броска ТЕЛ; Этот токсин всё еще наносит урон ядом при варке.",
 		"ModifierEffect": "PoisonChangeToFireOrAcid",
+		"ReplacementDamageTypes": ["Fire", "Acid"],
 		"Habitats": {
 			"Meadows": 3,
 			"Mountains": 9,
@@ -255,6 +264,7 @@
 		"Rarity": "Rare",
 		"Effect": "Изменяет урон ядом на урон от света; цель всё еще отравлена на 1 мин. при провале Спас. броска ТЕЛ; Этот токсин всё еще наносит урон ядом при варке.",
 		"ModifierEffect": "PoisonChangeToRadiant",
+		"ReplacementDamageTypes": ["Radiant"],
 		"Habitats": {
 			"Underdark": 11
 		},
@@ -280,6 +290,12 @@
 		"Rarity": "Common",
 		"Effect": "1к4 + Мод. Алхимии урона ядом за раунд. Цель считается отравленной на 1 минуту.",
 		"ModifierEffect": "None",
+		"Formula": {
+			"DiceCount": 1,
+			"DiceType": "D4",
+			"IncludesAlchemyMod": true
+		},
+		"DamageType": "Poison",
 		"Habitats": {
 			"Everewhere": 8
 		},
