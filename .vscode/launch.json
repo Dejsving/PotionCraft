@@ -7,37 +7,15 @@
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
             "launchProfile": "https",
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "Application started\\. Press Ctrl\\+C to shut down\\.",
-                "uriFormat": "https://localhost:7200"
-            }
-        },
-        {
-            "name": "Запустить Server (http)",
-            "type": "dotnet",
-            "request": "launch",
-            "projectPath": "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
-            "launchProfile": "http",
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "Application started\\. Press Ctrl\\+C to shut down\\.",
-                "uriFormat": "https://localhost:7200"
-            }
+            "preLaunchTask": "build"
         },
         {
             "name": "Запустить Client (https)",
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
-            "launchProfile": "https"
-        },
-        {
-            "name": "Запустить Client (http)",
-            "type": "dotnet",
-            "request": "launch",
-            "projectPath": "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
-            "launchProfile": "http"
+            "launchProfile": "https",
+            "preLaunchTask": "build"
         },
         {
             "name": "Отладка тестов",
