@@ -7,7 +7,7 @@
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft.Server/PotionCraft.Server.csproj",
             "launchProfile": "https",
-            "preLaunchTask": "build"
+            "preLaunchTask": "build (server debug)"
         },
         {
             "name": "Запустить Client (https)",
@@ -15,7 +15,7 @@
             "request": "launch",
             "projectPath": "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
             "launchProfile": "https",
-            "preLaunchTask": "build"
+            "preLaunchTask": "build (client debug)"
         },
         {
             "name": "Отладка тестов",

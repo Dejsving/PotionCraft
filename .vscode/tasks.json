@@ -2,6 +2,61 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "stop app processes",
+            "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
+            "type": "process",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "Stop-Process -Name 'PotionCraft.Server','PotionCraft.Client' -Force -ErrorAction SilentlyContinue"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "stop server process",
+            "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
+            "type": "process",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "Stop-Process -Name 'PotionCraft.Server' -Force -ErrorAction SilentlyContinue"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "stop client process",
+            "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
+            "type": "process",
+            "args": [
+                "-NoProfile",
+                "-Command",
+                "Stop-Process -Name 'PotionCraft.Client' -Force -ErrorAction SilentlyContinue"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "shutdown build server",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build-server",
+                "shutdown"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
             "label": "build",
             "command": "dotnet",
             "type": "process",
@@ -11,11 +66,56 @@
                 "--configuration",
                 "Debug"
             ],
+            "dependsOn": [
+                "stop app processes",
+                "shutdown build server"
+            ],
+            "dependsOrder": "sequence",
             "problemMatcher": "$msCompile",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "build (server debug)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/PotionCraft.sln",
+                "--configuration",
+                "Debug"
+            ],
+            "dependsOn": [
+                "stop server process",
+                "shutdown build server"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": "$msCompile",
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
+            "label": "build (client debug)",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/PotionCraft.sln",
+                "--configuration",
+                "Debug"
+            ],
+            "dependsOn": [
+                "stop client process",
+                "shutdown build server"
+            ],
+            "dependsOrder": "sequence",
+            "problemMatcher": "$msCompile",
             "presentation": {
                 "reveal": "silent"
             }
@@ -32,6 +132,11 @@
                 "--logger",
                 "console;verbosity=detailed"
             ],
+            "dependsOn": [
+                "stop app processes",
+                "shutdown build server"
+            ],
+            "dependsOrder": "sequence",
             "problemMatcher": "$msCompile",
             "group": {
                 "kind": "test",
