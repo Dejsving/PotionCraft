@@ -4,6 +4,9 @@ param(
     [string]$ConfigPath = (Join-Path $PSScriptRoot 'deploy.config.psd1')
 )
 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
