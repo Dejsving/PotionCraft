@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model PotionCraft.Pages.Characters.SelectModel
 @{
     ViewData["Title"] = "Выбор персонажа";
@@ -114,8 +114,8 @@
                 alert('Этот персонаж только что был выбран другим игроком.');
                 await refreshCharacterList();
             }
-        } catch {
-            alert('Ошибка при выборе персонажа. Попробуйте ещё раз.');
+        } catch (ex) {
+            alert(`Ошибка при выборе персонажа. Попробуйте ещё раз. ${ex.message}`);
         }
     }
 
