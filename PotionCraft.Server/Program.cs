@@ -38,7 +38,8 @@ namespace PotionCraft.Server
                 {
                     policy.WithOrigins(
                             builder.Configuration["ClientOrigin"] ?? "https://localhost:7200",
-                            "http://localhost:5200")
+                            "http://localhost:5200",
+                            builder.Configuration["AllowedCorsOrigin"] ?? "http://localhost:5173")
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                 });
