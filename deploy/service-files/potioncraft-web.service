@@ -1,0 +1,17 @@
+[Unit]
+Description=PotionCraft Web
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/PotionCraft.Web
+ExecStart=/opt/PotionCraft.Web/node_modules/.bin/serve -s /opt/PotionCraft.Web/dist -l tcp://0.0.0.0:5173
+Restart=always
+RestartSec=10
+KillSignal=SIGINT
+SyslogIdentifier=potioncraft-web
+User=artur
+Group=artur
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

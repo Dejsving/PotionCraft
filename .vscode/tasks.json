@@ -200,6 +200,24 @@
           "dependsOrder": "sequence"
                 },
                 {
+                    "label": "build web",
+                    "type": "process",
+                    "command": "npm",
+                    "args": [
+                        "run",
+                        "build"
+                    ],
+                    "options": {
+                        "cwd": "${workspaceFolder}/PotionCraft.Web"
+                    },
+                    "problemMatcher": [],
+                    "group": "build",
+                    "presentation": {
+                        "reveal": "always",
+                        "panel": "shared"
+                    }
+                },
+                {
                     "label": "deploy server (ssh)",
                     "type": "process",
                     "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
@@ -225,6 +243,22 @@
                         "Bypass",
                         "-File",
                         "${workspaceFolder}/deploy/ps-scripts/deploy-client.ps1"
+                    ],
+                    "presentation": {
+                        "reveal": "always",
+                        "panel": "shared"
+                    }
+                },
+                {
+                    "label": "deploy web (ssh)",
+                    "type": "process",
+                    "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
+                    "args": [
+                        "-NoProfile",
+                        "-ExecutionPolicy",
+                        "Bypass",
+                        "-File",
+                        "${workspaceFolder}/deploy/ps-scripts/deploy-web.ps1"
                     ],
                     "presentation": {
                         "reveal": "always",
