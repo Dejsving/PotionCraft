@@ -180,8 +180,9 @@ public class GatheringService : IGatheringService
             {
                 if (_diceRoller.Roll(DiceRoll.D100) > 75)
                 {
-                    var elementalWater = allHerbs.FirstOrDefault(h => h.Name.Equals("Элементальная вода", StringComparison.OrdinalIgnoreCase))
-                                         ?? new Herb { Name = "Элементальная вода", Description = "Вспомогательный ингредиент для мощных зелий" };
+                    var elementalWater = allHerbs
+                        .FirstOrDefault(h => h.Name.Equals("Элементальная вода", StringComparison.OrdinalIgnoreCase))
+                        ?? new Herb { Name = "Элементальная вода", Description = "Вспомогательный ингредиент для мощных зелий" };
                     return new GatheringResult { Herb = elementalWater, Quantity = 1 };
                 }
             }

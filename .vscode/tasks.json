@@ -218,6 +218,23 @@
                     }
                 },
                 {
+                    "label": "test web",
+                    "type": "process",
+                    "command": "npm",
+                    "args": [
+                        "run",
+                        "test"
+                    ],
+                    "options": {
+                        "cwd": "${workspaceFolder}/PotionCraft.Web"
+                    },
+                    "problemMatcher": [],
+                    "presentation": {
+                        "reveal": "always",
+                        "panel": "shared"
+                    }
+                },
+                {
                     "label": "deploy server (ssh)",
                     "type": "process",
                     "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
@@ -269,7 +286,7 @@
                     "label": "deploy all (ssh)",
                     "dependsOn": [
                         "deploy server (ssh)",
-                        "deploy client (ssh)"
+                        "deploy web (ssh)"
                     ],
                     "dependsOrder": "sequence"
         }

@@ -18,6 +18,18 @@
             "preLaunchTask": "build (client debug)"
         },
         {
+            "name": "Запустить Web (Vite)",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "npm run dev -- --host 127.0.0.1",
+            "cwd": "${workspaceFolder}/PotionCraft.Web",
+            "serverReadyAction": {
+                "pattern": "Local: +(https?://\\S+)",
+                "uriFormat": "%s",
+                "action": "openExternally"
+            }
+        },
+        {
             "name": "Отладка тестов",
             "type": "dotnet",
             "request": "launch",
@@ -34,7 +46,15 @@
     ],
     "compounds": [
         {
-            "name": "Server + Client",
+            "name": "Server + Web",
+            "configurations": [
+                "Запустить Server (https)",
+                "Запустить Web (Vite)"
+            ],
+            "stopAll": true
+        },
+        {
+            "name": "Server + Legacy Client",
             "configurations": [
                 "Запустить Server (https)",
                 "Запустить Client (https)"
