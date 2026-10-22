@@ -7,6 +7,7 @@ import { HERB_TYPE_NAMES, HerbTypeEnum, hasHerbType } from '../types/enums'
 import type { Herb } from '../types/models'
 import { useHerbs } from '../hooks/useHerbs'
 import { useSessionStore } from '../store/sessionStore'
+import { getBasePotionTypeLabel } from '../lib/alchemy'
 
 const BASE_DIFFICULTY = 10
 const MAX_MODIFIERS = 3
@@ -35,7 +36,8 @@ export function AlchemyPage() {
   const baseHerbs = herbs.filter(
     (herb) =>
       hasHerbType(herb.herbType, HerbTypeEnum.HealingBase) ||
-      hasHerbType(herb.herbType, HerbTypeEnum.PoisonBase)
+      hasHerbType(herb.herbType, HerbTypeEnum.PoisonBase) ||
+      hasHerbType(herb.herbType, HerbTypeEnum.Magic)
   )
   const selectedBase = herbs.find((herb) => herb.id === baseHerbId)
   const bagQuantities = new Map(
@@ -67,9 +69,11 @@ export function AlchemyPage() {
   const modifierType = activeBase
     ? hasHerbType(activeBase.herbType, HerbTypeEnum.HealingBase)
       ? HerbTypeEnum.HealingModifier
-      : HerbTypeEnum.PoisonModifier
+      : hasHerbType(activeBase.herbType, HerbTypeEnum.PoisonBase)
+        ? HerbTypeEnum.PoisonModifier
+        : null
     : null
-  const modifierHerbs = modifierType
+  const modifierHerbs = modifierType !== null
     ? herbs.filter((herb) => hasHerbType(herb.herbType, modifierType))
     : []
 
@@ -181,7 +185,8 @@ export function AlchemyPage() {
                     .sort((left, right) => left.name.localeCompare(right.name, 'ru'))
                     .map((herb) => (
                       <option key={herb.id} value={herb.id}>
-                        {herb.name}{bagOnly ? ` (x${getBagQuantity(herb.id)})` : ''}
+                        {herb.name} — {getBasePotionTypeLabel(herb.herbType)}
+                        {bagOnly ? ` (x${getBagQuantity(herb.id)})` : ''}
                       </option>
                     ))}
                 </select>
@@ -190,7 +195,12 @@ export function AlchemyPage() {
                 <p className="mt-2 text-sm text-amber-800">Выбранной основы нет в сумке.</p>
               )}
               {activeBase && (
-                <p className="mt-3 text-sm leading-6 text-stone-600">{activeBase.effect}</p>
+                <>
+                  <p className="mt-3 text-sm font-semibold text-emerald-800">
+                    {getBasePotionTypeLabel(activeBase.herbType)}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-stone-600">{activeBase.effect}</p>
+                </>
               )}
             </section>
 
