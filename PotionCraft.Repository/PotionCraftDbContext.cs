@@ -1,14 +1,17 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using PotionCraft.Contracts;
 using PotionCraft.Contracts.Enums;
+using PotionCraft.Contracts.Identity;
 using PotionCraft.Contracts.Models;
 
 namespace PotionCraft.Repository
 {
-    public class PotionCraftDbContext : DbContext
+    public class PotionCraftDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
     {
         public PotionCraftDbContext(DbContextOptions<PotionCraftDbContext> options)
             : base(options)
@@ -62,8 +65,13 @@ namespace PotionCraft.Repository
                     JsonSerializer.Serialize(c, jsonOptions), jsonOptions)!);
         }
 
+        /// <summary>
+        /// Настраивает модель данных, включая таблицы ASP.NET Core Identity и сущности приложения.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             var jsonOptions = new JsonSerializerOptions();
 
             modelBuilder.Entity<PlayerCharacter>()

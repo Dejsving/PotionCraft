@@ -178,6 +178,61 @@ export interface PotionEffectResult {
   generatedDescription: string
 }
 
+// ----- Пользователи и авторизация -----
+
+/** Роль пользователя: Admin — администратор, Master — мастер, Player — игрок. */
+export type UserRole = 'Admin' | 'Master' | 'Player'
+
+/** Текущий авторизованный пользователь. Соответствует ответу GET /api/auth/me. */
+export interface CurrentUser {
+  id: string
+  userName: string
+  email: string
+  roles: string[]
+}
+
+/** Краткие данные пользователя для списка администратора. Соответствует ответу GET /api/users. */
+export interface UserSummary {
+  id: string
+  userName: string
+  email: string
+  roles: string[]
+}
+
+/** Тело запроса POST /api/auth/register. */
+export interface RegisterRequest {
+  userName: string
+  email: string
+  password: string
+}
+
+/** Ответ POST /api/auth/register: пользователь создан, но сессия не выставлена до подтверждения email. */
+export interface RegisterResponse {
+  email: string
+  requiresEmailConfirmation: true
+}
+
+/** Тело запроса POST /api/auth/confirm-email. */
+export interface ConfirmEmailRequest {
+  email: string
+  code: string
+  rememberMe?: boolean
+}
+
+/** Тело ответа 403 POST /api/auth/login: пароль верный, но email не подтверждён (код уже отправлен). */
+export interface EmailConfirmationRequiredBody {
+  message: string
+  requiresEmailConfirmation: true
+  email: string
+}
+
+/** Тело запроса POST /api/auth/login. Логин — имя пользователя или email. */
+export interface LoginRequest {
+  login: string
+  password: string
+  rememberMe: boolean
+}
+
 // ----- Запросы/ответы API, специфичные для контроллеров сервера -----
 
 /** Тело запроса POST /api/characters. */
@@ -192,16 +247,6 @@ export interface CreateCharacterRequest {
   alchemistToolModifier: number
   poisonerProficiencyLevel: number
   poisonerToolModifier: number
-}
-
-/** Тело запроса POST /api/characters/{id}/select. */
-export interface SelectCharacterRequest {
-  playerId: string
-}
-
-/** Тело запроса POST /api/characters/{id}/deselect. */
-export interface DeselectCharacterRequest {
-  playerId: string
 }
 
 /** Тело запроса POST /api/characters/{id}/bag/coins. */

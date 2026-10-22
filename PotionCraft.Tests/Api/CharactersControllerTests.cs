@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using PotionCraft.Contracts;
@@ -18,13 +20,26 @@ public class CharactersControllerTests
     /// <summary>Тестируемый контроллер.</summary>
     private readonly CharactersController _controller;
 
+    /// <summary>Идентификатор текущего пользователя, от имени которого выполняются запросы.</summary>
+    private readonly Guid _playerId = Guid.NewGuid();
+
     /// <summary>
     /// Инициализирует тестовое окружение.
     /// </summary>
     public CharactersControllerTests()
     {
         _mockRepo = new Mock<IPlayerCharacterRepository>();
-        _controller = new CharactersController(_mockRepo.Object);
+        _controller = new CharactersController(_mockRepo.Object)
+        {
+            ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new ClaimsIdentity(
+                        [new Claim(ClaimTypes.NameIdentifier, _playerId.ToString())], "test"))
+                }
+            }
+        };
     }
 
     // ─── Select ──────────────────────────────────────────────────────────────
@@ -36,14 +51,12 @@ public class CharactersControllerTests
     public async Task Select_SuccessfulReservation_Returns200WithCharacter()
     {
         var id = Guid.NewGuid();
-        var playerId = Guid.NewGuid();
+        var playerId = _playerId;
         var character = new PlayerCharacter { Id = id, Name = "Герой", SelectedBy = playerId };
-        var request = new SelectCharacterRequest(playerId);
-
         _mockRepo.Setup(r => r.SelectCharacterAsync(id, playerId)).ReturnsAsync(true);
         _mockRepo.Setup(r => r.GetByIdAsync(id)).ReturnsAsync(character);
 
-        var result = await _controller.Select(id, request);
+        var result = await _controller.Select(id);
 
         var okResult = Assert.IsType<OkObjectResult>(result);
         Assert.Equal(character, okResult.Value);
@@ -56,12 +69,10 @@ public class CharactersControllerTests
     public async Task Select_CharacterAlreadyTakenByOther_Returns409Conflict()
     {
         var id = Guid.NewGuid();
-        var playerId = Guid.NewGuid();
-        var request = new SelectCharacterRequest(playerId);
-
+        var playerId = _playerId;
         _mockRepo.Setup(r => r.SelectCharacterAsync(id, playerId)).ReturnsAsync(false);
 
-        var result = await _controller.Select(id, request);
+        var result = await _controller.Select(id);
 
         Assert.IsType<ConflictObjectResult>(result);
     }
@@ -73,12 +84,10 @@ public class CharactersControllerTests
     public async Task Select_CharacterAlreadyTaken_DoesNotCallGetById()
     {
         var id = Guid.NewGuid();
-        var playerId = Guid.NewGuid();
-        var request = new SelectCharacterRequest(playerId);
-
+        var playerId = _playerId;
         _mockRepo.Setup(r => r.SelectCharacterAsync(id, playerId)).ReturnsAsync(false);
 
-        await _controller.Select(id, request);
+        await _controller.Select(id);
 
         _mockRepo.Verify(r => r.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
     }
@@ -92,15 +101,41 @@ public class CharactersControllerTests
     public async Task Deselect_ValidRequest_Returns200AndCallsRepository()
     {
         var id = Guid.NewGuid();
-        var playerId = Guid.NewGuid();
-        var request = new DeselectCharacterRequest(playerId);
-
+        var playerId = _playerId;
         _mockRepo.Setup(r => r.DeselectCharacterAsync(id, playerId)).Returns(Task.CompletedTask);
 
-        var result = await _controller.Deselect(id, request);
+        var result = await _controller.Deselect(id);
 
         Assert.IsType<OkResult>(result);
         _mockRepo.Verify(r => r.DeselectCharacterAsync(id, playerId), Times.Once);
+    }
+
+    /// <summary>
+    /// Проверяет, что Select возвращает 401, если идентификатор пользователя отсутствует в запросе.
+    /// </summary>
+    [Fact]
+    public async Task Select_NoUserIdClaim_Returns401AndDoesNotCallRepository()
+    {
+        _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
+
+        var result = await _controller.Select(Guid.NewGuid());
+
+        Assert.IsType<UnauthorizedObjectResult>(result);
+        _mockRepo.Verify(r => r.SelectCharacterAsync(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Never);
+    }
+
+    /// <summary>
+    /// Проверяет, что Select передаёт в репозиторий идентификатор текущего пользователя из claim.
+    /// </summary>
+    [Fact]
+    public async Task Select_UsesCurrentUserIdFromClaims()
+    {
+        var id = Guid.NewGuid();
+        _mockRepo.Setup(r => r.SelectCharacterAsync(id, _playerId)).ReturnsAsync(false);
+
+        await _controller.Select(id);
+
+        _mockRepo.Verify(r => r.SelectCharacterAsync(id, _playerId), Times.Once);
     }
 
     // ─── GetBag ───────────────────────────────────────────────────────────────
