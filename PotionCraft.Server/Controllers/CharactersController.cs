@@ -2,13 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using PotionCraft.Contracts;
 using PotionCraft.Contracts.Models;
 using PotionCraft.Repository.Abstraction;
+using PotionCraft.Server.Extensions;
 
 namespace PotionCraft.Server.Controllers
 {
-    public record SelectCharacterRequest(Guid PlayerId);
-
-    public record DeselectCharacterRequest(Guid PlayerId);
-
     public record CreateCharacterRequest(
         string Name,
         int Intelligence,
@@ -85,10 +82,18 @@ namespace PotionCraft.Server.Controllers
             return Ok(character);
         }
 
+        /// <summary>
+        /// Выбирает персонажа для текущего пользователя.
+        /// </summary>
+        /// <param name="id">Идентификатор персонажа.</param>
         [HttpPost("{id:guid}/select")]
-        public async Task<IActionResult> Select(Guid id, [FromBody] SelectCharacterRequest request)
+        public async Task<IActionResult> Select(Guid id)
         {
-            var success = await _characterRepository.SelectCharacterAsync(id, request.PlayerId);
+            var playerId = User.GetUserId();
+            if (playerId == null)
+                return Unauthorized(new { message = "Необходимо войти в систему." });
+
+            var success = await _characterRepository.SelectCharacterAsync(id, playerId.Value);
             if (!success)
                 return Conflict(new { message = "Персонаж уже занят" });
 
@@ -96,10 +101,18 @@ namespace PotionCraft.Server.Controllers
             return Ok(character);
         }
 
+        /// <summary>
+        /// Освобождает персонажа, если он выбран текущим пользователем.
+        /// </summary>
+        /// <param name="id">Идентификатор персонажа.</param>
         [HttpPost("{id:guid}/deselect")]
-        public async Task<IActionResult> Deselect(Guid id, [FromBody] DeselectCharacterRequest request)
+        public async Task<IActionResult> Deselect(Guid id)
         {
-            await _characterRepository.DeselectCharacterAsync(id, request.PlayerId);
+            var playerId = User.GetUserId();
+            if (playerId == null)
+                return Unauthorized(new { message = "Необходимо войти в систему." });
+
+            await _characterRepository.DeselectCharacterAsync(id, playerId.Value);
             return Ok();
         }
 

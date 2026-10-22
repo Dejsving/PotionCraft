@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { logout } from '../api/auth'
+import { currentUserQueryKey, useCurrentUser } from '../hooks/useCurrentUser'
+import { getRoleLabel, getPrimaryRole, hasRole } from '../auth/roles'
 import { useSessionStore } from '../store/sessionStore'
 import { ActiveCharacterBadge } from './ActiveCharacterBadge'
 import { BagPanel } from './BagPanel'
@@ -12,12 +16,29 @@ const NAV_LINKS = [
   { to: '/herbs', label: 'Травы' },
   { to: '/shop', label: 'Магазин' },
   { to: '/source-and-idea', label: 'Источник и идея' },
+  { to: '/admin/users', label: 'Пользователи', adminOnly: true },
 ]
 
-/** Общий layout приложения: навигация, badge персонажа и офканвас сумки. Аналог _Layout.cshtml. */
+/** Общий layout приложения: навигация, пользователь, badge персонажа и офканвас сумки. Аналог _Layout.cshtml. */
 export function AppLayout() {
   const activeCharacter = useSessionStore((state) => state.activeCharacter)
+  const clearActiveCharacter = useSessionStore((state) => state.clearActiveCharacter)
   const [isBagOpen, setIsBagOpen] = useState(false)
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { data: currentUser } = useCurrentUser()
+  const isAdmin = hasRole(currentUser, 'Admin')
+  const primaryRole = currentUser ? getPrimaryRole(currentUser.roles) : null
+
+  const logoutMutation = useMutation({
+    mutationFn: logout,
+    onSettled: () => {
+      queryClient.clear()
+      queryClient.setQueryData(currentUserQueryKey, null)
+      clearActiveCharacter()
+      navigate('/login', { replace: true })
+    },
+  })
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
@@ -28,7 +49,7 @@ export function AppLayout() {
               PotionCraft
             </NavLink>
             <ul className="flex flex-wrap gap-3">
-              {NAV_LINKS.map((link) => (
+              {NAV_LINKS.filter((link) => !link.adminOnly || isAdmin).map((link) => (
                 <li key={link.to}>
                   <NavLink
                     to={link.to}
@@ -43,7 +64,21 @@ export function AppLayout() {
               ))}
             </ul>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
+            {currentUser && (
+              <span className="text-sm text-slate-700">
+                👤 {currentUser.userName}
+                {primaryRole && <span className="text-slate-500"> ({getRoleLabel(primaryRole)})</span>}
+              </span>
+            )}
+            <button
+              type="button"
+              className="text-sm font-medium text-slate-700 hover:text-violet-600 disabled:opacity-70"
+              disabled={logoutMutation.isPending}
+              onClick={() => logoutMutation.mutate()}
+            >
+              Выйти
+            </button>
             {activeCharacter && (
               <button
                 type="button"

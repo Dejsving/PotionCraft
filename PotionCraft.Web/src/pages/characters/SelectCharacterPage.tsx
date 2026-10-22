@@ -2,13 +2,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ApiError } from '../../api/client'
 import { getCharacters, selectCharacter } from '../../api/characters'
+import { useCurrentUser } from '../../hooks/useCurrentUser'
 import { useSessionStore } from '../../store/sessionStore'
 import type { PlayerCharacter } from '../../types/models'
 
 /** Страница списка и выбора персонажей. */
 export function SelectCharacterPage() {
   const queryClient = useQueryClient()
-  const playerId = useSessionStore((state) => state.playerId)
+  const { data: currentUser } = useCurrentUser()
+  const currentUserId = currentUser?.id ?? ''
   const activeCharacter = useSessionStore((state) => state.activeCharacter)
   const setActiveCharacter = useSessionStore((state) => state.setActiveCharacter)
   const charactersQuery = useQuery({
@@ -16,7 +18,7 @@ export function SelectCharacterPage() {
     queryFn: getCharacters,
   })
   const selectionMutation = useMutation({
-    mutationFn: (characterId: string) => selectCharacter(characterId, { playerId }),
+    mutationFn: (characterId: string) => selectCharacter(characterId),
     onSuccess: async (character) => {
       setActiveCharacter(character)
       await queryClient.invalidateQueries({ queryKey: ['characters'] })
@@ -84,7 +86,7 @@ export function SelectCharacterPage() {
             <CharacterCard
               key={character.id}
               character={character}
-              playerId={playerId}
+              currentUserId={currentUserId}
               activeCharacter={activeCharacter}
               isSelecting={selectionMutation.isPending && selectionMutation.variables === character.id}
               isSelectionPending={selectionMutation.isPending}
@@ -102,7 +104,7 @@ export function SelectCharacterPage() {
 
 interface CharacterCardProps {
   character: PlayerCharacter
-  playerId: string
+  currentUserId: string
   activeCharacter: PlayerCharacter | null
   isSelecting: boolean
   isSelectionPending: boolean
@@ -111,14 +113,14 @@ interface CharacterCardProps {
 
 function CharacterCard({
   character,
-  playerId,
+  currentUserId,
   activeCharacter,
   isSelecting,
   isSelectionPending,
   onSelect,
 }: CharacterCardProps) {
   const isSelectedByCurrentPlayer =
-    character.selectedBy?.toLowerCase() === playerId.toLowerCase() ||
+    (currentUserId !== '' && character.selectedBy?.toLowerCase() === currentUserId.toLowerCase()) ||
     activeCharacter?.id === character.id
   const isTakenByOtherPlayer = Boolean(character.selectedBy) && !isSelectedByCurrentPlayer
   const cardStatusClass = isSelectedByCurrentPlayer

@@ -3,9 +3,7 @@ import type {
   CharacterBag,
   CoinsUpdateRequest,
   CreateCharacterRequest,
-  DeselectCharacterRequest,
   PlayerCharacter,
-  SelectCharacterRequest,
 } from '../types/models'
 
 /** Возвращает список всех персонажей. GET /api/characters */
@@ -18,17 +16,14 @@ export function createCharacter(request: CreateCharacterRequest): Promise<Player
   return apiClient.post<PlayerCharacter>('/api/characters', request)
 }
 
-/** Выбирает персонажа для текущего игрока. POST /api/characters/{id}/select */
-export function selectCharacter(
-  id: string,
-  request: SelectCharacterRequest
-): Promise<PlayerCharacter> {
-  return apiClient.post<PlayerCharacter>(`/api/characters/${id}/select`, request)
+/** Выбирает персонажа для текущего пользователя (берётся из cookie). POST /api/characters/{id}/select */
+export function selectCharacter(id: string): Promise<PlayerCharacter> {
+  return apiClient.post<PlayerCharacter>(`/api/characters/${id}/select`)
 }
 
-/** Снимает выбор персонажа для текущего игрока. POST /api/characters/{id}/deselect */
-export function deselectCharacter(id: string, request: DeselectCharacterRequest): Promise<void> {
-  return apiClient.post<void>(`/api/characters/${id}/deselect`, request)
+/** Снимает выбор персонажа для текущего пользователя (берётся из cookie). POST /api/characters/{id}/deselect */
+export function deselectCharacter(id: string): Promise<void> {
+  return apiClient.post<void>(`/api/characters/${id}/deselect`)
 }
 
 /** Возвращает сумку персонажа. GET /api/characters/{id}/bag */
