@@ -8,7 +8,7 @@
             "args": [
                 "-NoProfile",
                 "-Command",
-                "Stop-Process -Name 'PotionCraft.Server','PotionCraft.Client' -Force -ErrorAction SilentlyContinue; exit 0"
+                "Stop-Process -Name 'PotionCraft.Server' -Force -ErrorAction SilentlyContinue; exit 0"
             ],
             "problemMatcher": [],
             "presentation": {
@@ -23,20 +23,6 @@
                 "-NoProfile",
                 "-Command",
                 "Stop-Process -Name 'PotionCraft.Server' -Force -ErrorAction SilentlyContinue; exit 0"
-            ],
-            "problemMatcher": [],
-            "presentation": {
-                "reveal": "silent"
-            }
-        },
-        {
-            "label": "stop client process",
-            "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
-            "type": "process",
-            "args": [
-                "-NoProfile",
-                "-Command",
-                "Stop-Process -Name 'PotionCraft.Client' -Force -ErrorAction SilentlyContinue; exit 0"
             ],
             "problemMatcher": [],
             "presentation": {
@@ -101,26 +87,6 @@
             }
         },
         {
-            "label": "build (client debug)",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/PotionCraft.sln",
-                "--configuration",
-                "Debug"
-            ],
-            "dependsOn": [
-                "stop client process",
-                "shutdown build server"
-            ],
-            "dependsOrder": "sequence",
-            "problemMatcher": "$msCompile",
-            "presentation": {
-                "reveal": "silent"
-            }
-        },
-        {
             "label": "test",
             "command": "dotnet",
             "type": "process",
@@ -170,32 +136,10 @@
           }
         },
         {
-          "label": "publish client (linux-x64, self-contained)",
-          "type": "process",
-          "command": "dotnet",
-          "args": [
-            "publish",
-            "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
-            "--configuration",
-            "Release",
-            "--runtime",
-            "linux-x64",
-            "--self-contained",
-            "true",
-            "-o",
-            "${workspaceFolder}/artifacts/publish/client"
-          ],
-          "problemMatcher": "$msCompile",
-          "presentation": {
-            "reveal": "always",
-            "panel": "shared"
-          }
-        },
-        {
           "label": "publish all (linux-x64)",
           "dependsOn": [
             "publish server (linux-x64, self-contained)",
-            "publish client (linux-x64, self-contained)"
+            "build web"
           ],
           "dependsOrder": "sequence"
                 },
@@ -244,22 +188,6 @@
                         "Bypass",
                         "-File",
                         "${workspaceFolder}/deploy/ps-scripts/deploy-server.ps1"
-                    ],
-                    "presentation": {
-                        "reveal": "always",
-                        "panel": "shared"
-                    }
-                },
-                {
-                    "label": "deploy client (ssh)",
-                    "type": "process",
-                    "command": "${env:WINDIR}/System32/WindowsPowerShell/v1.0/powershell.exe",
-                    "args": [
-                        "-NoProfile",
-                        "-ExecutionPolicy",
-                        "Bypass",
-                        "-File",
-                        "${workspaceFolder}/deploy/ps-scripts/deploy-client.ps1"
                     ],
                     "presentation": {
                         "reveal": "always",

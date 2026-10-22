@@ -10,14 +10,6 @@
             "preLaunchTask": "build (server debug)"
         },
         {
-            "name": "Запустить Client (https)",
-            "type": "dotnet",
-            "request": "launch",
-            "projectPath": "${workspaceFolder}/PotionCraft.Client/PotionCraft.Client.csproj",
-            "launchProfile": "https",
-            "preLaunchTask": "build (client debug)"
-        },
-        {
             "name": "Запустить Web (Vite)",
             "type": "node-terminal",
             "request": "launch",
@@ -50,14 +42,6 @@
             "configurations": [
                 "Запустить Server (https)",
                 "Запустить Web (Vite)"
-            ],
-            "stopAll": true
-        },
-        {
-            "name": "Server + Legacy Client",
-            "configurations": [
-                "Запустить Server (https)",
-                "Запустить Client (https)"
             ],
             "stopAll": true
         }

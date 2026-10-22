@@ -24,7 +24,6 @@
     <ProjectReference Include="..\PotionCraft.InitData\PotionCraft.InitData.csproj" />
     <ProjectReference Include="..\PotionCraft.Repository\PotionCraft.Repository.csproj" />
     <ProjectReference Include="..\PotionCraft.Server\PotionCraft.Server.csproj" />
-    <ProjectReference Include="..\PotionCraft.Client\PotionCraft.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

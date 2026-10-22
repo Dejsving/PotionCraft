@@ -1,6 +1,5 @@
 import { NavLink } from 'react-router-dom'
 
-/** Страница 404 / catch-all маршрут — замена PotionCraft.Client/Pages/Error.cshtml для несуществующих путей. */
 export function NotFoundPage() {
   return (
     <div className="mx-auto max-w-2xl py-12 text-center">
@@ -12,4 +11,3 @@ export function NotFoundPage() {
     </div>
   )
 }
-

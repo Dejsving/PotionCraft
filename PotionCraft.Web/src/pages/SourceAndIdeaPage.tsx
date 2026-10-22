@@ -1,4 +1,3 @@
-/** Страница «Источник и идея» — статический текст, 1:1 копия PotionCraft.Client/Pages/SourceAndIdea.cshtml. */
 export function SourceAndIdeaPage() {
   return (
     <div className="mx-auto max-w-3xl">

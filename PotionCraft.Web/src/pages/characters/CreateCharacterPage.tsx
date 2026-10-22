@@ -9,7 +9,6 @@ import { ApiError } from '../../api/client'
 /** Уровень владения инструментом: 0 — нет, 1 — владение, 2 — мастерство. */
 const proficiencyLevelSchema = z.union([z.literal(0), z.literal(1), z.literal(2)])
 
-/** Схема валидации формы создания персонажа (границы аналогичны PotionCraft.Client/Pages/Characters/Create.cshtml.cs). */
 const createCharacterSchema = z.object({
   name: z.string().trim().min(1, 'Необходимо ввести имя персонажа.').max(100, 'Имя слишком длинное.'),
   intelligence: z

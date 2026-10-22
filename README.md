@@ -28,7 +28,7 @@ PotionCraft — это **веб-инструмент общего стола** �
 
 ```
 PotionCraft/
-├── PotionCraft.Client/         # UI-слой: HTML, CSS, JS (ванильный фронтенд)
+├── PotionCraft.Web/            # Веб-интерфейс: React, TypeScript, Vite
 ├── PotionCraft.Contracts/      # Слой контрактов: DTO, интерфейсы, доменные модели
 ├── PotionCraft.InitData/       # Seeding: все данные из источника правил (травы, таблицы биомов, рецепты)
 ├── PotionCraft.Repository/     # Паттерн Repository: доступ к данным
@@ -44,7 +44,7 @@ PotionCraft/
 | Слой | Технология |
 |---|---|
 | Backend | C# (.NET), ASP.NET |
-| Frontend | HTML, CSS, JavaScript (без фреймворков) |
+| Frontend | React, TypeScript, Vite |
 | Хранение данных | In-memory / seed-файлы (БД не используется как persistent storage) |
 | Сессии | `sessionStorage` на клиенте, сервер валидирует `player_session_id` |
 | Деплой | Docker / конфигурация в `/deploy` |
